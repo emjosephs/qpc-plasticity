@@ -1,0 +1,222 @@
+\begin{thebibliography}{33}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+
+\bibitem[{Alonso-Blanco \emph{et~al.}(2016)Alonso-Blanco, Andrade, Becker,
+  Bemm, Bergelson, Borgwardt, Cao, Chae, Dezwaan, Ding
+  \emph{et~al.}}]{alonso20161}
+{\bf Alonso-Blanco C, Andrade J, Becker C, Bemm F, Bergelson J, Borgwardt KM,
+  Cao J, Chae E, Dezwaan TM, Ding W \emph{et~al}}{\bf . 2016}.
+\newblock 1,135 genomes reveal the global pattern of polymorphism in
+  arabidopsis thaliana.
+\newblock \emph{Cell}, {\bf 166}: 481--491.
+
+\bibitem[{Bai \& Ghosh(2018)}]{mbsp}
+{\bf Bai R , Ghosh M}. 2018.
+\newblock \emph{MBSP: Multivariate Bayesian Model with Shrinkage Priors}.
+\newblock R package version 1.0.
+
+\bibitem[{Berg \emph{et~al.}(2017)Berg, Zhang \& Coop}]{Berg2017}
+{\bf Berg JJ, Zhang X , Coop G}{\bf . 2017}.
+\newblock Polygenic adaptation has impacted multiple anthropometric traits.
+\newblock \emph{bioRxiv}.
+
+\bibitem[{Bergelson \& Roux(2010)}]{bergelson2010towards}
+{\bf Bergelson J , Roux F}{\bf . 2010}.
+\newblock Towards identifying genes underlying ecologically relevant traits in
+  arabidopsis thaliana.
+\newblock \emph{Nature Reviews Genetics}, {\bf 11}: 867.
+
+\bibitem[{Brachi \emph{et~al.}(2011)Brachi, Morris \& Borevitz}]{Brachi2011}
+{\bf Brachi B, Morris GP , Borevitz JO}{\bf . 2011}.
+\newblock Genome-wide association studies in plants: the missing heritability
+  is in the field.
+\newblock \emph{Genome Biology}, {\bf 12}: 232.
+
+\bibitem[{Bradshaw(1965)}]{bradshaw1965evolutionary}
+{\bf Bradshaw AD}. 1965.
+\newblock Evolutionary significance of phenotypic plasticity in plants.
+\newblock In: \emph{Advances in genetics}.
+\newblock Elsevier, vol.~13, pp. 115--155.
+
+\bibitem[{De~Kort \emph{et~al.}(2016)De~Kort, Vander~Mijnsbrugge, Vandepitte,
+  Mergeay, Ovaskainen \& Honnay}]{de2016evolution}
+{\bf De~Kort H, Vander~Mijnsbrugge K, Vandepitte K, Mergeay J, Ovaskainen O ,
+  Honnay O}{\bf . 2016}.
+\newblock Evolution, plasticity and evolving plasticity of phenology in the
+  tree species \textit{Alnus glutinosa}.
+\newblock \emph{Journal of evolutionary biology}, {\bf 29}: 253--264.
+
+\bibitem[{Falconer(1952)}]{falconer1952problem}
+{\bf Falconer DS}{\bf . 1952}.
+\newblock The problem of environment and selection.
+\newblock \emph{The American Naturalist}, {\bf 86}: 293--298.
+
+\bibitem[{Fournier-Level \emph{et~al.}(2011)Fournier-Level, Korte, Cooper,
+  Nordborg, Schmitt \& Wilczek}]{fournier2011map}
+{\bf Fournier-Level A, Korte A, Cooper MD, Nordborg M, Schmitt J , Wilczek
+  AM}{\bf . 2011}.
+\newblock A map of local adaptation in arabidopsis thaliana.
+\newblock \emph{Science}, {\bf 334}: 86--89.
+
+\bibitem[{Freeman(1973)}]{freeman1973statistical}
+{\bf Freeman G}{\bf . 1973}.
+\newblock Statistical methods for the analysis of genotype-environment
+  interactions 2.
+\newblock \emph{Heredity}, {\bf 31}: 339.
+
+\bibitem[{Hancock \emph{et~al.}(2011)Hancock, Brachi, Faure, Horton,
+  Jarymowycz, Sperone, Toomajian, Roux \& Bergelson}]{hancock2011adaptation}
+{\bf Hancock AM, Brachi B, Faure N, Horton MW, Jarymowycz LB, Sperone FG,
+  Toomajian C, Roux F , Bergelson J}{\bf . 2011}.
+\newblock Adaptation to climate across the arabidopsis thaliana genome.
+\newblock \emph{Science}, {\bf 334}: 83--86.
+
+\bibitem[{Josephs \emph{et~al.}(2019)Josephs, Berg, Ross-Ibarra \&
+  Coop}]{Josephs2019}
+{\bf Josephs EB, Berg JJ, Ross-Ibarra J , Coop G}{\bf . 2019}.
+\newblock Detecting adaptive differentiation in structured populations with
+  genomic data and common gardens.
+\newblock \emph{Genetics}.
+
+\bibitem[{Karhunen \emph{et~al.}(2013)Karhunen, Meril{\"a}, Leinonen, Cano \&
+  Ovaskainen}]{karhunen2013driftsel}
+{\bf Karhunen M, Meril{\"a} J, Leinonen T, Cano J , Ovaskainen O}{\bf . 2013}.
+\newblock {DRIFTSEL}: an {R} package for detecting signals of natural selection
+  in quantitative traits.
+\newblock \emph{Molecular Ecology Resources}, {\bf 13}: 746--754.
+
+\bibitem[{Li \emph{et~al.}(2014)Li, Cheng, Spokas, Palmer \&
+  Borevitz}]{li2014genetic}
+{\bf Li Y, Cheng R, Spokas KA, Palmer AA , Borevitz JO}{\bf . 2014}.
+\newblock Genetic variation for life history sensitivity to seasonal warming in
+  arabidopsis thaliana.
+\newblock \emph{Genetics}, {\bf 196}: 569--577.
+
+\bibitem[{Li \emph{et~al.}(2010)Li, Huang, Bergelson, Nordborg \&
+  Borevitz}]{li2010association}
+{\bf Li Y, Huang Y, Bergelson J, Nordborg M , Borevitz JO}{\bf . 2010}.
+\newblock Association mapping of local climate-sensitive quantitative trait
+  loci in arabidopsis thaliana.
+\newblock \emph{Proceedings of the National Academy of Sciences}, {\bf 107}:
+  21199--21204.
+
+\bibitem[{Lind \emph{et~al.}(2011)Lind, Ingvarsson, Johansson, Hall \&
+  Johansson}]{lind2011gene}
+{\bf Lind MI, Ingvarsson PK, Johansson H, Hall D , Johansson F}{\bf . 2011}.
+\newblock Gene flow and selection on phenotypic plasticity in an island system
+  of \textit{Rana temporaria}.
+\newblock \emph{Evolution}, {\bf 65}: 684--697.
+
+\bibitem[{Mitchell-Olds \& Schmitt(2006)}]{mitchell2006genetic}
+{\bf Mitchell-Olds T , Schmitt J}{\bf . 2006}.
+\newblock Genetic mechanisms and evolutionary significance of natural variation
+  in arabidopsis.
+\newblock \emph{Nature}, {\bf 441}: 947.
+
+\bibitem[{Ovaskainen \emph{et~al.}(2011)Ovaskainen, Karhunen, Zheng, Arias \&
+  Meril{\"a}}]{ovaskainen2011new}
+{\bf Ovaskainen O, Karhunen M, Zheng C, Arias JMC , Meril{\"a} J}{\bf . 2011}.
+\newblock A new method to uncover signatures of divergent and stabilizing
+  selection in quantitative traits.
+\newblock \emph{Genetics}, {\bf 189}: 621--632.
+
+\bibitem[{Prout \& Barker(1993)}]{prout1993f}
+{\bf Prout T , Barker J}{\bf . 1993}.
+\newblock F statistics in \emph{Drosophila buzzatii}: selection, population
+  size and inbreeding.
+\newblock \emph{Genetics}, {\bf 134}: 369--375.
+
+\bibitem[{{R Core Team}(2018)}]{r}
+{\bf {R Core Team}}. 2018.
+\newblock \emph{R: A Language and Environment for Statistical Computing}.
+\newblock R Foundation for Statistical Computing, Vienna, Austria.
+
+\bibitem[{Scheepens \emph{et~al.}(2018)Scheepens, Deng \&
+  Bossdorf}]{scheepens2018phenotypic}
+{\bf Scheepens J, Deng Y , Bossdorf O}{\bf . 2018}.
+\newblock Phenotypic plasticity in response to temperature fluctuations is
+  genetically variable, and relates to climatic variability of origin, in
+  arabidopsis thaliana.
+\newblock \emph{AoB Plants}, {\bf 10}: ply043.
+
+\bibitem[{Scheiner(1993)}]{scheiner1993genetics}
+{\bf Scheiner SM}{\bf . 1993}.
+\newblock Genetics and evolution of phenotypic plasticity.
+\newblock \emph{Annual review of ecology and systematics}, {\bf 24}: 35--68.
+
+\bibitem[{Schlichting(1986)}]{schlichting1986evolution}
+{\bf Schlichting CD}{\bf . 1986}.
+\newblock The evolution of phenotypic plasticity in plants.
+\newblock \emph{Annual review of ecology and systematics}, {\bf 17}: 667--693.
+
+\bibitem[{Shindo \emph{et~al.}(2006)Shindo, Lister, Crevillen, Nordborg \&
+  Dean}]{shindo2006variation}
+{\bf Shindo C, Lister C, Crevillen P, Nordborg M , Dean C}{\bf . 2006}.
+\newblock Variation in the epigenetic silencing of flc contributes to natural
+  variation in arabidopsis vernalization response.
+\newblock \emph{Genes \& development}, {\bf 20}: 3079--3083.
+
+\bibitem[{Simpson \& Dean(2002)}]{Simpson285}
+{\bf Simpson GG , Dean C}{\bf . 2002}.
+\newblock Arabidopsis, the rosetta stone of flowering time?
+\newblock \emph{Science}, {\bf 296}: 285--289.
+
+\bibitem[{Spitze(1993)}]{spitze1993population}
+{\bf Spitze K}{\bf . 1993}.
+\newblock Population structure in \emph{Daphnia obtusa}: quantitative genetic
+  and allozymic variation.
+\newblock \emph{Genetics}, {\bf 135}: 367--374.
+
+\bibitem[{Stinchcombe \emph{et~al.}(2004)Stinchcombe, Weinig, Ungerer, Olsen,
+  Mays, Halldorsdottir, Purugganan \& Schmitt}]{stinchcombe2004latitudinal}
+{\bf Stinchcombe JR, Weinig C, Ungerer M, Olsen KM, Mays C, Halldorsdottir SS,
+  Purugganan MD , Schmitt J}{\bf . 2004}.
+\newblock A latitudinal cline in flowering time in arabidopsis thaliana
+  modulated by the flowering time gene frigida.
+\newblock \emph{Proceedings of the National Academy of Sciences}, {\bf 101}:
+  4712--4717.
+
+\bibitem[{Sung \& Amasino(2005)}]{sung2005remembering}
+{\bf Sung S , Amasino RM}{\bf . 2005}.
+\newblock Remembering winter: toward a molecular understanding of
+  vernalization.
+\newblock \emph{Annu. Rev. Plant Biol.}, {\bf 56}: 491--508.
+
+\bibitem[{Toomajian \emph{et~al.}(2006)Toomajian, Hu, Aranzana, Lister, Tang,
+  Zheng, Zhao, Calabrese, Dean \& Nordborg}]{Toomajian2006nonparametric}
+{\bf Toomajian C, Hu TT, Aranzana MJ, Lister C, Tang C, Zheng H, Zhao K,
+  Calabrese P, Dean C , Nordborg M}{\bf . 2006}.
+\newblock A nonparametric test reveals selection for rapid flowering in the
+  arabidopsis genome.
+\newblock \emph{PLoS biology}, {\bf 4}: e137.
+
+\bibitem[{Von~Wettberg \emph{et~al.}(2008)Von~Wettberg, Remington \&
+  Schmitt}]{von2008partitioning}
+{\bf Von~Wettberg EJ, Remington DL , Schmitt J}{\bf . 2008}.
+\newblock Partitioning adaptive differentiation across a patchy landscape:
+  shade avoidance traits in \textit{Impatiens capensis}.
+\newblock \emph{Evolution}, {\bf 62}: 654--667.
+
+\bibitem[{Weinig \emph{et~al.}(2002)Weinig, Ungerer, Dorn, Kane, Toyonaga,
+  Halldorsdottir, Mackay, Purugganan \& Schmitt}]{weinig2002novel}
+{\bf Weinig C, Ungerer MC, Dorn LA, Kane NC, Toyonaga Y, Halldorsdottir SS,
+  Mackay TF, Purugganan MD , Schmitt J}{\bf . 2002}.
+\newblock Novel loci control variation in reproductive timing in arabidopsis
+  thaliana in natural environments.
+\newblock \emph{Genetics}, {\bf 162}: 1875--1884.
+
+\bibitem[{Whitlock(2008)}]{whitlock2008evolutionary}
+{\bf Whitlock MC}{\bf . 2008}.
+\newblock Evolutionary inference from {Q}st.
+\newblock \emph{Molecular Ecology}, {\bf 17}: 1885--1896.
+
+\bibitem[{Wilczek \emph{et~al.}(2010)Wilczek, Burghardt, Cobb, Cooper, Welch \&
+  Schmitt}]{wilczek2010genetic}
+{\bf Wilczek A, Burghardt L, Cobb A, Cooper M, Welch S , Schmitt J}{\bf .
+  2010}.
+\newblock Genetic and physiological bases for phenological responses to current
+  and predicted climates.
+\newblock \emph{Philosophical Transactions of the Royal Society B: Biological
+  Sciences}, {\bf 365}: 3129--3147.
+
+\end{thebibliography}
