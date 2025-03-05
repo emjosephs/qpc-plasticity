@@ -69,70 +69,22 @@ myData = myGmerge[,1:skipcol]
 return(list(k = myK, eig = myEig, dat = myData))}
 
 
-## get everything needed for qpc
-#Norstuff = getK(norAll, myGt, skipcol = 5)
+
 
 ## get ecotypes with data in both
 norAllnomissing = na.omit(norAll)
-Norstuffnomissing = getK(norAllnomissing, myGt, skipcol = 3)
+Norstuff = getK(norAllnomissing, myGt, skipcol = 6)
 
 
 #merge in the data about pop groupings
-load('data/fw_qpc_inputs.rda')
-admtData$ecotype_id = as.character(admtData$id)
-admtData2 = admtData[!duplicated(admtData$ecotype_id),]
-Norstuff$dat2 = droplevels(dplyr::left_join(Norstuff$dat, admtData2, by='ecotype_id'))
-Norstuffnomissing$dat2 = droplevels(dplyr::left_join(Norstuffnomissing$dat2, admtData2, by="ecotype_id"))
+accDat <- read.csv('data/1001genomes-FT10-FT16 and 1001genomes-accessions.csv')
+accDat$ecotype_id = as.character(accDat$id)
+accDat2 = accDat[!duplicated(accDat$ecotype_id),] #remove duplicates
+Norstuff$dat2 = droplevels(dplyr::left_join(Norstuff$dat, accDat2, by='ecotype_id'))
 
-save(Norstuff, Norstuffnomissing, file = "data/Norwich_qpc_inputs.rda")
+save(Norstuff, file = "data/Norwich_qpc_inputs.rda")
 
 ```
-
-
-
-```{r, eval=F, echo=F}
-#Test for selection in individual environments/locations
-#first Halle
-load('data/HF6_qpc_inputs.rda')
-
-#halle fall
-myQpc_HF6 = calcQpc(myZ = HF6Data$dtbMean, myU = eigHF6$vectors, myLambdas = eigHF6$values, myM = 1:5, myL = 72:143) 
-myVaestHF6 = var0(myQpc_HF6$cml)
-myCIHF6 = 1.96*sqrt(myVaestHF6*eigHF6$values)
-
-##get the pop info
-load('data/fw_qpc_inputs.rda')
-admtData$ecotype_id = as.character(admtData$id)
-admtData2 = admtData[!duplicated(admtData$ecotype_id),]
-ecoDat = as.data.frame(dplyr::left_join(HF6Data, admtData2, by='ecotype_id'))
-#ecoDat$ecotype_id == HF6Data$ecotype_id
-
-myQpc_HF6$pvals*length(myQpc_HF6$pvals)
-
-
-par(mar = c(5,8,5,14), xpd=T)
-plot(eigHF6$vectors[,3], ecoDat$dtbMean[-nrow(ecoDat)], bty="n", col = ecoDat$group, lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n")
-axis(1, cex.axis=1.5, lwd=2)
-axis(2, las=2, cex.axis=1.5, lwd=2)
-mtext('PTU-DTB Halle 2016',side=2, line=5, cex=2)
-legend(0.12, 8500, levels(ecoDat$group), pch=1, pt.lwd = 2,col = palette(), bty="n", text.width = 0.04, cex=1.3)
-par(xpd=F)
-abline(lm(ecoDat$dtbMean[-nrow(ecoDat)]~eigHF6$vectors[,3]), lwd=4, col = "black")
-abline(a=mean(ecoDat$dtbMean), b = myCIHF6[3], lty=2, col='#0072B2', lwd=2)
-abline(a=mean(ecoDat$dtbMean), b = -myCIHF6[3], lty=2, col='#0072B2', lwd=2)
-
-par(mar = c(5,8,5,14), xpd=T)
-plot(eigHF6$vectors[,4], ecoDat$dtbMean[-nrow(ecoDat)], bty="n", col = ecoDat$group, lwd=2, ylab = "", yaxt="n",xlab = "PC4", cex.lab=2, cex.axis=2, xaxt="n")
-axis(1, cex.axis=1.5, lwd=2)
-axis(2, las=2, cex.axis=1.5, lwd=2)
-mtext('PTU-DTB Halle 2016',side=2, line=5, cex=2)
-legend(0.23, 9000, levels(ecoDat$group), pch=1, pt.lwd = 2,col = palette(), bty="n", text.width = 0.04, cex=1.3)
-par(xpd=F)
-abline(lm(ecoDat$dtbMean[-nrow(ecoDat)]~eigHF6$vectors[,4]), lwd=4, col = "black")
-abline(a=mean(ecoDat$dtbMean), b = myCIHF6[4], lty=2, col='#0072B2', lwd=2)
-abline(a=mean(ecoDat$dtbMean), b = -myCIHF6[4], lty=2, col='#0072B2', lwd=2)
-```
-
 
 
 Test for selection in Norwich
@@ -152,33 +104,35 @@ myCINS7 = 1.96*sqrt(myVaestNS7*Norstuff$eig$values)
 
 myQpc_NS7$pvals*length(myQpc_NS7$pvals)
 
+Norstuff$dat2$group <- as.factor(Norstuff$dat2$group) #make factor so we get colors
+par(mar = c(5,8,5,5), xpd=T, mfrow=c(1,3))
+plot.new()
+legend('left', levels(Norstuff$dat2$group)[-1], pch=1, pt.lwd = 2,col = palette()[-1], bty="n", text.width = 0.04, cex=1.5)
+legend('bottomleft', c('Observed','95% CI'), lty = c(1,2),lwd = 3,col = c('black','#0072B2'), bty="n", text.width = 0.04, cex=1.5)
 
-par(mar = c(5,8,5,14), xpd=T, mfrow=c(1,1))
-plot(Norstuff$eig$vectors[,3], Norstuff$dat2$NorwichFall2006[-nrow(Norstuff$dat2)], bty="n", col = Norstuff$dat2$group, lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n")
+
+plot(Norstuff$eig$vectors[,3], Norstuff$dat2$NorwichFall2006[-nrow(Norstuff$dat2)], bty="n", col = Norstuff$dat2$group, lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n", ylim = c(5500, 17000))
 axis(1, cex.axis=1.5, lwd=2)
-axis(2, las=2, cex.axis=1.5, lwd=2)
-mtext('PTU-DTB NF 2006',side=2, line=5, cex=2)
-legend(0.13, 16000, levels(Norstuff$dat2$group), pch=1, pt.lwd = 2,col = palette(), bty="n", text.width = 0.04, cex=1.3)
+axis(2, las=2, cex.axis=2, lwd=2, at = seq(6000, 16000, by = 2000), lab = seq(6, 16, by=2))
+mtext('1000 PTU to flower, Fall',side=2, line=5, cex=2)
 par(xpd=F)
 abline(lm(Norstuff$dat2$NorwichFall2006[-nrow(Norstuff$dat2)]~Norstuff$eig$vectors[,3]), lwd=4, col = "black")
 abline(a=mean(Norstuff$dat2$NorwichFall2006), b = myCINF6[3], lty=2, col='#0072B2', lwd=2)
 abline(a=mean(Norstuff$dat2$NorwichFall2006), b = -myCINF6[3], lty=2, col='#0072B2', lwd=2)
+mtext('A', side=3, line=1, cex=2.5, adj = -0.1)
 
-
-par(mar = c(5,8,5,14), xpd=T)
-plot(Norstuff$eig$vectors[,3], Norstuff$dat2$NorwichSpring2007[-nrow(Norstuff$dat2)], bty="n", col = Norstuff$dat2$group, lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n")
+plot(Norstuff$eig$vectors[,3], Norstuff$dat2$NorwichSpring2007[-nrow(Norstuff$dat2)], bty="n", col = Norstuff$dat2$group, lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n", ylim = c(5500, 17000))
 axis(1, cex.axis=1.5, lwd=2)
-axis(2, las=2, cex.axis=1.5, lwd=2)
-mtext('PTU-DTB NS 2007',side=2, line=5, cex=2)
-legend(0.13, 16000, levels(Norstuff$dat2$group), pch=1, pt.lwd = 2,col = palette(), bty="n", text.width = 0.04, cex=1.3)
-par(xpd=F)
+axis(2, las=2, cex.axis=2, lwd=2, at = seq(6000, 16000, by = 2000), lab = seq(6, 16, by=2))
+mtext('1000 PTU to flower, Spring',side=2, line=5, cex=2)
 abline(lm(Norstuff$dat2$NorwichSpring2007[-nrow(Norstuff$dat2)]~Norstuff$eig$vectors[,3]), lwd=4, col = "black")
 abline(a=mean(Norstuff$dat2$NorwichSpring2007), b = myCINS7[3], lty=2, col='#0072B2', lwd=2)
 abline(a=mean(Norstuff$dat2$NorwichSpring2007), b = -myCINS7[3], lty=2, col='#0072B2', lwd=2)
+mtext('B', side=3, line=1, cex=2.5, adj = -0.1)
 ```
 
 ```{r, eval=F, echo=F}
-##make a supplemental figure
+##make a figure
 postscript("manuscript/FIBRnorwich.eps",height=6,width=14,paper="special",horizontal=FALSE,colormodel="cymk")
 
 par(mar = c(5,8,5,5), xpd=T, mfrow=c(1,3))
@@ -211,6 +165,7 @@ dev.off()
 Test for selection on the reaction norm between spring and fall in Norwich
 
 ```{r}
+par(mfrow=c(2,2))
 Norstuff$dat2$rn = Norstuff$dat2$NorwichSpring2007 - Norstuff$dat2$NorwichFall2006 #calculate the reaction norm. Positive values mean later flowering in spring plantins. Negative values mean later flowering in fall plantings.
 
 hist(Norstuff$dat2$rn, col = mycol[3], border="white", xlab = "", main="PTU Spring-Fall")
@@ -264,10 +219,6 @@ myPNF6 = sapply(myQcondNF6, function(x) {1-pnorm(abs(x), mean=0, sd=1)})
 myPNF6
 
 
-```
-
-
-```{r}
 myZ = myZ2
 myU = Norstuff$eig$vectors
 myLambdas = Norstuff$eig$values
@@ -297,23 +248,33 @@ myCI_sf = 1.96*sqrt(va_sf_cond*myLambdas)
 
 myZfibr= myZ
 myZfibr2 = myZ2
-save(Norstuff, myCINS7, myCINF6, myCIrn, myZfibr, myZfibr2, myCI_sf, myCI_fs, file = 'data/FIBRqpcdata.rda')
 ```
 
 
 ```{r}
-#postscript("manuscript/FIBRconditionaltest.eps",height=7,width=14,paper="special",horizontal=FALSE,colormodel="cymk")
-par(mar = c(5,8,5,5), xpd=T, mfrow=c(1,1))
+postscript("figures/FIBRconditionaltest.eps",height=7,width=14,paper="special",horizontal=FALSE,colormodel="cymk")
+par(mar = c(5,8,5,5), xpd=T, mfrow=c(1,3))
 plot.new()
 legend('left', levels(Norstuff$dat2$group)[-1], pch=1, pt.lwd = 2,col = palette()[-1], bty="n", text.width = 0.04, cex=2.5)
 legend('bottomleft', c('Observed','95% CI'), lty = c(1,3),lwd = 3,col = c('black','#0072B2'), bty="n", text.width = 0.04, cex=2.5)
 
 
+plot(myU[,myPC], myZ[-nrow(myZ),2], bty="n", col = Norstuff$dat2$group, lwd=3, xlab = paste('PC', myPC), ylab = "", yaxt="n", xaxt="n", cex.lab = 2, cex=1.5, ylim = c(5500,17000), xlim = c(-0.35,0.1))
+axis(2, las=2, cex.axis=2, lwd=3, at = seq(6000, 16000, by = 2000), lab = seq(6,16, by=2))
+axis(1, cex.axis=2, lwd=3)
+myl = lm(mu_fs_cond~myU[,myPC]) ##conditional expectation
+#abline(myl, lwd=4, col = "navy")
+par(xpd=F)
+abline(a=mean(myZ[,2]), b = myl$coefficients[2] + myCI_fs[myPC], lty=3, col='#0072B2', lwd=4)
+abline(a=mean(myZ[,2]), b = myl$coefficients[2] -myCI_fs[myPC], lty=3, col='#0072B2', lwd=4)
+abline(lm((myZ[-nrow(myZ),2])~myU[,myPC]), lwd=4, col = "navy")
+mtext('B', side=3, line=1, cex=2.5, adj = -0.1)
+mtext('1000 PTUs to flower, Fall', side=2, line=4, cex=2)
+
 plot(myU[,myPC], myZ[-nrow(myZ),1], bty="n", col = Norstuff$dat2$group, lwd=3, xlab = paste('PC', myPC), ylab="",yaxt="n", xaxt="n", cex.lab = 2, cex=1.5, ylim = c(5500, 17000), xlim = c(-0.35, 0.1)) 
 axis(2, las=2, cex.axis=2, lwd=3, at = seq(6000, 16000, by = 2000), lab = seq(6,16, by=2))
 axis(1, cex.axis=2, lwd=3)
 myl = lm(mu_sf_cond~myU[,myPC]) ##conditional expectation
-par(xpd=F)
 abline(a=mean(myZ[,1]), b = myl$coefficients[2] + myCI_sf[myPC], lty=3, col='#0072B2', lwd=4)
 abline(a=mean(myZ[,1]), b = myl$coefficients[2] -myCI_sf[myPC], lty=3, col='#0072B2', lwd=4)
 abline(lm((myZ[-nrow(myZ),1])~myU[,myPC]), lwd=4, col = "navy")
@@ -321,19 +282,8 @@ mtext('A', side=3, line=1, cex=2.5, adj = -0.1)
 mtext('1000 PTUs to flower, Spring', side=2, line=4, cex=2)
 
 
-##the other way (trait 2 dependent on trait 1)
-plot(myU[,myPC], myZ[-nrow(myZ),2], bty="n", col = Norstuff$dat2$group, lwd=3, xlab = paste('PC', myPC), ylab = "", yaxt="n", xaxt="n", cex.lab = 2, cex=1.5, ylim = c(5500,17000), xlim = c(-0.35,0.1))
-axis(2, las=2, cex.axis=2, lwd=3, at = seq(6000, 16000, by = 2000), lab = seq(6,16, by=2))
-axis(1, cex.axis=2, lwd=3)
-myl = lm(mu_fs_cond~myU[,myPC]) ##conditional expectation
-#abline(myl, lwd=4, col = "navy")
-abline(a=mean(myZ[,2]), b = myl$coefficients[2] + myCI_fs[myPC], lty=3, col='#0072B2', lwd=4)
-abline(a=mean(myZ[,2]), b = myl$coefficients[2] -myCI_fs[myPC], lty=3, col='#0072B2', lwd=4)
-abline(lm((myZ[-nrow(myZ),2])~myU[,myPC]), lwd=4, col = "navy")
-mtext('B', side=3, line=1, cex=2.5, adj = -0.1)
-mtext('1000 PTUs to flower, Spring', side=2, line=4, cex=2)
 
-#dev.off()
+dev.off()
 
 ```
 
