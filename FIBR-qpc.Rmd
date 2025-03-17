@@ -105,6 +105,8 @@ myCINS7 = 1.96*sqrt(myVaestNS7*Norstuff$eig$values)
 myQpc_NS7$pvals*length(myQpc_NS7$pvals)
 
 Norstuff$dat2$group <- as.factor(Norstuff$dat2$group) #make factor so we get colors
+
+fibrfig <- function(){
 par(mar = c(5,8,5,5), xpd=T, mfrow=c(1,3))
 plot.new()
 legend('left', levels(Norstuff$dat2$group)[-1], pch=1, pt.lwd = 2,col = palette()[-1], bty="n", text.width = 0.04, cex=1.5)
@@ -129,36 +131,16 @@ abline(lm(Norstuff$dat2$NorwichSpring2007[-nrow(Norstuff$dat2)]~Norstuff$eig$vec
 abline(a=mean(Norstuff$dat2$NorwichSpring2007), b = myCINS7[3], lty=2, col='#0072B2', lwd=2)
 abline(a=mean(Norstuff$dat2$NorwichSpring2007), b = -myCINS7[3], lty=2, col='#0072B2', lwd=2)
 mtext('B', side=3, line=1, cex=2.5, adj = -0.1)
+}
+
+fibrfig()
 ```
 
 ```{r, eval=F, echo=F}
 ##make a figure
-postscript("manuscript/FIBRnorwich.eps",height=6,width=14,paper="special",horizontal=FALSE,colormodel="cymk")
+postscript("figures/FIBRnorwich.eps",height=6,width=14,paper="special",horizontal=FALSE,colormodel="cymk")
 
-par(mar = c(5,8,5,5), xpd=T, mfrow=c(1,3))
-plot.new()
-legend('left', levels(Norstuff$dat2$group)[-1], pch=1, pt.lwd = 2,col = palette()[-1], bty="n", text.width = 0.04, cex=1.5)
-legend('bottomleft', c('Observed','95% CI'), lty = c(1,2),lwd = 3,col = c('black','#0072B2'), bty="n", text.width = 0.04, cex=1.5)
-
-
-plot(Norstuff$eig$vectors[,3], Norstuff$dat2$NorwichFall2006[-nrow(Norstuff$dat2)], bty="n", col = Norstuff$dat2$group, lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n", ylim = c(5500, 17000))
-axis(1, cex.axis=1.5, lwd=2)
-axis(2, las=2, cex.axis=2, lwd=2, at = seq(6000, 16000, by = 2000), lab = seq(6, 16, by=2))
-mtext('1000 PTU to flower, Fall',side=2, line=5, cex=2)
-par(xpd=F)
-abline(lm(Norstuff$dat2$NorwichFall2006[-nrow(Norstuff$dat2)]~Norstuff$eig$vectors[,3]), lwd=4, col = "black")
-abline(a=mean(Norstuff$dat2$NorwichFall2006), b = myCINF6[3], lty=2, col='#0072B2', lwd=2)
-abline(a=mean(Norstuff$dat2$NorwichFall2006), b = -myCINF6[3], lty=2, col='#0072B2', lwd=2)
-mtext('A', side=3, line=1, cex=2.5, adj = -0.1)
-
-plot(Norstuff$eig$vectors[,3], Norstuff$dat2$NorwichSpring2007[-nrow(Norstuff$dat2)], bty="n", col = Norstuff$dat2$group, lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n", ylim = c(5500, 17000))
-axis(1, cex.axis=1.5, lwd=2)
-axis(2, las=2, cex.axis=2, lwd=2, at = seq(6000, 16000, by = 2000), lab = seq(6, 16, by=2))
-mtext('1000 PTU to flower, Spring',side=2, line=5, cex=2)
-abline(lm(Norstuff$dat2$NorwichSpring2007[-nrow(Norstuff$dat2)]~Norstuff$eig$vectors[,3]), lwd=4, col = "black")
-abline(a=mean(Norstuff$dat2$NorwichSpring2007), b = myCINS7[3], lty=2, col='#0072B2', lwd=2)
-abline(a=mean(Norstuff$dat2$NorwichSpring2007), b = -myCINS7[3], lty=2, col='#0072B2', lwd=2)
-mtext('B', side=3, line=1, cex=2.5, adj = -0.1)
+fibrfig()
 dev.off()
 ```
 
