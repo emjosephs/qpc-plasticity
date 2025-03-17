@@ -174,7 +174,7 @@ myCIrn = 1.96*sqrt(myVaestrn*Norstuff$eig$values)
 #myQpc_rn$pvals*length(myQpc_rn$pvals)
 myQpc_rn$pvals
 
-
+fibRxnFig <- function(x){
 par(mar = c(5,8,5,14), xpd=T, mfrow=c(1,1))
 plot(Norstuff$eig$vectors[,3], Norstuff$dat2$rn[-nrow(Norstuff$dat2)], bty="n", col = Norstuff$dat2$group, lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n")
 axis(1, cex.axis=1.5, lwd=2)
@@ -185,8 +185,20 @@ par(xpd=F)
 abline(lm(Norstuff$dat2$rn[-nrow(Norstuff$dat2)]~Norstuff$eig$vectors[,3]), lwd=4, col = "black")
 abline(a=mean(Norstuff$dat2$rn), b = myCIrn[3], lty=2, col='#0072B2', lwd=2)
 abline(a=mean(Norstuff$dat2$rn), b = -myCIrn[3], lty=2, col='#0072B2', lwd=2)
+}
+
+fibRxnFig()
 
 ```
+
+```{r, eval=F, echo=F}
+##make a figure
+postscript("figures/FIBRnorwichRxn.eps",height=6,width=14,paper="special",horizontal=FALSE,colormodel="cymk")
+
+fibRxnFig()
+dev.off()
+```
+
 
 Conditional test
 ```{r}
