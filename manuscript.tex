@@ -35,7 +35,7 @@
 \newcommand{\qf}{$Q_{ST}-F_{ST}$}
 
 \title{Multivariate adaptive divergence contributes to $G \times E$ in \textit{Arabidopsis thaliana}}
-\author{Emily B. Josephs, Robert J. Williamson, Jeremy J. Berg}
+\author{Emily B. Josephs, Husain I. Agha, Jeremy J. Berg}
 \begin{document}
 \bibliographystyle{newphyt}
 \maketitle
@@ -52,11 +52,12 @@ However, \gxe\ may also result from different selection pressures across environ
 These processes are often thought of in the context of cryptic variation.
 In both cases, local adaptation is thought to be crucial for shaping \gxe.
 
-The different conceptions of \gxe\ have contributed to different methods of analysis.
-First, \gxe\ could be measured using reaction norms, which are functions of trait value expression across environments \citep{freeman1973statistical,scheiner1993genetics}.
-Reaction norms have been studied in a number of contexts and \dothis{broad conclusion}.
+The different conceptions of \gxe\ have contributed to different methods that have been used to detect the evolutionary forces shaping \gxe\.
+First, \gxe\ could be measured using reaction norms: functions of trait value expression across environments \citep{freeman1973statistical,scheiner1993genetics, morrissey2016variation, arnold2019analyse, de2025partitioning}.
+Reaction norms have been studied in a number of contexts and been used to demonstrate selection on for reduced plasticity \citep{valdes2023spring}. \dothis{add more}.
+%With a random regression approach, it is possible to estimate population-level variance in plasticity without needing to do 'statistics on statistics' \citep{arnold2019analyse}.
 Second, trait values measured across environments can be thought of as correlated traits, and the wide range of methods developed for studying multivariate trait evolution can be applied to \gxe.
-Studies of \gxe\ as a multivariate trait have found \dothis{broad conclusion}.
+Studies of \gxe\ as a multivariate trait have found selection for plasticity \citep{anderson2021selection} \dothis{add more}.
 
 Alongside work on plasticity, a number of approaches have been used to detect local adaptation for plasticity.
 First, common garden experiments in different natural environments or with manipulated environmental conditions can be used to test for evidence of fitness differences related to plasticity (cite Dudley + Schmitt, Strauss lab work, others?).
@@ -72,7 +73,7 @@ Many QTLs for flowering time are environment specific \citep{li2014genetic, li20
 The relationship between environmental cues and flowering time also likely differ between growth chamber and field environments \citep{bergelson2010towards, Brachi2011, weinig2002novel}.
 Vernalization, the cold temperatures experienced by overwintering plants, is an important cue for flowering time and \textit{Arabidopsis thaliana} ecotypes differ in their sensitivity to vernalization \citep{shindo2006variation, sung2005remembering}.
 There is evidence for selection on one of the genes important for vernalization response, FRIGIDA \citep{Toomajian2006nonparametric}, however FRIGIDA variation alone cannot explain observed variation in response to vernalization \citep{wilczek2010genetic}.
-Alltogether, we lack a clear link between variation in flowering time response to environment and selection on these responses.
+All together, we lack a clear link between variation in flowering time response to environment and selection on these responses.
 
 In this study, we develop methods to test for the contribution of local adaptation to \gxe.
 We first show that \qpc\ can be applied to reaction norms and next, develop an extension of \qpc\ to test for selection on a trait expressed in one environment conditional on that trait's expression in another environment.
@@ -132,9 +133,9 @@ We evaluated our tests of selection on two datasets of \textit{A. thaliana} flow
 The first contained data on flowering time measured in two growth chambers (16 \degree C and 10 \degree C with 16 hours of light) for 971 accessions \citep{alonso20161}.
 Flowering time was measured as days to first open flower for four replicates.
 
-The second dataset contained flowering time dates measured in a set of common garden experiments conducted in Norwich, England \citep{fournier2011map}.
+The second dataset contained phenological data measured in a set of common garden experiments conducted in Norwich England \citep{fournier2011map}. \emjo{add more locations if needed}
 Seeds from 140 individuals were planting in 14 replicated blocks the same location in the fall (DATE) and in the spring (DATE) and days to bolting was measured.
-%To compare these two environments, we photothermal units to bolting instead of days to bolting. \emjo{how was this done?}
+To compare these two environments, we photothermal units to bolting instead of days to bolting. \emjo{how was this done?}
 
 All SNP matrix for all the accessions analyzed was downloaded from the 1001 genomes website (\url{http://1001genomes.org/data/GMI-MPI/releases/v3.1/SNP_matrix_imputed_hdf5/}). \emjo{check with DW if better citation is needed?}
 We constructed kinship matrices for the individuals in each dataset using 50,000 randomly sampled SNPs.
@@ -171,7 +172,7 @@ Flowering time in controlled lab environments may not represent the phenotypic v
 Therefore, we tested for selection on flowering time in 140 accessions planted in two different seasons in the same location in Norwich, England \citep{fournier2011map}.
 In the first treatment, 'Fall', seedlings were transplanted in \dothis{DATE} and experienced natural cold vernalization while, in the second treatment, 'Spring', seedlings were transplanted on \dothis{DATE} and did not experience vernalization.
 Spring plants showed much less variation in flowering time than fall plants (Fig  ~\ref{fig:fibrRxn}).
-Using standard $Q_{PC}$ on the first 5 PCs, there was evidence of selection on flowering time in each treatment along PC 3 (Bonferonni corrected $p = 1.04 \times 10^{-3}$, Fig. ~\ref{fig:norwich}A) for Fall and $p = 1.23 x 10^{-3}$ for Spring, Fig. ~\ref{fig:norwich}B).
+Using standard $Q_{PC}$ on the first 5 PCs, there was evidence of selection on flowering time in each treatment along PC 3 (Bonferonni corrected $p = 6.06 \times 10^{-3}$, Fig. ~\ref{fig:norwich}A) for Fall and $p = 7.25 x 10^{-4}$ for Spring, Fig. ~\ref{fig:norwich}B).
 PC 3 in this population is similar to PC2 in the larger population phenotyped in the lab. Here, PC 3 separates northern Swedish ecotypes from other ecotypes.
 
 
@@ -193,7 +194,7 @@ The reaction norm showed selection along PC 3 ($p = 0.010$).
 \label{fig:ft}
 \end{figure}
 
-\subsection*{Using the conditional test to assess selection independly across environments}
+\subsection*{Using the conditional test to assess selection independently across environments}
 To assess the independence of selection on flowering time in the two environments, we used the conditional version of $Q_{PC}$ to test for selection on flowering time in each environment conditional on the other, along PC 2.
 We found that there was no evidence of selection on flowering time at 10\degree C conditional on flowering time at 16\degree C ($p = 0.244$, Fig. \ref{fig:condft}A), but there was evidence of selection on flowering time at 16 \degree C conditional on flowering time at 10\degree C ($p = 0.00693$, Fig. \ref{fig:condft}B) 
 We interpret this as evidence of selection on flowering time at 16 \degree C, and that evidence of selection at 10 \degree C is driven by correlation in flowering time between the two environments.
@@ -217,7 +218,7 @@ We interpret this result as evidence that there has been independent local adapt
 \begin{figure}[htbp]
   \centering
 \includegraphics[width=\linewidth]{FIBRconditionaltest_days}
-\caption{ \textbf{Testing for selection on flowering time in field grown \textit{A. thaliana} with the conditional test} The conditional test for selection on flowering time in Fall plants conditional on for Spring plants (A) and for flowering time in Spring plants conditonal on flowering time in Fall plants (B). In all plots, each dot represents an \textit{A. thaliana} accession with colors representing population in the same scheme as Fig. \ref{fig:ft}, black lines show the linear regression of trait onto PC 2, dashed blue lines show the 95\% confidence intervals for neutral evolution based on the conditional test. }
+\caption{ \textbf{Testing for selection on flowering time in field grown \textit{A. thaliana} with the conditional test} The conditional test for selection on flowering time in Fall plants conditional on for Spring plants (A) and for flowering time in Spring plants conditional on flowering time in Fall plants (B). In all plots, each dot represents an \textit{A. thaliana} accession with colors representing population in the same scheme as Fig. \ref{fig:ft}, black lines show the linear regression of trait onto PC 2, dashed blue lines show the 95\% confidence intervals for neutral evolution based on the conditional test. }
 \label{fig:fibrcond}
 \end{figure}
 
@@ -354,7 +355,7 @@ and
 
 \begin{figure}[htbp]
   \centering
-\includegraphics[width=\linewidth]{FIBRnorwich_days}
+\includegraphics[width=\linewidth]{FIBRnorwich}
 \caption{\textbf{Testing for selection on wild grown plants.}  Evidence of selection on flowering time in \textit{A. thaliana} planted in the Spring (A) and Fall(B). In all plots, each dot represents an \textit{A. thaliana} accession with colors representing population in the same scheme as Fig. \ref{fig:ft}, black lines show the linear regression of trait onto PC 2, dashed blue lines show the 95\% confidence intervals for neutral evolution based on the conditional test. }
 \label{fig:norwich}
 \end{figure}
