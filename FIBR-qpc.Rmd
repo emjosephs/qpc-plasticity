@@ -20,11 +20,21 @@ palette(mycol)
 
 
 Load in FIBR data
-```{r}
+```{r, eval=F}
 fibrdat = read.table('data/alldat_ecomatches_replicate_ecotype_names_reduced.txt', header=T, stringsAsFactors = F)
+
+NF6 <- dplyr::filter(fibrdat,planting=='NorwichFall2006')
+unique(NF6$Date_of_Sowing)
+unique(NF6$Date_of_Transplant)
+
+NS7 <- dplyr::filter(fibrdat,planting=='NorwichSpring2007')
+unique(NS7$Date_of_Sowing)
+unique(NS7$Date_of_Transplant)
+
+
 ```
 
-```{r}
+```{r, eval=F}
 ## pull out the Norwich data
 norS7F6 = as.data.frame(fibrdat
                           %>% dplyr::filter(planting %in% c('NorwichFall2006', 'NorwichSpring2007'))
@@ -260,7 +270,7 @@ par(xpd=F)
 abline(a=mean(myZ[,2]), b = myl$coefficients[2] + myCI_fs[myPC], lty=3, col='#0072B2', lwd=4)
 abline(a=mean(myZ[,2]), b = myl$coefficients[2] -myCI_fs[myPC], lty=3, col='#0072B2', lwd=4)
 abline(lm((myZ[-nrow(myZ),2])~myU[,myPC]), lwd=4, col = "navy")
-mtext('B', side=3, line=1, cex=2.5, adj = -0.1)
+mtext('A', side=3, line=1, cex=2.5, adj = -0.1)
 mtext('1000 PTUs to flower, Fall', side=2, line=4, cex=2)
 
 plot(myU[,myPC], myZ[-nrow(myZ),1], bty="n", col = Norstuff$dat2$group, lwd=3, xlab = paste('PC', myPC), ylab="",yaxt="n", xaxt="n", cex.lab = 2, cex=1.5, ylim = c(5500, 17000), xlim = c(-0.35, 0.1)) 
@@ -270,7 +280,7 @@ myl = lm(mu_sf_cond~myU[,myPC]) ##conditional expectation
 abline(a=mean(myZ[,1]), b = myl$coefficients[2] + myCI_sf[myPC], lty=3, col='#0072B2', lwd=4)
 abline(a=mean(myZ[,1]), b = myl$coefficients[2] -myCI_sf[myPC], lty=3, col='#0072B2', lwd=4)
 abline(lm((myZ[-nrow(myZ),1])~myU[,myPC]), lwd=4, col = "navy")
-mtext('A', side=3, line=1, cex=2.5, adj = -0.1)
+mtext('B', side=3, line=1, cex=2.5, adj = -0.1)
 mtext('1000 PTUs to flower, Spring', side=2, line=4, cex=2)
 
 }

@@ -1,0 +1,599 @@
+---
+title: "ft_qpc.Rmd"
+author: "em"
+date: "July 13, 2018"
+output:
+  html_document:
+    keep_md: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd('~/Documents/qpc-thaliana/')
+library(dplyr)
+library(quaint)
+mycol <- c('#999999', '#E69F00', '#56B4E9', "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+palette(c(mycol, 'black', 'mediumpurple3'))
+
+```
+
+
+Looking at the data
+```{r}
+adm = read.csv('data/1001genomes-FT10-FT16 and 1001genomes-accessions.csv')
+adm_nonas = dplyr::filter(adm, FT16_mean != 'NA') #remove individuals with missing data
+
+meanFT10 = mean(adm_nonas$FT10_mean)
+meanFT16 = mean(adm_nonas$FT16_mean)
+
+par(mar=c(8,8,3,3))
+plot(-10,-10, xlim = c(0.75,2.25), ylim = c(25, 160), ylab = "", xlab = "mean flowering time across lines", bty="n", xaxt='n', yaxt='n', cex.lab=2)
+axis(2, las=2, cex.lab=2, cex.axis=2, lwd=2)
+axis(1, at=c(1,2), labels = c('16C','10C'), cex.lab=2, cex.axis=2, lwd=2)
+mtext("Flowering time of each line", side=2, cex=2, line=5)
+test = sapply(1:nrow(adm_nonas), function(x){
+  points(c(1, 2), c(adm_nonas$FT10_mean[x], adm_nonas$FT16_mean[x]), type="l", col = mycol[4])
+})
+
+
+
+fwslopes = sapply(1:nrow(adm_nonas), function(x){
+#  myslope = (adm_nonas$FT16_mean[x] - adm_nonas$FT10_mean[x])/(meanFT16 - meanFT10)
+myslope = (adm_nonas$FT16_mean[x] - adm_nonas$FT10_mean[x])
+  })
+
+hist(fwslopes, col = mycol[1], border="white", main="", cex.lab=2, cex.axis=2, lwd=2, xlab = "slopes", yaxt="n", ylab = "")
+axis(2, las=2, cex.axis=2, cex.lab=2, lwd=2)
+mtext('Frequency', side=2, line=5, cex=2)
+
+```
+
+```{r eval=F}
+#making a k matrix to go with data from both FT10 and FT16
+myG = read.table('data/1001-matrix-50Ksamp', header=T)
+
+knames = sapply( names(myG)[-1] ,  function(x){as.integer(substring(x,2))})
+myGt = data.frame(id = knames, t(myG[,-1]))
+
+
+#merge with trait data
+myGadm = dplyr::inner_join(adm_nonas, myGt, by = "id")
+myKadm = make_k(as.matrix(myGadm[,-c(1:17)]))
+eigadm = eigen(myKadm)
+admtData = myGadm[,1:17]
+save(admtData, myKadm,eigadm, file = "data/fw_qpc_inputs.rda")
+
+```
+
+Look at relatedness in the Arabidopsis samples
+```{r}
+
+load('data/fw_qpc_inputs.rda')
+
+library(viridis)
+par(mar=c(3,3,3,3))
+#heatmap(myKadm, col=viridis(256))
+image(myKadm, col=c(viridis(15)[1:14], rep(viridis(15)[14],5), rep(viridis(15)[15],5)), useRaster=T, xaxt='n', yaxt='n')
+
+par(mar=c(6,6,3,3))
+cbPalette <- c('#999999', '#E69F00', '#56B4E9', "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+palette(c(cbPalette, 'black', 'mediumpurple3'))
+plot(eigadm$vectors[,1], eigadm$vectors[,2],col = admtData$group, lwd=2, ylab = "", yaxt="n",xlab = "PC1", cex.lab=2, cex.axis=2, xaxt="n", bty="n",xlim = c(-0.12, 0.12), ylim= c(-0.12, 0.12))
+axis(1, cex.axis=1.5, lwd=2, at = c(-0.1, -0.05, 0, 0.05, 0.1))
+axis(2, las=2, cex.axis=1.5, lwd=2)
+```
+
+```{r}
+load('data/fw_qpc_inputs.rda')
+
+
+#test for selection selection on 10C and 16C
+myQpc_16 = calcQpc(myZ = admtData$FT16_mean, myU = eigadm$vectors, myLambdas = eigadm$values, myM = 1:5, myL = 485:969) 
+myVaest16 = var0(myQpc_16$cml)
+myCI16 = 1.96*sqrt(myVaest16*eigadm$values)
+
+par(mar = c(5,8,5,14), xpd=T)
+plot(eigadm$vectors[,2], admtData$FT16_mean[-nrow(admtData)], bty="n", col = admtData$group, lwd=2, ylab = "", yaxt="n",xlab = "PC2", cex.lab=2, cex.axis=2, xaxt="n")
+axis(1, cex.axis=1.5, lwd=2)
+axis(2, las=2, cex.axis=1.5, lwd=2)
+mtext('Flowering time 16C',side=2, line=5, cex=2)
+legend(0.07, 160, levels(admtData$group), pch=1, pt.lwd = 2,col = palette(), bty="n", text.width = 0.04, cex=1.3)
+par(xpd=F)
+abline(lm(admtData$FT16_mean[-nrow(admtData)]~eigadm$vectors[,2]), lwd=4, col = "black")
+abline(a=mean(admtData$FT16_mean), b = myCI16[2], lty=2, col='#0072B2', lwd=4)
+abline(a=mean(admtData$FT16_mean), b = -myCI16[2], lty=2, col='#0072B2', lwd=4)
+
+myQpc_16$pvals
+myQpc_16$pvals*length(myQpc_16$pvals)
+
+par(mar = c(5,8,5,14), xpd=T)
+myQpc_10 = calcQpc(myZ = admtData$FT10_mean, myU = eigadm$vectors, myLambdas = eigadm$values,  myM = 1:5, myL = 485:969)
+#plot(sapply(myQpc_10$cm[1,1:900], var0), bty="n", ylab = 'var(Cm)', xlab = "PC")
+#plot(-log10(myQpc_10$pvals), bty="n", xlab = "PCs", ylab = "-log10(p value) for fw", col = mycol[4], lwd=2)
+#abline(h = -log10(0.05/length(myQpc_10$pvals)), col = mycol[1], lwd=2)
+myVaest10 = var0(myQpc_10$cml)
+myCI10 = 1.96*sqrt(myVaest10*eigadm$values)
+
+
+par(mar = c(5,8,5,14), xpd=T)
+plot(eigadm$vectors[,2], admtData$FT10_mean[-nrow(admtData)], bty="n", col = admtData$group, lwd=2, ylab = "", yaxt="n",xlab = "PC2", cex.lab=2, cex.axis=2, xaxt="n")
+axis(1, cex.axis=1.5, lwd=2)
+axis(2, las=2, cex.axis=1.5, lwd=2)
+mtext('Flowering time 10C',side=2, line=5, cex=2)
+legend(0.07, 160, levels(admtData$group), pch=1, pt.lwd = 2,col = palette(), bty="n", text.width = 0.04, cex=1.3)
+par(xpd=F)
+abline(lm(admtData$FT10_mean[-nrow(admtData)]~eigadm$vectors[,2]), lwd=4, col = "black")
+abline(a=mean(admtData$FT10_mean), b = myCI10[2], lty=2, col='#0072B2', lwd=2)
+abline(a=mean(admtData$FT10_mean), b = -myCI10[2], lty=2, col='#0072B2', lwd=2)
+
+myQpc_10$pvals
+myQpc_10$pvals*length(myQpc_10$pvals)
+
+plot(eigadm$vectors[,1], admtData$FT10_mean[-nrow(admtData)], bty="n", col = admtData$group, lwd=2, ylab = "", yaxt="n",xlab = "PC1", cex.lab=2, cex.axis=2, xaxt="n")
+axis(1, cex.axis=1.5, lwd=2)
+axis(2, las=2, cex.axis=1.5, lwd=2)
+mtext('Flowering time 10C',side=2, line=5, cex=2)
+par(xpd=F)
+abline(lm(admtData$FT10_mean[-nrow(admtData)]~eigadm$vectors[,1]), lwd=2, col = "#0072B2")
+abline(a=mean(admtData$FT10_mean), b = myCI10[1], lty=2, col='#56B4E9', lwd=2)
+abline(a=mean(admtData$FT10_mean), b = -myCI10[1], lty=2, col='#56B4E9', lwd=2)
+
+
+#calculate the regession
+admtData$fw = sapply(1:nrow(admtData), function(x){
+  myslope = admtData$FT16_mean[x] - admtData$FT10_mean[x]
+  return(myslope)
+})
+
+myQpc_fw = calcQpc(myZ = admtData$fw, myU = eigadm$vectors, myLambdas = eigadm$values,  myM = 1:5, myL = 485:969)
+#plot(sapply(myQpc_fw$cm[1,1:900], var0), bty="n", ylab = 'var(Cm)', xlab = "PC")
+#plot(-log10(myQpc_fw$pvals), bty="n", xlab = "PCs", ylab = "-log10(p value) for fw", col = mycol[4], lwd=2)
+#abline(h = -log10(0.05/length(myQpc_fw$pvals)), col = mycol[1], lwd=2)
+
+myVaestfw = var0(myQpc_fw$cml)
+myCIfw = 1.96*sqrt(myVaestfw*eigadm$values)
+
+
+par(mar = c(5,8,5,14), xpd=T)
+plot(eigadm$vectors[,2], admtData$fw[-nrow(admtData)], bty="n", col = admtData$group, lwd=2, ylab = "", yaxt="n",xlab = "PC2", cex.lab=2, cex.axis=2, xaxt="n")
+axis(1, cex.axis=1.5, lwd=2)
+axis(2, las=2, cex.axis=1.5, lwd=2)
+mtext('Reaction norm slope',side=2, line=5, cex=2)
+legend(0.07, 40, levels(admtData$group), pch=1, pt.lwd = 2,col = palette(), bty="n", text.width = 0.04, cex=1.3)
+par(xpd=F)
+abline(lm(admtData$fw[-nrow(admtData)]~eigadm$vectors[,2]), lwd=4, col = "black")
+abline(a=mean(admtData$fw), b = myCIfw[2], lty=2, col='#0072B2', lwd=4)
+abline(a=mean(admtData$fw), b = -myCIfw[2], lty=2, col='#0072B2', lwd=4)
+
+myQpc_fw$pvals
+myQpc_fw$pvals*length(myQpc_fw$pvals)
+
+
+```
+
+```{r, eval=F}
+##Figure for publication
+postscript("manuscript/floweringtime.eps",height=7,width=10,paper="special",horizontal=FALSE,colormodel="cymk")
+par(mar = c(4,7,4,3), mfrow=c(2,3), xpd=F)
+plot.new()
+legend('topleft', levels(admtData$group), pch=1, pt.lwd = 2,col = palette(), bty="n", text.width = 0.04, cex=1.75)
+
+
+plot(eigadm$vectors[,2], admtData$FT16_mean[-nrow(admtData)], bty="n", col = admtData$group, lwd=2, ylab = "", yaxt="n",xlab = "PC2", cex.lab=2, cex.axis=2, xaxt="n")
+axis(1, cex.axis=1.5, lwd=2)
+axis(2, las=2, cex.axis=1.5, lwd=2)
+mtext('Flowering time 16C',side=2, line=4, cex=1.25)
+abline(lm(admtData$FT16_mean[-nrow(admtData)]~eigadm$vectors[,2]), lwd=4, col = "black")
+abline(a=mean(admtData$FT16_mean), b = myCI16[2], lty=2, col='#0072B2', lwd=4)
+abline(a=mean(admtData$FT16_mean), b = -myCI16[2], lty=2, col='#0072B2', lwd=4)
+mtext('A', side=3, line=1, cex=2.5, adj = -0.4)
+
+
+plot(eigadm$vectors[,2], admtData$FT10_mean[-nrow(admtData)], bty="n", col = admtData$group, lwd=2, ylab = "", yaxt="n",xlab = "PC2", cex.lab=2, cex.axis=2, xaxt="n")
+axis(1, cex.axis=1.5, lwd=2)
+axis(2, las=2, cex.axis=1.5, lwd=2)
+mtext('Flowering time 10C',side=2, line=4, cex=1.25)
+abline(lm(admtData$FT10_mean[-nrow(admtData)]~eigadm$vectors[,2]), lwd=4, col = "black")
+abline(a=mean(admtData$FT10_mean), b = myCI10[2], lty=2, col='#0072B2', lwd=4)
+abline(a=mean(admtData$FT10_mean), b = -myCI10[2], lty=2, col='#0072B2', lwd=4)
+mtext('B', side=3, line=1, cex=2.5, adj = -0.4)
+
+
+plot(eigadm$vectors[,2], admtData$fw[-nrow(admtData)], bty="n", col = admtData$group, lwd=2, ylab = "", yaxt="n",xlab = "PC2", cex.lab=2, cex.axis=2, xaxt="n")
+axis(1, cex.axis=1.5, lwd=2)
+axis(2, las=2, cex.axis=1.5, lwd=2)
+mtext('FT 16C - FT 10C',side=2, line=4, cex=1.25)
+abline(lm(admtData$fw[-nrow(admtData)]~eigadm$vectors[,2]), lwd=4, col = "black")
+abline(a=mean(admtData$fw), b = myCIfw[2], lty=2, col='#0072B2', lwd=4)
+abline(a=mean(admtData$fw), b = -myCIfw[2], lty=2, col='#0072B2', lwd=4)
+mtext('C', side=3, line=1, cex=2.5, adj = -0.4)
+
+plot(admtData$FT16_mean, admtData$FT10_mean, bty="n", lwd=2, col=admtData$group, ylab = "Flowering time 10C", xlab = "Flowering time 16C", cex=1, cex.axis=1.5, cex.lab=2)
+mtext('D', side=3, line=1, cex=2.5, adj = -0.4)
+
+plot(admtData$FT16_mean, admtData$fw, bty="n", lwd=2, col=admtData$group, xlab = "Flowering time 16C", ylab = 'FT 16C - FT 10C', cex.axis=1.5, cex.lab=2)
+mtext('E', side=3, line=1, cex=2.5, adj = -0.4)
+
+dev.off()
+```
+
+
+
+```{r, eval=F}
+#total plasticity vs canalization
+admtData$abs = sapply(1:nrow(admtData), function(x){
+  abs(admtData$fw[x])
+})
+
+hist(admtData$abs, col = mycol[1], border="white", main="", cex.lab=2, cex.axis=2, lwd=2, xlab = "abs(slopes)", yaxt="n", ylab = "")
+axis(2, las=2, cex.axis=2, cex.lab=2, lwd=2)
+mtext('Frequency', side=2, line=5, cex=2)
+
+
+myQpc_ab = calcQpc(myZ = admtData$abs, myU = eigadm$vectors, myLambdas = eigadm$values, myM = 1:5, myL = 485:969)
+plot(sapply(myQpc_ab$cm[1,1:900], var0), bty="n", ylab = 'var(Cm)', xlab = "PC")
+plot(-log10(myQpc_ab$pvals), bty="n", xlab = "PCs", ylab = "-log10(p value) for fw", col = mycol[4], lwd=2)
+abline(h = -log10(0.05/length(myQpc_ab$pvals)), col = mycol[1], lwd=2)
+
+myVaest = var0(myQpc_ab$cm[400:700])
+myCI = 1.96*sqrt(myVaest*eigadm$values)
+
+
+par(mar = c(5,8,5,14), xpd=T)
+plot(eigadm$vectors[,2], admtData$ab[-nrow(admtData)], bty="n", col = admtData$group, lwd=2, ylab = "", yaxt="n",xlab = "PC2", cex.lab=2, cex.axis=2, xaxt="n")
+axis(1, cex.axis=1.5, lwd=2)
+axis(2, las=2, cex.axis=1.5, lwd=2)
+mtext('abs(Reaction norm slope)',side=2, line=5, cex=2)
+legend(0.07, 40, levels(admtData$group), pch=1, pt.lwd = 2,col = palette(), bty="n", text.width = 0.04, cex=1.3)
+par(xpd=F)
+abline(lm(admtData$abs[-nrow(admtData)]~eigadm$vectors[,2]), lwd=4, col = "black")
+abline(a=mean(admtData$abs), b = 1.96*myCI[2], lty=2, col='#0072B2', lwd=4)
+abline(a=mean(admtData$abs), b = -1.96*myCI[2], lty=2, col='#0072B2', lwd=4)
+
+myQpc_fw$pvals
+myQpc_fw$pvals*length(myQpc_fw$pvals)
+
+```
+
+
+Trait cors
+```{r}
+par(mar=c(6,6,2,2))
+plot(admtData$FT16_mean, admtData$FT10_mean, bty="n", lwd=2, col=admtData$group, ylab = "Flowering time 10C", xlab = "Flowering time 16C", cex=1, cex.axis=1.5, cex.lab=1.5)
+
+plot(admtData$FT16_mean, admtData$fw, bty="n", lwd=2, col=admtData$group, xlab = "Flowering time 16C", ylab = "Reaction norm", cex.axis=1.5, cex.lab=1.5)
+
+cor.test(admtData$FT16_mean, admtData$FT10_mean)
+cor.test(admtData$FT16_mean, admtData$fw)
+
+```
+
+
+```{r eval=F, echo=F}
+#means of eigenvectors
+summary(colMeans(eigadm$vectors))
+
+#variance of eigenvectors
+pcvars = apply(eigadm$vectors, 2, var)
+summary(pcvars)
+hist(pcvars)
+```
+
+
+What about the conditional test?
+
+
+```{r}
+myZFT = data.frame(ft16 = admtData$FT16_mean, ft10 = admtData$FT10_mean, stringsAsFactors = F)
+myQcond16 = condQpc(myZ = myZFT, myU = eigadm$vectors, myLambdas = eigadm$values, myM = 2, myL = 485:969)
+
+myZFT10 = data.frame(ft10 = admtData$FT10_mean,ft16 = admtData$FT16_mean, stringsAsFactors = F)
+myQcond10 = condQpc(myZ = myZFT10, myU = eigadm$vectors, myLambdas = eigadm$values, myM = 2, myL = 485:969)
+
+
+myPs16 = sapply(myQcond16, function(x) {1-pnorm(abs(x), mean=0, sd=1)})
+myPs10 = sapply(myQcond10, function(x) {1-pnorm(abs(x), mean=0, sd=1)})
+
+myPs16
+myPs10
+
+
+
+```
+
+Making figures for intuition
+```{r}
+
+myZ = myZFT10
+myU = eigadm$vectors
+myLambdas = eigadm$values
+myM = 1:10 
+myL = 485:969
+
+# get Xms for each PC (for Z1, the focal trait and Z2, the correlated trait) THESE ARE MEAN CENTERED
+myX1centered = (myZ[-nrow(myZ),1]-mean(myZ[,1]))%*%myU/sqrt(myLambdas)
+myX2centered = (myZ[-nrow(myZ),2]-mean(myZ[,2]))%*%myU/sqrt(myLambdas)
+
+#get mu' for each PC
+
+Ca12 = sum(myX1centered[myL]*myX2centered[myL])/length(myL) 
+Va2 = (sum(myX2centered[myL]^2))/length(myL)
+Va1 = sum(myX1centered[myL]^2)/length(myL)
+mu1cond = mean(myZ[-nrow(myZ),1]) + (Ca12/Va2)*(myZ[-nrow(myZ),2] - mean(myZ[,2])) #one value for each individual
+va1cond = Va1 - (Ca12^2)/Va2 
+
+myCI = 1.96*sqrt(va1cond*eigadm$values)
+
+##plot out PC2 against Z-u' for FT10 conditional on FT16
+#plot(eigadm$vectors[,2], myZ[-nrow(myZ),1] - mu1cond, bty="n", col = admtData$group, lwd=3, xlab = 'PC2', ylab = "FT 10 Z - mu'", yaxt="n", xaxt="n", cex.lab = 1.5, cex=1.5)
+#axis(2, las=2, cex.axis=2, lwd=2)
+#axis(1, cex.axis=2, lwd=2)
+#abline(lm((myZ[-nrow(myZ),1]-mu1cond)~eigadm$vectors[,2]), lwd=4, col = "navy")
+#abline(a=0, b = myCI[2], lty=2, col='#0072B2', lwd=4)
+#abline(a=0, b = -myCI[2], lty=2, col='#0072B2', lwd=4)
+
+
+#plot out the cond mu vs PC2
+plot(eigadm$vectors[,2], myZ[-nrow(myZ),1], bty="n", col = admtData$group, lwd=3, xlab = 'PC2', ylab = "FT10", yaxt="n", xaxt="n", cex.lab = 1.5, cex=1.5)
+axis(2, las=2, cex.axis=2, lwd=2)
+axis(1, cex.axis=2, lwd=2)
+myl = lm(mu1cond~eigadm$vectors[,2]) ##conditional expectation
+#abline(myl, lwd=4, col = "navy")
+abline(a=mean(myZ[,1]), b = myl$coefficients[2] + myCI[2], lty=2, col='#0072B2', lwd=4)
+abline(a=mean(myZ[,1]), b = myl$coefficients[2] -myCI[2], lty=2, col='#0072B2', lwd=4)
+abline(lm((myZ[-nrow(myZ),1])~eigadm$vectors[,2]), lwd=4, col = "navy")
+legend('topright', c('observed','95% CIs'), col = c('navy','#0072B2'), bty="n", lwd=4, lty=c(1,3))
+
+
+##the other way (trait 2 dependent on trait 1)
+mu2cond = mean(myZ[-nrow(myZ),2]) + (Ca12/Va1)*(myZ[-nrow(myZ),1] - mean(myZ[,1])) #one value for each individual
+va2cond = Va2 - (Ca12^2)/Va1 
+myCI2 = 1.96*sqrt(va2cond*eigadm$values)
+
+##plot out PC2 against Z-u' for FT10 conditional on FT16
+# plot(eigadm$vectors[,2], myZ[-nrow(myZ),2] - mu2cond, bty="n", col = admtData$group, lwd=3, xlab = 'PC2', ylab = "FT 16 Z - mu'", yaxt="n", xaxt="n", cex.lab = 1.5, cex=1.5)
+# axis(2, las=2, cex.axis=2, lwd=2)
+# axis(1, cex.axis=2, lwd=2)
+# abline(lm((myZ[-nrow(myZ),2]-mu2cond)~eigadm$vectors[,2]), lwd=4, col = "navy")
+# abline(a=0, b = myCI2[2], lty=2, col='#0072B2', lwd=4)
+# abline(a=0, b = -myCI2[2], lty=2, col='#0072B2', lwd=4)
+
+plot(eigadm$vectors[,2], myZ[-nrow(myZ),2], bty="n", col = admtData$group, lwd=3, xlab = 'PC2', ylab = "FT16", yaxt="n", xaxt="n", cex.lab = 1.5, cex=1.5)
+axis(2, las=2, cex.axis=2, lwd=2)
+axis(1, cex.axis=2, lwd=2)
+myl = lm(mu2cond~eigadm$vectors[,2]) ##conditional expectation
+#abline(myl, lwd=4, col = "navy")
+abline(a=mean(myZ[,2]), b = myl$coefficients[2] + myCI2[2], lty=2, col='#0072B2', lwd=4)
+abline(a=mean(myZ[,2]), b = myl$coefficients[2] -myCI2[2], lty=2, col='#0072B2', lwd=4)
+abline(lm((myZ[-nrow(myZ),2])~eigadm$vectors[,2]), lwd=4, col = "navy")
+legend('topright', c('observed','95% CIs'), col = c('navy','#0072B2'), bty="n", lwd=4, lty=c(1,3))
+
+
+
+
+```
+
+
+
+```{r pubfigures, eval=T}
+
+
+##Figure for publication
+#legend('topleft', levels(admtData$group), pch=1, pt.lwd = 2,col = palette(), bty="n", text.width = 0.04, cex=1.75)
+
+myZ = myZFT10
+myU = eigadm$vectors
+myLambdas = eigadm$values
+myM = 2 
+myL = 485:969
+
+# get Xms for each PC (for Z1, the focal trait and Z2, the correlated trait) THESE ARE MEAN CENTERED
+myX1centered = (myZ[-nrow(myZ),1]-mean(myZ[,1]))%*%myU/sqrt(myLambdas)
+myX2centered = (myZ[-nrow(myZ),2]-mean(myZ[,2]))%*%myU/sqrt(myLambdas)
+
+#get mu' for each PC
+
+Ca12 = sum(myX1centered[myL]*myX2centered[myL])/length(myL) 
+Va2 = (sum(myX2centered[myL]^2))/length(myL)
+Va1 = sum(myX1centered[myL]^2)/length(myL)
+mu1cond = mean(myZ[-nrow(myZ),1]) + (Ca12/Va2)*(myZ[-nrow(myZ),2] - mean(myZ[,2])) #one value for each individual
+va1cond = Va1 - (Ca12^2)/Va2 
+
+myCI = 1.96*sqrt(va1cond*eigadm$values)
+mu2cond = mean(myZ[-nrow(myZ),2]) + (Ca12/Va1)*(myZ[-nrow(myZ),1] - mean(myZ[,1])) #one value for each individual
+va2cond = Va2 - (Ca12^2)/Va1 
+myCI2 = 1.96*sqrt(va2cond*eigadm$values)
+
+postscript("manuscript/conditionaltest.eps",height=7,width=14,paper="special",horizontal=FALSE,colormodel="cymk")
+par(mar = c(4,7,4,3), mfrow=c(1,2), xpd=F)
+
+
+plot(eigadm$vectors[,2], myZ[-nrow(myZ),1], bty="n", col = admtData$group, lwd=3, xlab = 'PC2', ylab="",yaxt="n", xaxt="n", cex.lab = 2, cex=1.5, xlim = c(-0.15, 0.15), ylim = c(30,160))
+axis(2, las=2, cex.axis=2, lwd=2)
+axis(1, cex.axis=2, lwd=2)
+myl = lm(mu1cond~eigadm$vectors[,2]) ##conditional expectation
+#abline(myl, lwd=4, col = "navy")
+abline(a=mean(myZ[,1]), b = myl$coefficients[2] + myCI[2], lty=3, col='#0072B2', lwd=4)
+abline(a=mean(myZ[,1]), b = myl$coefficients[2] -myCI[2], lty=3, col='#0072B2', lwd=4)
+abline(lm((myZ[-nrow(myZ),1])~eigadm$vectors[,2]), lwd=4, col = "navy")
+legend('topright', c('observed','95% CIs'), col = c('navy','#0072B2'), bty="n", lwd=4, lty=c(1,3), cex=1.5)
+mtext('A', side=3, line=1, cex=2.5, adj = -0.1)
+mtext('Flowering time 10C', side=2, line=4, cex=2)
+
+
+##the other way (trait 2 dependent on trait 1)
+plot(eigadm$vectors[,2], myZ[-nrow(myZ),2], bty="n", col = admtData$group, lwd=3, xlab = 'PC2', ylab = "", yaxt="n", xaxt="n", cex.lab = 2, cex=1.5, xlim = c(-0.15, 0.15), ylim = c(30,160))
+axis(2, las=2, cex.axis=2, lwd=2)
+axis(1, cex.axis=2, lwd=2)
+myl = lm(mu2cond~eigadm$vectors[,2]) ##conditional expectation
+#abline(myl, lwd=4, col = "navy")
+abline(a=mean(myZ[,2]), b = myl$coefficients[2] + myCI2[2], lty=3, col='#0072B2', lwd=4)
+abline(a=mean(myZ[,2]), b = myl$coefficients[2] -myCI2[2], lty=3, col='#0072B2', lwd=4)
+abline(lm((myZ[-nrow(myZ),2])~eigadm$vectors[,2]), lwd=4, col = "navy")
+legend('topright', c('observed','95% CIs'), col = c('navy','#0072B2'), bty="n", lwd=4, lty=c(1,3), cex=1.5)
+mtext('B', side=3, line=1, cex=2.5, adj = -0.1)
+mtext('Flowering time 16C', side=2, line=4, cex=2)
+
+dev.off()
+```
+
+
+```{r, eval=T, echo=FALSE}
+## figure for Robert
+
+png("manuscript/conditionaltest.png", width = 3000, height = 1500, res=200)
+par(mar = c(4,7,4,3), mfrow=c(1,2), xpd=F)
+
+
+plot(eigadm$vectors[,2], myZ[-nrow(myZ),1], bty="n", col = admtData$group, lwd=3, xlab = 'PC2', ylab="",yaxt="n", xaxt="n", cex.lab = 2, cex=1.5, xlim = c(-0.15, 0.15), ylim = c(30,160))
+axis(2, las=2, cex.axis=2, lwd=2)
+axis(1, cex.axis=2, lwd=2)
+myl = lm(mu1cond~eigadm$vectors[,2]) ##conditional expectation
+#abline(myl, lwd=4, col = "navy")
+abline(a=mean(myZ[,1]), b = myl$coefficients[2] + myCI[2], lty=3, col='#0072B2', lwd=4)
+abline(a=mean(myZ[,1]), b = myl$coefficients[2] -myCI[2], lty=3, col='#0072B2', lwd=4)
+abline(lm((myZ[-nrow(myZ),1])~eigadm$vectors[,2]), lwd=4, col = "navy")
+legend('topright', c('observed','95% CIs'), col = c('navy','#0072B2'), bty="n", lwd=4, lty=c(1,3), cex=1.5)
+mtext('A', side=3, line=1, cex=2.5, adj = -0.1)
+mtext('Flowering time 10C', side=2, line=4, cex=2)
+
+
+##the other way (trait 2 dependent on trait 1)
+plot(eigadm$vectors[,2], myZ[-nrow(myZ),2], bty="n", col = admtData$group, lwd=3, xlab = 'PC2', ylab = "", yaxt="n", xaxt="n", cex.lab = 2, cex=1.5, xlim = c(-0.15, 0.15), ylim = c(30,160))
+axis(2, las=2, cex.axis=2, lwd=2)
+axis(1, cex.axis=2, lwd=2)
+myl = lm(mu2cond~eigadm$vectors[,2]) ##conditional expectation
+#abline(myl, lwd=4, col = "navy")
+abline(a=mean(myZ[,2]), b = myl$coefficients[2] + myCI2[2], lty=3, col='#0072B2', lwd=4)
+abline(a=mean(myZ[,2]), b = myl$coefficients[2] -myCI2[2], lty=3, col='#0072B2', lwd=4)
+abline(lm((myZ[-nrow(myZ),2])~eigadm$vectors[,2]), lwd=4, col = "navy")
+legend('topright', c('observed','95% CIs'), col = c('navy','#0072B2'), bty="n", lwd=4, lty=c(1,3), cex=1.5)
+mtext('B', side=3, line=1, cex=2.5, adj = -0.1)
+mtext('Flowering time 16C', side=2, line=4, cex=2)
+
+dev.off()
+
+
+
+```
+
+```{r}
+## save data for figures
+save(admtData, eigadm, myCI16, myCI10, myCIfw, myZ, myCI, myCI2, mu1cond, mu2cond, file = "data/1001-qpc-dat.rda")
+
+```
+
+
+Look at FRI
+
+```{r}
+load('data/fw_qpc_inputs.rda')
+myFri = read.csv('data/FRIhaps-jiminezgomez.csv')
+names(myFri)[1] <- "id"
+admtDataFri = dplyr::left_join(admtData, myFri, by = "id")
+
+##look at all the data colored by FRI functionality
+
+par(mar = c(5,8,5,10), xpd=T)
+plot(eigadm$vectors[,2], admtData$FT16_mean[-nrow(admtData)], bty="n", col = as.factor(admtDataFri$deleterious_allele), lwd=2, ylab = "", yaxt="n",xlab = "PC2", cex.lab=2, cex.axis=2, xaxt="n")
+axis(1, cex.axis=1.5, lwd=2)
+axis(2, las=2, cex.axis=1.5, lwd=2)
+mtext('Flowering time 16C',side=2, line=5, cex=2)
+legend(0.07, 160, c('FRI','NULL'), pch=1, pt.lwd = 2,col = palette(), bty="n", text.width = 0.04, cex=1.3)
+par(xpd=F)
+abline(lm(admtData$FT16_mean[-nrow(admtData)]~eigadm$vectors[,2]), lwd=4, col = "black")
+abline(a=mean(admtData$FT16_mean), b = myCI16[2], lty=2, col='#0072B2', lwd=4)
+abline(a=mean(admtData$FT16_mean), b = -myCI16[2], lty=2, col='#0072B2', lwd=4)
+
+
+par(mar = c(5,8,5,8), xpd=T)
+plot(eigadm$vectors[,2], admtData$FT10_mean[-nrow(admtData)], bty="n", col = as.factor(admtDataFri$deleterious_allele), lwd=2, ylab = "", yaxt="n",xlab = "PC2", cex.lab=2, cex.axis=2, xaxt="n")
+axis(1, cex.axis=1.5, lwd=2)
+axis(2, las=2, cex.axis=1.5, lwd=2)
+mtext('Flowering time 10C',side=2, line=5, cex=2)
+legend(0.07, 160, c('FRI','NULL'), pch=1, pt.lwd = 2,col = palette(), bty="n", text.width = 0.04, cex=1.3)
+par(xpd=F)
+abline(lm(admtData$FT10_mean[-nrow(admtData)]~eigadm$vectors[,2]), lwd=4, col = "black")
+abline(a=mean(admtData$FT10_mean), b = myCI10[2], lty=2, col='#0072B2', lwd=2)
+abline(a=mean(admtData$FT10_mean), b = -myCI10[2], lty=2, col='#0072B2', lwd=2)
+```
+
+```{r, eval=F}
+#test for selection within FRI classes
+FRIfuncs = dplyr::filter(admtDataFri, deleterious_allele==FALSE)
+FRInulls = dplyr::filter(admtDataFri, deleterious_allele==TRUE)
+
+
+##make new kinship matrices
+myG = read.table('data/1001-matrix-50Ksamp', header=T)
+knames = sapply( names(myG)[-1] ,  function(x){as.integer(substring(x,2))})
+myGt = data.frame(id = knames, t(myG[,-1]))
+#merge with trait data
+myGfri = dplyr::inner_join(FRIfuncs, myGt, by = "id")
+myKfri = make_k(as.matrix(myGfri[,-c(1:27)]))
+eigfri = eigen(myKfri)
+friData = myGfri[,1:27]
+myGnull = dplyr::inner_join(FRInulls, myGt, by = "id")
+myKnull = make_k(as.matrix(myGnull[,-c(1:27)]))
+eignull = eigen(myKnull)
+nullData = myGnull[,1:27]
+save(myKfri, myKnull, eigfri, eignull, friData, nullData, file = "data/fri_qpc_inputs.rda")
+```
+
+```{r}
+load('data/fri_qpc_inputs.rda')
+
+
+par(mar=c(6,6,3,3))
+cbPalette <- c('#999999', '#E69F00', '#56B4E9', "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+palette(c(cbPalette, 'black', 'mediumpurple3'))
+plot(eigfri$vectors[,1], eigfri$vectors[,2], lwd=2, ,col = as.factor(friData$group.y),ylab = "", yaxt="n",xlab = "PC1", cex.lab=2, cex.axis=2, xaxt="n", bty="n", xlim = c(-.15,.25))
+axis(1, cex.axis=1.5, lwd=2, at = c(-0.1, -0.05, 0, 0.05, 0.1))
+axis(2, las=2, cex.axis=1.5, lwd=2)
+legend(0.12,0.05, levels(friData$group.y), pch=1, pt.lwd = 2,col = palette(), bty="n", text.width = 0.04, cex=1)
+
+
+
+myQpc_16_fri = calcQpc(myZ = friData$FT16_mean.x, myU = eigfri$vectors, myLambdas = eigfri$values, myM = 1:10, myL = 313:623) #dropping the last few because of huge Cm inflation
+myQpc_16_fri$pvals
+
+
+
+myQpc_10_fri = calcQpc(myZ = friData$FT10_mean, myU = eigfri$vectors, myLambdas = eigfri$values, myM = 1:10, myL = 313:623) #dropping the last few because of huge Cm inflation
+myQpc_10_fri$pvals
+
+##PC 10?
+myVaestFri10 = var0(myQpc_10_fri$cml)
+myCIFri10 = 1.96*sqrt(myVaestFri10*eigfri$values[313:623])
+
+
+par(mar = c(5,8,5,14), xpd=T)
+plot(eigfri$vectors[,10], friData$FT10_mean[-nrow(friData)], bty="n",  col = as.factor(friData$group.x), lwd=2, ylab = "", yaxt="n",xlab = "PC 10", cex.lab=2, cex.axis=2, xaxt="n")
+axis(1, cex.axis=1.5, lwd=2)
+axis(2, las=2, cex.axis=1.5, lwd=2)
+mtext('Flowering time 10C',side=2, line=5, cex=2)
+legend(0.35, 160, levels(friData$group.x), pch=1, pt.lwd = 2,col = palette(), bty="n", text.width = 0.04, cex=1.3)
+par(xpd=F)
+abline(lm(friData$FT10_mean[-nrow(friData)]~eigfri$vectors[,10]), lwd=4, col = "black")
+abline(a=mean(friData$FT10_mean), b = myCIFri10[10], lty=2, col='#0072B2', lwd=2)
+abline(a=mean(friData$FT10_mean), b = -myCIFri10[10], lty=2, col='#0072B2', lwd=2)
+
+
+
+
+plot(eignull$vectors[,1], eignull$vectors[,2], lwd=2, ,col = as.factor(nullData$group.y),ylab = "", yaxt="n",xlab = "PC1", cex.lab=2, cex.axis=2, xaxt="n", bty="n")
+axis(1, cex.axis=1.5, lwd=2)
+axis(2, las=2, cex.axis=1.5, lwd=2)
+legend('bottomleft', levels(friData$group.y), pch=1, pt.lwd = 2,col = palette(), bty="n", text.width = 0.04, cex=1)
+
+
+myQpc_16_null = calcQpc(myZ = nullData$FT16_mean.x, myU = eignull$vectors, myLambdas = eignull$values, myM = 1:5, myL = 110:225) 
+myQpc_16_null$pvals
+
+myQpc_10_null = calcQpc(myZ = nullData$FT10_mean, myU = eignull$vectors, myLambdas = eignull$values, myM = 1:5, myL = 110:225) 
+myQpc_10_null$pvals
+
+
+```
+
+
