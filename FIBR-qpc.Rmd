@@ -171,8 +171,8 @@ myQpc_rn = calcQpc(myZ = Norstuff$dat2$rn, myU = Norstuff$eig$vectors, myLambdas
 myVaestrn = var0(myQpc_rn$cml)
 myCIrn = 1.96*sqrt(myVaestrn*Norstuff$eig$values)
 
-#myQpc_rn$pvals*length(myQpc_rn$pvals)
-myQpc_rn$pvals
+myQpc_rn$pvals*5
+
 
 fibRxnFig <- function(x){
 par(mar = c(5,8,5,14), xpd=T, mfrow=c(1,1))
