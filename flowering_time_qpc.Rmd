@@ -18,13 +18,15 @@ palette(c(mycol, 'black', 'mediumpurple3'))
 ```
 
 
-Looking at the data
+Load in data
 ```{r}
 adm = read.csv('data/1001genomes-FT10-FT16 and 1001genomes-accessions.csv')
 adm_nonas = dplyr::filter(adm, FT16_mean != 'NA') #remove individuals with missing data
 
 meanFT10 = mean(adm_nonas$FT10_mean)
 meanFT16 = mean(adm_nonas$FT16_mean)
+
+#look at reaction norms
 
 par(mar=c(8,8,3,3), mfrow=c(1,1))
 plot(-10,-10, xlim = c(0.75,2.25), ylim = c(25, 160), ylab = "", xlab = "mean flowering time across lines", bty="n", xaxt='n', yaxt='n', cex.lab=2)
@@ -34,18 +36,6 @@ mtext("Flowering time of each line", side=2, cex=2, line=5)
 test = sapply(1:nrow(adm_nonas), function(x){
   points(c(1, 2), c(adm_nonas$FT10_mean[x], adm_nonas$FT16_mean[x]), type="l", col = mycol[4])
 })
-
-
-
-fwslopes = sapply(1:nrow(adm_nonas), function(x){
-#  myslope = (adm_nonas$FT16_mean[x] - adm_nonas$FT10_mean[x])/(meanFT16 - meanFT10)
-myslope = (adm_nonas$FT16_mean[x] - adm_nonas$FT10_mean[x])
-  })
-
-hist(fwslopes, col = mycol[1], border="white", main="", cex.lab=2, cex.axis=2, lwd=2, xlab = "slopes", yaxt="n", ylab = "")
-axis(2, las=2, cex.axis=2, cex.lab=2, lwd=2)
-mtext('Frequency', side=2, line=5, cex=2)
-
 ```
 
 ```{r eval=F}
@@ -69,11 +59,7 @@ Look at relatedness in the Arabidopsis samples
 ```{r}
 
 load('data/fw_qpc_inputs.rda')
-
-library(viridis)
-par(mar=c(3,3,3,3))
-#heatmap(myKadm, col=viridis(256))
-image(myKadm, col=c(viridis(15)[1:14], rep(viridis(15)[14],5), rep(viridis(15)[15],5)), useRaster=T, xaxt='n', yaxt='n')
+admtData$group = as.factor(admtData$group) #so they can be colored
 
 par(mar=c(6,6,3,3))
 cbPalette <- c('#999999', '#E69F00', '#56B4E9', "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
@@ -84,50 +70,34 @@ axis(2, las=2, cex.axis=1.5, lwd=2)
 ```
 
 ```{r}
-load('data/fw_qpc_inputs.rda')
-
-
-#test for selection selection on 10C and 16C
+#test for selection on flowering time at 16C
 myQpc_16 = calcQpc(myZ = admtData$FT16_mean, myU = eigadm$vectors, myLambdas = eigadm$values, myM = 1:5, myL = 485:969) 
 myVaest16 = var0(myQpc_16$cml)
 myCI16 = 1.96*sqrt(myVaest16*eigadm$values)
 
-par(mar = c(5,8,5,14), xpd=T)
-plot(eigadm$vectors[,2], admtData$FT16_mean[-nrow(admtData)], bty="n", col = admtData$group, lwd=2, ylab = "", yaxt="n",xlab = "PC2", cex.lab=2, cex.axis=2, xaxt="n")
-axis(1, cex.axis=1.5, lwd=2)
-axis(2, las=2, cex.axis=1.5, lwd=2)
-mtext('Flowering time 16C',side=2, line=5, cex=2)
-legend(0.07, 160, levels(admtData$group), pch=1, pt.lwd = 2,col = palette(), bty="n", text.width = 0.04, cex=1.3)
-par(xpd=F)
-abline(lm(admtData$FT16_mean[-nrow(admtData)]~eigadm$vectors[,2]), lwd=4, col = "black")
-abline(a=mean(admtData$FT16_mean), b = myCI16[2], lty=2, col='#0072B2', lwd=4)
-abline(a=mean(admtData$FT16_mean), b = -myCI16[2], lty=2, col='#0072B2', lwd=4)
+myQpc_16$pvals*length(myQpc_16$pvals) #Bonferonni corrected pvalues
 
-myQpc_16$pvals
-myQpc_16$pvals*length(myQpc_16$pvals)
-
-par(mar = c(5,8,5,14), xpd=T)
+# test for selection on flowering time at 10C
 myQpc_10 = calcQpc(myZ = admtData$FT10_mean, myU = eigadm$vectors, myLambdas = eigadm$values,  myM = 1:5, myL = 485:969)
-#plot(sapply(myQpc_10$cm[1,1:900], var0), bty="n", ylab = 'var(Cm)', xlab = "PC")
-#plot(-log10(myQpc_10$pvals), bty="n", xlab = "PCs", ylab = "-log10(p value) for fw", col = mycol[4], lwd=2)
-#abline(h = -log10(0.05/length(myQpc_10$pvals)), col = mycol[1], lwd=2)
+
 myVaest10 = var0(myQpc_10$cml)
 myCI10 = 1.96*sqrt(myVaest10*eigadm$values)
 
+myQpc_10$pvals
+myQpc_10$pvals*length(myQpc_10$pvals)
 
-par(mar = c(5,8,5,14), xpd=T)
+par(mar = c(5,8,5,14), xpd=T, mfrow=c(1,1))
+
+
 plot(eigadm$vectors[,2], admtData$FT10_mean[-nrow(admtData)], bty="n", col = admtData$group, lwd=2, ylab = "", yaxt="n",xlab = "PC2", cex.lab=2, cex.axis=2, xaxt="n")
 axis(1, cex.axis=1.5, lwd=2)
 axis(2, las=2, cex.axis=1.5, lwd=2)
 mtext('Flowering time 10C',side=2, line=5, cex=2)
-legend(0.07, 160, levels(admtData$group), pch=1, pt.lwd = 2,col = palette(), bty="n", text.width = 0.04, cex=1.3)
 par(xpd=F)
 abline(lm(admtData$FT10_mean[-nrow(admtData)]~eigadm$vectors[,2]), lwd=4, col = "black")
 abline(a=mean(admtData$FT10_mean), b = myCI10[2], lty=2, col='#0072B2', lwd=2)
 abline(a=mean(admtData$FT10_mean), b = -myCI10[2], lty=2, col='#0072B2', lwd=2)
 
-myQpc_10$pvals
-myQpc_10$pvals*length(myQpc_10$pvals)
 
 plot(eigadm$vectors[,1], admtData$FT10_mean[-nrow(admtData)], bty="n", col = admtData$group, lwd=2, ylab = "", yaxt="n",xlab = "PC1", cex.lab=2, cex.axis=2, xaxt="n")
 axis(1, cex.axis=1.5, lwd=2)
@@ -137,43 +107,15 @@ par(xpd=F)
 abline(lm(admtData$FT10_mean[-nrow(admtData)]~eigadm$vectors[,1]), lwd=2, col = "#0072B2")
 abline(a=mean(admtData$FT10_mean), b = myCI10[1], lty=2, col='#56B4E9', lwd=2)
 abline(a=mean(admtData$FT10_mean), b = -myCI10[1], lty=2, col='#56B4E9', lwd=2)
+legend(0.07, 160, levels(admtData$group), pch=1, pt.lwd = 2,col = palette(), bty="n", text.width = 0.04, cex=1.3)
 
-
-#calculate the regession
-admtData$fw = sapply(1:nrow(admtData), function(x){
-  myslope = admtData$FT16_mean[x] - admtData$FT10_mean[x]
-  return(myslope)
-})
-
-myQpc_fw = calcQpc(myZ = admtData$fw, myU = eigadm$vectors, myLambdas = eigadm$values,  myM = 1:5, myL = 485:969)
-#plot(sapply(myQpc_fw$cm[1,1:900], var0), bty="n", ylab = 'var(Cm)', xlab = "PC")
-#plot(-log10(myQpc_fw$pvals), bty="n", xlab = "PCs", ylab = "-log10(p value) for fw", col = mycol[4], lwd=2)
-#abline(h = -log10(0.05/length(myQpc_fw$pvals)), col = mycol[1], lwd=2)
-
-myVaestfw = var0(myQpc_fw$cml)
-myCIfw = 1.96*sqrt(myVaestfw*eigadm$values)
-
-
-par(mar = c(5,8,5,14), xpd=T)
-plot(eigadm$vectors[,2], admtData$fw[-nrow(admtData)], bty="n", col = admtData$group, lwd=2, ylab = "", yaxt="n",xlab = "PC2", cex.lab=2, cex.axis=2, xaxt="n")
-axis(1, cex.axis=1.5, lwd=2)
-axis(2, las=2, cex.axis=1.5, lwd=2)
-mtext('Reaction norm slope',side=2, line=5, cex=2)
-legend(0.07, 40, levels(admtData$group), pch=1, pt.lwd = 2,col = palette(), bty="n", text.width = 0.04, cex=1.3)
-par(xpd=F)
-abline(lm(admtData$fw[-nrow(admtData)]~eigadm$vectors[,2]), lwd=4, col = "black")
-abline(a=mean(admtData$fw), b = myCIfw[2], lty=2, col='#0072B2', lwd=4)
-abline(a=mean(admtData$fw), b = -myCIfw[2], lty=2, col='#0072B2', lwd=4)
-
-myQpc_fw$pvals
-myQpc_fw$pvals*length(myQpc_fw$pvals)
 
 
 ```
 
 ```{r, eval=F}
 ##Figure for publication
-postscript("manuscript/floweringtime.eps",height=7,width=10,paper="special",horizontal=FALSE,colormodel="cymk")
+postscript("floweringtime.eps",height=7,width=10,paper="special",horizontal=FALSE,colormodel="cymk")
 par(mar = c(4,7,4,3), mfrow=c(2,3), xpd=F)
 plot.new()
 legend('topleft', levels(admtData$group), pch=1, pt.lwd = 2,col = palette(), bty="n", text.width = 0.04, cex=1.75)
