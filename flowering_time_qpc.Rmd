@@ -143,7 +143,7 @@ myQpc_fw$pvals*length(myQpc_fw$pvals)
 
 ```{r, eval=F}
 ##Figure for publication
-postscript("floweringtime.eps",height=7,width=10,paper="special",horizontal=FALSE,colormodel="cymk")
+postscript("figures/floweringtime.eps",height=7,width=10,paper="special",horizontal=FALSE,colormodel="cymk")
 par(mar = c(4,7,4,3), mfrow=c(2,3), xpd=F)
 plot.new()
 legend('topleft', levels(admtData$group), pch=1, pt.lwd = 2,col = palette(), bty="n", text.width = 0.04, cex=1.75)
