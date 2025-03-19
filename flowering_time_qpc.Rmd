@@ -98,20 +98,48 @@ abline(lm(admtData$FT10_mean[-nrow(admtData)]~eigadm$vectors[,2]), lwd=4, col = 
 abline(a=mean(admtData$FT10_mean), b = myCI10[2], lty=2, col='#0072B2', lwd=2)
 abline(a=mean(admtData$FT10_mean), b = -myCI10[2], lty=2, col='#0072B2', lwd=2)
 
-
-plot(eigadm$vectors[,1], admtData$FT10_mean[-nrow(admtData)], bty="n", col = admtData$group, lwd=2, ylab = "", yaxt="n",xlab = "PC1", cex.lab=2, cex.axis=2, xaxt="n")
+par(xpd=T)
+plot(eigadm$vectors[,3], admtData$FT10_mean[-nrow(admtData)], bty="n", col = admtData$group, lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n")
 axis(1, cex.axis=1.5, lwd=2)
 axis(2, las=2, cex.axis=1.5, lwd=2)
 mtext('Flowering time 10C',side=2, line=5, cex=2)
+legend(0.1, 160, c(levels(admtData$group)), pch=1, pt.lwd = 2,col = palette(), bty="n", text.width = 0.04, cex=1.3)
 par(xpd=F)
-abline(lm(admtData$FT10_mean[-nrow(admtData)]~eigadm$vectors[,1]), lwd=2, col = "#0072B2")
-abline(a=mean(admtData$FT10_mean), b = myCI10[1], lty=2, col='#56B4E9', lwd=2)
-abline(a=mean(admtData$FT10_mean), b = -myCI10[1], lty=2, col='#56B4E9', lwd=2)
-legend(0.07, 160, levels(admtData$group), pch=1, pt.lwd = 2,col = palette(), bty="n", text.width = 0.04, cex=1.3)
+abline(lm(admtData$FT10_mean[-nrow(admtData)]~eigadm$vectors[,3]), lwd=2, col = "#0072B2")
+abline(a=mean(admtData$FT10_mean), b = myCI10[2], lty=3, col='#56B4E9', lwd=2)
+abline(a=mean(admtData$FT10_mean), b = -myCI10[2], lty=3, col='#56B4E9', lwd=2)
+
 
 
 
 ```
+
+The reaction norm
+```{r}
+#calculate the reaction norm
+admtData$fw <- admtData$FT16_mean - admtData$FT10_mean
+
+#do qpc on the reaction norm
+myQpc_fw = calcQpc(myZ = admtData$fw, myU = eigadm$vectors, myLambdas = eigadm$values,  myM = 1:5, myL = 485:969)
+myVaestfw = var0(myQpc_fw$cml)
+myCIfw = 1.96*sqrt(myVaestfw*eigadm$values)
+
+
+par(mar = c(5,8,5,14), xpd=T)
+plot(eigadm$vectors[,2], admtData$fw[-nrow(admtData)], bty="n", col = admtData$group, lwd=2, ylab = "", yaxt="n",xlab = "PC2", cex.lab=2, cex.axis=2, xaxt="n")
+axis(1, cex.axis=1.5, lwd=2)
+axis(2, las=2, cex.axis=1.5, lwd=2)
+mtext('Reaction norm slope',side=2, line=5, cex=2)
+legend(0.07, 40, levels(admtData$group), pch=1, pt.lwd = 2,col = palette(), bty="n", text.width = 0.04, cex=1.3)
+par(xpd=F)
+abline(lm(admtData$fw[-nrow(admtData)]~eigadm$vectors[,2]), lwd=4, col = "black")
+abline(a=mean(admtData$fw), b = myCIfw[2], lty=2, col='#0072B2', lwd=4)
+abline(a=mean(admtData$fw), b = -myCIfw[2], lty=2, col='#0072B2', lwd=4)
+
+myQpc_fw$pvals
+myQpc_fw$pvals*length(myQpc_fw$pvals)
+```
+
 
 ```{r, eval=F}
 ##Figure for publication
@@ -158,8 +186,6 @@ mtext('E', side=3, line=1, cex=2.5, adj = -0.4)
 
 dev.off()
 ```
-
-
 
 ```{r, eval=F}
 #total plasticity vs canalization
