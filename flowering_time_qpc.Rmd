@@ -176,6 +176,8 @@ myQcond10$pvals
 
 plotCondQpc(myQcond16, myEig = eigadm, traitValues = admtData$FT16_mean, populationLabels = admtData$group, testPCs = 2)
 
+plotCondQpc(myQcond10, myEig = eigadm, traitValues = admtData$FT10_mean, populationLabels = admtData$group, testPCs = 2)
+
 
 ```
 
@@ -208,7 +210,7 @@ mu2cond = mean(myZ[-nrow(myZ),2]) + (Ca12/Va1)*(myZ[-nrow(myZ),1] - mean(myZ[,1]
 va2cond = Va2 - (Ca12^2)/Va1 
 myCI2 = 1.96*sqrt(va2cond*eigadm$values)
 
-postscript("manuscript/conditionaltest.eps",height=7,width=14,paper="special",horizontal=FALSE,colormodel="cymk")
+postscript("figures/conditionaltest.eps",height=7,width=14,paper="special",horizontal=FALSE,colormodel="cymk")
 par(mar = c(4,7,4,3), mfrow=c(1,2), xpd=F)
 
 
@@ -241,162 +243,5 @@ mtext('Flowering time 16C', side=2, line=4, cex=2)
 dev.off()
 ```
 
-
-```{r, eval=T, echo=FALSE}
-
-png("manuscript/conditionaltest.png", width = 3000, height = 1500, res=200)
-par(mar = c(4,7,4,3), mfrow=c(1,2), xpd=F)
-
-
-plot(eigadm$vectors[,2], myZ[-nrow(myZ),1], bty="n", col = admtData$group, lwd=3, xlab = 'PC2', ylab="",yaxt="n", xaxt="n", cex.lab = 2, cex=1.5, xlim = c(-0.15, 0.15), ylim = c(30,160))
-axis(2, las=2, cex.axis=2, lwd=2)
-axis(1, cex.axis=2, lwd=2)
-myl = lm(mu1cond~eigadm$vectors[,2]) ##conditional expectation
-#abline(myl, lwd=4, col = "navy")
-abline(a=mean(myZ[,1]), b = myl$coefficients[2] + myCI[2], lty=3, col='#0072B2', lwd=4)
-abline(a=mean(myZ[,1]), b = myl$coefficients[2] -myCI[2], lty=3, col='#0072B2', lwd=4)
-abline(lm((myZ[-nrow(myZ),1])~eigadm$vectors[,2]), lwd=4, col = "navy")
-legend('topright', c('observed','95% CIs'), col = c('navy','#0072B2'), bty="n", lwd=4, lty=c(1,3), cex=1.5)
-mtext('A', side=3, line=1, cex=2.5, adj = -0.1)
-mtext('Flowering time 10C', side=2, line=4, cex=2)
-
-
-##the other way (trait 2 dependent on trait 1)
-plot(eigadm$vectors[,2], myZ[-nrow(myZ),2], bty="n", col = admtData$group, lwd=3, xlab = 'PC2', ylab = "", yaxt="n", xaxt="n", cex.lab = 2, cex=1.5, xlim = c(-0.15, 0.15), ylim = c(30,160))
-axis(2, las=2, cex.axis=2, lwd=2)
-axis(1, cex.axis=2, lwd=2)
-myl = lm(mu2cond~eigadm$vectors[,2]) ##conditional expectation
-#abline(myl, lwd=4, col = "navy")
-abline(a=mean(myZ[,2]), b = myl$coefficients[2] + myCI2[2], lty=3, col='#0072B2', lwd=4)
-abline(a=mean(myZ[,2]), b = myl$coefficients[2] -myCI2[2], lty=3, col='#0072B2', lwd=4)
-abline(lm((myZ[-nrow(myZ),2])~eigadm$vectors[,2]), lwd=4, col = "navy")
-legend('topright', c('observed','95% CIs'), col = c('navy','#0072B2'), bty="n", lwd=4, lty=c(1,3), cex=1.5)
-mtext('B', side=3, line=1, cex=2.5, adj = -0.1)
-mtext('Flowering time 16C', side=2, line=4, cex=2)
-
-dev.off()
-
-
-
-```
-
-```{r}
-## save data for figures
-save(admtData, eigadm, myCI16, myCI10, myCIfw, myZ, myCI, myCI2, mu1cond, mu2cond, file = "data/1001-qpc-dat.rda")
-
-```
-
-
-Look at FRI
-
-```{r}
-load('data/fw_qpc_inputs.rda')
-myFri = read.csv('data/FRIhaps-jiminezgomez.csv')
-names(myFri)[1] <- "id"
-admtDataFri = dplyr::left_join(admtData, myFri, by = "id")
-
-##look at all the data colored by FRI functionality
-
-par(mar = c(5,8,5,10), xpd=T)
-plot(eigadm$vectors[,2], admtData$FT16_mean[-nrow(admtData)], bty="n", col = as.factor(admtDataFri$deleterious_allele), lwd=2, ylab = "", yaxt="n",xlab = "PC2", cex.lab=2, cex.axis=2, xaxt="n")
-axis(1, cex.axis=1.5, lwd=2)
-axis(2, las=2, cex.axis=1.5, lwd=2)
-mtext('Flowering time 16C',side=2, line=5, cex=2)
-legend(0.07, 160, c('FRI','NULL'), pch=1, pt.lwd = 2,col = palette(), bty="n", text.width = 0.04, cex=1.3)
-par(xpd=F)
-abline(lm(admtData$FT16_mean[-nrow(admtData)]~eigadm$vectors[,2]), lwd=4, col = "black")
-abline(a=mean(admtData$FT16_mean), b = myCI16[2], lty=2, col='#0072B2', lwd=4)
-abline(a=mean(admtData$FT16_mean), b = -myCI16[2], lty=2, col='#0072B2', lwd=4)
-
-
-par(mar = c(5,8,5,8), xpd=T)
-plot(eigadm$vectors[,2], admtData$FT10_mean[-nrow(admtData)], bty="n", col = as.factor(admtDataFri$deleterious_allele), lwd=2, ylab = "", yaxt="n",xlab = "PC2", cex.lab=2, cex.axis=2, xaxt="n")
-axis(1, cex.axis=1.5, lwd=2)
-axis(2, las=2, cex.axis=1.5, lwd=2)
-mtext('Flowering time 10C',side=2, line=5, cex=2)
-legend(0.07, 160, c('FRI','NULL'), pch=1, pt.lwd = 2,col = palette(), bty="n", text.width = 0.04, cex=1.3)
-par(xpd=F)
-abline(lm(admtData$FT10_mean[-nrow(admtData)]~eigadm$vectors[,2]), lwd=4, col = "black")
-abline(a=mean(admtData$FT10_mean), b = myCI10[2], lty=2, col='#0072B2', lwd=2)
-abline(a=mean(admtData$FT10_mean), b = -myCI10[2], lty=2, col='#0072B2', lwd=2)
-```
-
-```{r, eval=F}
-#test for selection within FRI classes
-FRIfuncs = dplyr::filter(admtDataFri, deleterious_allele==FALSE)
-FRInulls = dplyr::filter(admtDataFri, deleterious_allele==TRUE)
-
-
-##make new kinship matrices
-myG = read.table('data/1001-matrix-50Ksamp', header=T)
-knames = sapply( names(myG)[-1] ,  function(x){as.integer(substring(x,2))})
-myGt = data.frame(id = knames, t(myG[,-1]))
-#merge with trait data
-myGfri = dplyr::inner_join(FRIfuncs, myGt, by = "id")
-myKfri = make_k(as.matrix(myGfri[,-c(1:27)]))
-eigfri = eigen(myKfri)
-friData = myGfri[,1:27]
-myGnull = dplyr::inner_join(FRInulls, myGt, by = "id")
-myKnull = make_k(as.matrix(myGnull[,-c(1:27)]))
-eignull = eigen(myKnull)
-nullData = myGnull[,1:27]
-save(myKfri, myKnull, eigfri, eignull, friData, nullData, file = "data/fri_qpc_inputs.rda")
-```
-
-```{r}
-load('data/fri_qpc_inputs.rda')
-
-
-par(mar=c(6,6,3,3))
-cbPalette <- c('#999999', '#E69F00', '#56B4E9', "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
-palette(c(cbPalette, 'black', 'mediumpurple3'))
-plot(eigfri$vectors[,1], eigfri$vectors[,2], lwd=2, ,col = as.factor(friData$group.y),ylab = "", yaxt="n",xlab = "PC1", cex.lab=2, cex.axis=2, xaxt="n", bty="n", xlim = c(-.15,.25))
-axis(1, cex.axis=1.5, lwd=2, at = c(-0.1, -0.05, 0, 0.05, 0.1))
-axis(2, las=2, cex.axis=1.5, lwd=2)
-legend(0.12,0.05, levels(friData$group.y), pch=1, pt.lwd = 2,col = palette(), bty="n", text.width = 0.04, cex=1)
-
-
-
-myQpc_16_fri = calcQpc(myZ = friData$FT16_mean.x, myU = eigfri$vectors, myLambdas = eigfri$values, myM = 1:10, myL = 313:623) #dropping the last few because of huge Cm inflation
-myQpc_16_fri$pvals
-
-
-
-myQpc_10_fri = calcQpc(myZ = friData$FT10_mean, myU = eigfri$vectors, myLambdas = eigfri$values, myM = 1:10, myL = 313:623) #dropping the last few because of huge Cm inflation
-myQpc_10_fri$pvals
-
-##PC 10?
-myVaestFri10 = var0(myQpc_10_fri$cml)
-myCIFri10 = 1.96*sqrt(myVaestFri10*eigfri$values[313:623])
-
-
-par(mar = c(5,8,5,14), xpd=T)
-plot(eigfri$vectors[,10], friData$FT10_mean[-nrow(friData)], bty="n",  col = as.factor(friData$group.x), lwd=2, ylab = "", yaxt="n",xlab = "PC 10", cex.lab=2, cex.axis=2, xaxt="n")
-axis(1, cex.axis=1.5, lwd=2)
-axis(2, las=2, cex.axis=1.5, lwd=2)
-mtext('Flowering time 10C',side=2, line=5, cex=2)
-legend(0.35, 160, levels(friData$group.x), pch=1, pt.lwd = 2,col = palette(), bty="n", text.width = 0.04, cex=1.3)
-par(xpd=F)
-abline(lm(friData$FT10_mean[-nrow(friData)]~eigfri$vectors[,10]), lwd=4, col = "black")
-abline(a=mean(friData$FT10_mean), b = myCIFri10[10], lty=2, col='#0072B2', lwd=2)
-abline(a=mean(friData$FT10_mean), b = -myCIFri10[10], lty=2, col='#0072B2', lwd=2)
-
-
-
-
-plot(eignull$vectors[,1], eignull$vectors[,2], lwd=2, ,col = as.factor(nullData$group.y),ylab = "", yaxt="n",xlab = "PC1", cex.lab=2, cex.axis=2, xaxt="n", bty="n")
-axis(1, cex.axis=1.5, lwd=2)
-axis(2, las=2, cex.axis=1.5, lwd=2)
-legend('bottomleft', levels(friData$group.y), pch=1, pt.lwd = 2,col = palette(), bty="n", text.width = 0.04, cex=1)
-
-
-myQpc_16_null = calcQpc(myZ = nullData$FT16_mean.x, myU = eignull$vectors, myLambdas = eignull$values, myM = 1:5, myL = 110:225) 
-myQpc_16_null$pvals
-
-myQpc_10_null = calcQpc(myZ = nullData$FT10_mean, myU = eignull$vectors, myLambdas = eignull$values, myM = 1:5, myL = 110:225) 
-myQpc_10_null$pvals
-
-
-```
 
 
