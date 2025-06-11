@@ -12,6 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 setwd('~/Documents/qpc-plasticity/')
 library(dplyr)
 library(tidyr)
+library(ggplot2)
 library(quaint)
 mycol <- c('#E69F00', '#56B4E9', "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7",'black', 'mediumpurple3')
 palette(mycol)
@@ -19,22 +20,12 @@ palette(mycol)
 ```
 
 
-Load in FIBR data
+Load in FIBR data and extract Norwich data
 ```{r, eval=F}
 fibrdat = read.table('data/alldat_ecomatches_replicate_ecotype_names_reduced.txt', header=T, stringsAsFactors = F)
-
 NF6 <- dplyr::filter(fibrdat,planting=='NorwichFall2006')
-unique(NF6$Date_of_Sowing)
-unique(NF6$Date_of_Transplant)
-
 NS7 <- dplyr::filter(fibrdat,planting=='NorwichSpring2007')
-unique(NS7$Date_of_Sowing)
-unique(NS7$Date_of_Transplant)
 
-
-```
-
-```{r, eval=F}
 ## pull out the Norwich data
 norS7F6 = as.data.frame(fibrdat
                           %>% dplyr::filter(planting %in% c('NorwichFall2006', 'NorwichSpring2007'))
@@ -44,55 +35,33 @@ norS7F6 = as.data.frame(fibrdat
 
 #make a dataframe with the mean ptu to flowering
 norAll = as.data.frame(spread(norS7F6, planting, dtbMean))
-
-
 ```
-
-```{r}
-##make a map
-library(maps)
-
-mylat = as.numeric(norAll$latitude)
-mylong = as.numeric(norAll$longitude)
-map("world", xlim=c(-20,50), ylim=c(20, 80), fill=T, col="azure")
-
-points(mylong,mylat, pch=16, cex=0.5, col="darkred")
-box()
-```
-
 
 Make kinship matrices
 ```{r, eval=F}
-##read in SNP data from 1001 genomes
-#system("python3 process_snp_matrix.py -i 1001_SNP_MATRIX/imputed_snps_binary.hdf5 -o 1001-matrix-50Ksamp -n 50000")
+
+#system("python3 process_snp_matrix.py -i 1001_SNP_MATRIX/imputed_snps_binary.hdf5 -o 1001-matrix-50Ksamp -n 50000") ##read in SNP data from 1001 genomes and subsample using a pythong script
 myG = read.table('data/1001-matrix-50Ksamp', header=T, stringsAsFactors = F)
 
-knames = sapply( names(myG)[-1] ,  function(x){substring(x,2)})
-myGt = data.frame(ecotype_id = knames, t(myG[,-1]), stringsAsFactors = F)
-
-## for the norwich datasets 
-getK <- function(myDataSet, myGtable, id = "ecotype_id", skipcol=3){
-myGmerge = dplyr::inner_join(myDataSet, myGtable, by = 'ecotype_id')
-myK = make_k(as.matrix(myGmerge[,-c(1:skipcol)]))
-myEig = eigen(myK)
-myData = myGmerge[,1:skipcol]
-return(list(k = myK, eig = myEig, dat = myData))}
-
-
-
-
-## get ecotypes with data in both
+## get ecotypes with data in both environments
 norAllnomissing = na.omit(norAll)
-Norstuff = getK(norAllnomissing, myGt, skipcol = 6)
 
-
-#merge in the data about pop groupings
+#merge in the data about population grouping
 accDat <- read.csv('data/1001genomes-FT10-FT16 and 1001genomes-accessions.csv')
 accDat$ecotype_id = as.character(accDat$id)
-accDat2 = accDat[!duplicated(accDat$ecotype_id),] #remove duplicates
-Norstuff$dat2 = droplevels(dplyr::left_join(Norstuff$dat, accDat2, by='ecotype_id'))
+accDat2 = accDat[!duplicated(accDat$ecotype_id),c(18,15)] #remove duplicates and columns we don't care about
+allDat = droplevels(dplyr::left_join(norAllnomissing, accDat2, by='ecotype_id')) #merge with the norwich trait data
 
-save(Norstuff, file = "data/Norwich_qpc_inputs.rda")
+knames = sapply( names(myG)[-1] ,  function(x){substring(x,2)}) #get names of individuals
+myGt = data.frame(ecotype_id = knames, t(myG[,-1]), stringsAsFactors = F) #make a table of the transposed genotype matrix
+myGmerge = dplyr::inner_join(allDat, myGt, by = 'ecotype_id') #merge with the phenotype dataset
+myK = make_k(as.matrix(myGmerge[,-c(1:7)])) #make kinship matrix
+myEig = eigen(myK) #eigen decomposition
+plantDat = myGmerge[,1:7]#get the other data in the same order as the kinship matrix
+
+
+#save the file to use later
+save(myEig, myK, plantDat, file = "data/Norwich_qpc_inputs.rda")
 
 ```
 
@@ -102,52 +71,60 @@ Test for selection in Norwich
 load('data/Norwich_qpc_inputs.rda')
 
 # Norwich fall 2006
-myQpc_NF6 = calcQpc(myZ = Norstuff$dat$NorwichFall2006, myU = Norstuff$eig$vectors, myLambdas = Norstuff$eig$values, myM = 1:5, myL = 70:140) 
-myVaestNF6 = var0(myQpc_NF6$cml)
-myCINF6 = 1.96*sqrt(myVaestNF6*Norstuff$eig$values)
+myQpc_NF6 = calcQpc(myZ = plantDat$NorwichFall2006, myU = myEig$vectors, myLambdas = myEig$values, myM = 1:5, myL = 70:140) 
+plotQPC(myQpc_NF6, myEig = myEig, traitValues = plantDat$NorwichFall2006, populationLabels =plantDat$group, testPCs = 3)
+
+#the pvalues
 myQpc_NF6$pvals*length(myQpc_NF6$pvals)
 
 #Norwich spring 2007
-myQpc_NS7 = calcQpc(myZ = Norstuff$dat$NorwichSpring2007, myU = Norstuff$eig$vectors, myLambdas = Norstuff$eig$values, myM = 1:5, myL = 70:140) 
-myVaestNS7 = var0(myQpc_NS7$cml)
-myCINS7 = 1.96*sqrt(myVaestNS7*Norstuff$eig$values)
+myQpc_NS7 = calcQpc(myZ = plantDat$NorwichSpring2007, myU = myEig$vectors, myLambdas = myEig$values, myM = 1:5, myL = 70:140) 
 
 myQpc_NS7$pvals*length(myQpc_NS7$pvals)
 
+plotQPC(myQpc_NS7, myEig = myEig, traitValues = plantDat$NorwichSpring2007, populationLabels =plantDat$group, testPCs = 3)
+
+
 Norstuff$dat2$group <- as.factor(Norstuff$dat2$group) #make factor so we get colors
+
+```
+
+```{r, eval=F, echo=T}
+##make a figure for the publication
+
+#calculate the CIs
+myCINF6 = 1.96*sqrt(var0(myQpc_NF6$cml)*myEig$values)
+myCINS7 = 1.96*sqrt(var0(myQpc_NS7$cml)*myEig$values)
+
+plantDat$group <- as.factor(plantDat$group)
+
 
 fibrfig <- function(){
 par(mar = c(5,8,5,5), xpd=T, mfrow=c(1,3))
 plot.new()
-legend('left', levels(Norstuff$dat2$group)[-1], pch=1, pt.lwd = 2,col = palette()[-1], bty="n", text.width = 0.04, cex=1.5)
+legend('left', levels(plantDat$group)[-1], pch=1, pt.lwd = 2,col = palette()[-1], bty="n", text.width = 0.04, cex=1.5)
 legend('bottomleft', c('Observed','95% CI'), lty = c(1,2),lwd = 3,col = c('black','#0072B2'), bty="n", text.width = 0.04, cex=1.5)
 
 
-plot(Norstuff$eig$vectors[,3], Norstuff$dat2$NorwichFall2006[-nrow(Norstuff$dat2)], bty="n", col = Norstuff$dat2$group, lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n", ylim = c(5500, 17000))
+plot(myEig$vectors[,3], plantDat$NorwichFall2006[-nrow(plantDat)], bty="n", col = plantDat$group, lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n", ylim = c(5500, 17000))
 axis(1, cex.axis=1.5, lwd=2)
 axis(2, las=2, cex.axis=2, lwd=2, at = seq(6000, 16000, by = 2000), lab = seq(6, 16, by=2))
 mtext('1000 PTU to flower, Fall',side=2, line=5, cex=2)
 par(xpd=F)
-abline(lm(Norstuff$dat2$NorwichFall2006[-nrow(Norstuff$dat2)]~Norstuff$eig$vectors[,3]), lwd=4, col = "black")
-abline(a=mean(Norstuff$dat2$NorwichFall2006), b = myCINF6[3], lty=2, col='#0072B2', lwd=2)
-abline(a=mean(Norstuff$dat2$NorwichFall2006), b = -myCINF6[3], lty=2, col='#0072B2', lwd=2)
+abline(lm(plantDat$NorwichFall2006[-nrow(plantDat)]~myEig$vectors[,3]), lwd=4, col = "black")
+abline(a=mean(plantDat$NorwichFall2006), b = myCINF6[3], lty=2, col='#0072B2', lwd=2)
+abline(a=mean(plantDat$NorwichFall2006), b = -myCINF6[3], lty=2, col='#0072B2', lwd=2)
 mtext('A', side=3, line=1, cex=2.5, adj = -0.1)
 
-plot(Norstuff$eig$vectors[,3], Norstuff$dat2$NorwichSpring2007[-nrow(Norstuff$dat2)], bty="n", col = Norstuff$dat2$group, lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n", ylim = c(5500, 17000))
+plot(myEig$vectors[,3], plantDat$NorwichSpring2007[-nrow(plantDat)], bty="n", col = plantDat$group, lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n", ylim = c(5500, 17000))
 axis(1, cex.axis=1.5, lwd=2)
 axis(2, las=2, cex.axis=2, lwd=2, at = seq(6000, 16000, by = 2000), lab = seq(6, 16, by=2))
 mtext('1000 PTU to flower, Spring',side=2, line=5, cex=2)
-abline(lm(Norstuff$dat2$NorwichSpring2007[-nrow(Norstuff$dat2)]~Norstuff$eig$vectors[,3]), lwd=4, col = "black")
-abline(a=mean(Norstuff$dat2$NorwichSpring2007), b = myCINS7[3], lty=2, col='#0072B2', lwd=2)
-abline(a=mean(Norstuff$dat2$NorwichSpring2007), b = -myCINS7[3], lty=2, col='#0072B2', lwd=2)
+abline(lm(plantDat$NorwichSpring2007[-nrow(plantDat)]~myEig$vectors[,3]), lwd=4, col = "black")
+abline(a=mean(plantDat$NorwichSpring2007), b = myCINS7[3], lty=2, col='#0072B2', lwd=2)
+abline(a=mean(plantDat$NorwichSpring2007), b = -myCINS7[3], lty=2, col='#0072B2', lwd=2)
 mtext('B', side=3, line=1, cex=2.5, adj = -0.1)
 }
-
-fibrfig()
-```
-
-```{r, eval=F, echo=F}
-##make a figure
 postscript("figures/FIBRnorwich.eps",height=6,width=14,paper="special",horizontal=FALSE,colormodel="cymk")
 
 fibrfig()
@@ -300,44 +277,4 @@ dev.off()
 
 
 
-```{r, eval=F, echo=F}
-##plots for intuition
-myZ = myZ2
-myU = Norstuff$eig$vectors
-myLambdas = Norstuff$eig$values
 
-
-# get Xms for each PC (for Z1, the focal trait and Z2, the correlated trait) THESE ARE MEAN CENTERED
-myX1centered = (myZ[-nrow(myZ),1]-mean(myZ[,1]))%*%myU/sqrt(myLambdas)
-myX2centered = (myZ[-nrow(myZ),2]-mean(myZ[,2]))%*%myU/sqrt(myLambdas)
-
-#get mu' for each PC
-
-Ca12 = sapply(1:140, function(x){sum(myX1centered[x]*myX2centered[x])})
-Va2 = sapply(1:140, function(x){sum(myX2centered[x]^2)})
-Va1 = sapply(1:140, function(x){sum(myX1centered[x]^2)})
-
-Va1 = sum(myX1centered[myL]^2)/length(myL)
-
-
-##how does Ca12, Va2, and Va 1 change over  time
-
-plot(Va1, bty="n", xlab = "PC")
-plot(Va2, bty="n", xlab = "PC")
-plot(Ca12, bty="n", xlab = "PC")
-
-plot(Norstuff$eig$vectors[,139], Norstuff$dat$NorwichSpring2007[-nrow(Norstuff$dat)], col = ecoDat$group, bty="n", xlab = 'PC 139', ylab = "PTU Floweringtime Spring Norwich")
-
-```
-
-More trying to get intuition...
-
-
-
-So what we're seeing is variation in the plastic response to spring where most plants flower with less PTU but some plants flower with more.
-
-Is this divergence under selection?
-
-The answer for the reaction norm is no.
-
-But for the conditional test, yes. What does that mean?
