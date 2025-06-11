@@ -85,7 +85,7 @@ myQpc_NS7$pvals*length(myQpc_NS7$pvals)
 plotQPC(myQpc_NS7, myEig = myEig, traitValues = plantDat$NorwichSpring2007, populationLabels =plantDat$group, testPCs = 3)
 
 
-Norstuff$dat2$group <- as.factor(Norstuff$dat2$group) #make factor so we get colors
+plantDat$group <- as.factor(plantDat$group) #make factor so we get colors
 
 ```
 
@@ -134,44 +134,37 @@ dev.off()
 Test for selection on the reaction norm between spring and fall in Norwich
 
 ```{r}
-par(mfrow=c(2,2))
-Norstuff$dat2$rn = Norstuff$dat2$NorwichSpring2007 - Norstuff$dat2$NorwichFall2006 #calculate the reaction norm. Positive values mean later flowering in spring plantins. Negative values mean later flowering in fall plantings.
 
-hist(Norstuff$dat2$rn, col = mycol[3], border="white", xlab = "", main="PTU Spring-Fall")
+plantDat$rn = plantDat$NorwichSpring2007 - plantDat$NorwichFall2006 #calculate the reaction norm. Positive values mean later flowering in spring plantins. Negative values mean later flowering in fall plantings.
+
+par(mfrow=c(1,1))
+hist(plantDat$rn, col = mycol[3], border="white", xlab = "", main="PTU Spring-Fall")
 ## most are negative which makes sense since the fall plants had to overwinter.
 
-plot(Norstuff$dat2$NorwichSpring2007, Norstuff$dat2$NorwichFall2006, col = Norstuff$dat2$group, bty="n", xlab = "Spring", ylab="Fall", lwd=2)
-cor.test(Norstuff$dat2$NorwichFall2006, Norstuff$dat2$NorwichSpring2007)
+plot(plantDat$NorwichSpring2007, plantDat$NorwichFall2006, col = plantDat$group, bty="n", xlab = "Spring", ylab="Fall", lwd=2)
+cor.test(plantDat$NorwichFall2006, plantDat$NorwichSpring2007)
 abline(a = 0, b=1)
 ## You can see a tail of accessions that need vernalization.
 
-plot(Norstuff$dat2$NorwichSpring2007, Norstuff$dat2$rn, col = Norstuff$dat2$group, bty="n", xlab = "Spring", ylab="Reaction Norm", lwd=2)
-cor.test(Norstuff$dat2$rn, Norstuff$dat2$NorwichSpring2007)
-## the reaction norm is correlated with spring flowering time
 
-plot(Norstuff$dat2$NorwichFall2006, Norstuff$dat2$rn, col = Norstuff$dat2$group, bty="n", xlab = "Fall", ylab="Reaction Norm", lwd=2)
-cor.test(Norstuff$dat2$rn, Norstuff$dat2$NorwichFall2006)
-## the reaction norm is negatively correlated with fall flowering time
+myQpc_rn = calcQpc(myZ = plantDat$rn, myU = myEig$vectors, myLambdas = myEig$values, myM = 1:3, myL = 70:140) 
 
 
-myQpc_rn = calcQpc(myZ = Norstuff$dat2$rn, myU = Norstuff$eig$vectors, myLambdas = Norstuff$eig$values, myM = 1:3, myL = 70:140) 
-myVaestrn = var0(myQpc_rn$cml)
-myCIrn = 1.96*sqrt(myVaestrn*Norstuff$eig$values)
-
-myQpc_rn$pvals*5
+myQpc_rn$pvals*3
 
 
 fibRxnFig <- function(x){
+myCIrn = 1.96*sqrt(var0(myQpc_rn$cml)*myEig$values)
 par(mar = c(5,8,5,14), xpd=T, mfrow=c(1,1))
-plot(Norstuff$eig$vectors[,3], Norstuff$dat2$rn[-nrow(Norstuff$dat2)], bty="n", col = Norstuff$dat2$group, lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n")
+plot(myEig$vectors[,3], plantDat$rn[-nrow(plantDat)], bty="n", col = plantDat$group, lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n")
 axis(1, cex.axis=1.5, lwd=2)
 axis(2, las=2, cex.axis=1.5, lwd=2)
 mtext('Reaction Norm',side=2, line=5, cex=2)
-legend(0.13, 5000, levels(Norstuff$dat2$group), pch=1, pt.lwd = 2,col = palette(), bty="n", text.width = 0.04, cex=1.3)
+legend(0.13, 5000, levels(plantDat$group), pch=1, pt.lwd = 2,col = palette(), bty="n", text.width = 0.04, cex=1.3)
 par(xpd=F)
-abline(lm(Norstuff$dat2$rn[-nrow(Norstuff$dat2)]~Norstuff$eig$vectors[,3]), lwd=4, col = "black")
-abline(a=mean(Norstuff$dat2$rn), b = myCIrn[3], lty=2, col='#0072B2', lwd=2)
-abline(a=mean(Norstuff$dat2$rn), b = -myCIrn[3], lty=2, col='#0072B2', lwd=2)
+abline(lm(plantDat$rn[-nrow(plantDat)]~myEig$vectors[,3]), lwd=4, col = "black")
+abline(a=mean(plantDat$rn), b = myCIrn[3], lty=2, col='#0072B2', lwd=2)
+abline(a=mean(plantDat$rn), b = -myCIrn[3], lty=2, col='#0072B2', lwd=2)
 }
 
 fibRxnFig()
@@ -234,11 +227,11 @@ myZfibr2 = myZ2
 fibrCondfig <-function(){
   par(mar = c(5,8,5,5), xpd=T, mfrow=c(1,3))
 plot.new()
-legend('left', levels(Norstuff$dat2$group)[-1], pch=1, pt.lwd = 2,col = palette()[-1], bty="n", text.width = 0.04, cex=2.5)
+legend('left', levels(plantDat$group)[-1], pch=1, pt.lwd = 2,col = palette()[-1], bty="n", text.width = 0.04, cex=2.5)
 legend('bottomleft', c('Observed','95% CI'), lty = c(1,3),lwd = 3,col = c('black','#0072B2'), bty="n", text.width = 0.04, cex=2.5)
 
 
-plot(myU[,myPC], myZ[-nrow(myZ),2], bty="n", col = Norstuff$dat2$group, lwd=3, xlab = paste('PC', myPC), ylab = "", yaxt="n", xaxt="n", cex.lab = 2, cex=1.5, ylim = c(5500,17000), xlim = c(-0.35,0.1))
+plot(myU[,myPC], myZ[-nrow(myZ),2], bty="n", col = plantDat$group, lwd=3, xlab = paste('PC', myPC), ylab = "", yaxt="n", xaxt="n", cex.lab = 2, cex=1.5, ylim = c(5500,17000), xlim = c(-0.35,0.1))
 axis(2, las=2, cex.axis=2, lwd=3, at = seq(6000, 16000, by = 2000), lab = seq(6,16, by=2))
 axis(1, cex.axis=2, lwd=3)
 myl = lm(mu_fs_cond~myU[,myPC]) ##conditional expectation
@@ -250,7 +243,7 @@ abline(lm((myZ[-nrow(myZ),2])~myU[,myPC]), lwd=4, col = "navy")
 mtext('A', side=3, line=1, cex=2.5, adj = -0.1)
 mtext('1000 PTUs to flower, Fall', side=2, line=4, cex=2)
 
-plot(myU[,myPC], myZ[-nrow(myZ),1], bty="n", col = Norstuff$dat2$group, lwd=3, xlab = paste('PC', myPC), ylab="",yaxt="n", xaxt="n", cex.lab = 2, cex=1.5, ylim = c(5500, 17000), xlim = c(-0.35, 0.1)) 
+plot(myU[,myPC], myZ[-nrow(myZ),1], bty="n", col = plantDat$group, lwd=3, xlab = paste('PC', myPC), ylab="",yaxt="n", xaxt="n", cex.lab = 2, cex=1.5, ylim = c(5500, 17000), xlim = c(-0.35, 0.1)) 
 axis(2, las=2, cex.axis=2, lwd=3, at = seq(6000, 16000, by = 2000), lab = seq(6,16, by=2))
 axis(1, cex.axis=2, lwd=3)
 myl = lm(mu_sf_cond~myU[,myPC]) ##conditional expectation
