@@ -180,22 +180,21 @@ dev.off()
 ```
 
 
-Conditional test
+Now do the conditional test
 ```{r}
-myZ2 = data.frame(NS7 = Norstuff$dat$NorwichSpring2007, NF6 = Norstuff$dat$NorwichFall2006, stringsAsFactors = F)
-myQcondNS7 = condQpc(myZ = myZ2, myU = Norstuff$eig$vectors, myLambdas = Norstuff$eig$values, myM = 3, myL = 70:140)
-myPNS7 = sapply(myQcondNS7, function(x) {1-pnorm(abs(x), mean=0, sd=1)})
-myPNS7
+#test for selection on Norwich spring given Norwich fall
+myZ2 = data.frame(NS7 = plantDat$NorwichSpring2007, NF6 = plantDat$NorwichFall2006, stringsAsFactors = F)
+myQcondNS7 = condQpc(myZ = myZ2, myU = myEig$vectors, myLambdas = myEig$values, myM = 3, myL = 70:140)
+myQcondNS7$pvals
 
-myZ3 = data.frame(NF6 = Norstuff$dat$NorwichFall2006,NS7 = Norstuff$dat$NorwichSpring2007, stringsAsFactors = F)
-myQcondNF6 = condQpc(myZ = myZ3, myU = Norstuff$eig$vectors, myLambdas = Norstuff$eig$values, myM = 3, myL = 70:140)
-myPNF6 = sapply(myQcondNF6, function(x) {1-pnorm(abs(x), mean=0, sd=1)})
-myPNF6
-
+#vice versa
+myZ3 = data.frame(NF6 = plantDat$NorwichFall2006, NS7 = plantDat$NorwichSpring2007, stringsAsFactors = F)
+myQcondNF6 = condQpc(myZ = myZ3, myU = myEig$vectors, myLambdas = myEig$values, myM = 3, myL = 70:140)
+myQcondNF6$pvals
 
 myZ = myZ2
-myU = Norstuff$eig$vectors
-myLambdas = Norstuff$eig$values
+myU = myEig$vectors
+myLambdas = myEig$values
 myM = 3 
 myL = 70:140
 myPC = 3
