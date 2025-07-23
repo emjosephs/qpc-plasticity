@@ -156,7 +156,7 @@ abline(a = 0, b=1)
 myQpc_rn = calcQpc(myZ = plantDat$rn, myU = myEig$vectors, myLambdas = myEig$values, myM = 1:3, myL = 70:140) 
 
 
-myQpc_rn$pvals*3
+myQpc_rn$pvals
 
 
 fibRxnFig <- function(x){
@@ -179,7 +179,7 @@ fibRxnFig()
 
 ```{r, eval=F, echo=F}
 ##make a figure
-postscript("figures/FIBRnorwichRxn.eps",height=6,width=14,paper="special",horizontal=FALSE,colormodel="cymk")
+postscript("figures/FIBRnorwichRxn.eps",height=6,width=6,paper="special",horizontal=FALSE,colormodel="cymk")
 
 fibRxnFig()
 dev.off()
