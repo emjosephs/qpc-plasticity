@@ -236,9 +236,9 @@ fibrfig <-function(){
 legend('left', levels(plantDat$group)[-1], pch=1, pt.lwd = 2,col = palette()[-1], bty="n", text.width = 0.04, cex=2.5)
 legend('bottomleft', c('Observed','95% CI', '95% conditional CI'), lty = c(1,2,2),lwd = 2,col = c('black','#0072B2',"#E69F00"), bty="n", text.width = 0.04, cex=2.5)
 
-plot(myEig$vectors[,3], plantDat$NorwichFall2006[-nrow(plantDat)], bty="n", col = plantDat$group, lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n", ylim = c(5500, 17000))
+plot(myEig$vectors[,3], plantDat$NorwichFall2006[-nrow(plantDat)], bty="n", col = plantDat$group, lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n", ylim = c(5500, 18000))
 axis(1, cex.axis=1.5, lwd=2)
-axis(2, las=2, cex.axis=2, lwd=2, at = seq(6000, 16000, by = 2000), lab = seq(6, 16, by=2))
+axis(2, las=2, cex.axis=2, lwd=2, at = seq(6000, 18000, by = 2000), lab = seq(6, 18, by=2))
 mtext('1000 PTU to flower, Fall',side=2, line=5, cex=2)
 par(xpd=F)
 abline(lm(plantDat$NorwichFall2006[-nrow(plantDat)]~myEig$vectors[,3]), lwd=4, col = "black")
@@ -248,9 +248,9 @@ abline(a=mean(myZ[,2]), b = myl$coefficients[2] + myCI_fs[myPC], lty=2, col="#E6
 abline(a=mean(myZ[,2]), b = myl$coefficients[2] -myCI_fs[myPC], lty=2, col="#E69F00", lwd=2)
 mtext('A', side=3, line=1, cex=2.5, adj = -0.1)
 
-plot(myEig$vectors[,3], plantDat$NorwichSpring2007[-nrow(plantDat)], bty="n", col = plantDat$group, lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n", ylim = c(5500, 17000))
+plot(myEig$vectors[,3], plantDat$NorwichSpring2007[-nrow(plantDat)], bty="n", col = plantDat$group, lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n", ylim = c(5500, 18000))
 axis(1, cex.axis=1.5, lwd=2)
-axis(2, las=2, cex.axis=2, lwd=2, at = seq(6000, 16000, by = 2000), lab = seq(6, 16, by=2))
+axis(2, las=2, cex.axis=2, lwd=2, at = seq(6000, 18000, by = 2000), lab = seq(6, 18, by=2))
 mtext('1000 PTU to flower, Spring',side=2, line=5, cex=2)
 abline(lm(plantDat$NorwichSpring2007[-nrow(plantDat)]~myEig$vectors[,3]), lwd=4, col = "black")
 abline(a=mean(plantDat$NorwichSpring2007), b = myCINS7[3], lty=2, col='#0072B2', lwd=2)
@@ -266,7 +266,7 @@ fibrfig()
 
 
 ```{r}
-postscript("figures/FIBRfig.eps",height=10,width=14,paper="special",horizontal=FALSE,colormodel="cymk")
+postscript("figures/FIBRfig.eps",height=7,width=10,paper="special",horizontal=FALSE,colormodel="cymk")
   par(mar = c(5,8,5,5), xpd=T, mfrow=c(1,3))
 plot.new()
 fibrfig()
