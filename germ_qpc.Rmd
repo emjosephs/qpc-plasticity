@@ -1,5 +1,5 @@
 ---
-title: "ft_qpc.Rmd"
+title: "germ_qpc.Rmd"
 author: "em"
 date: "July 13, 2018"
 output:
@@ -19,38 +19,35 @@ palette(c(mycol, 'black', 'mediumpurple3'))
 ```
 
 
-Load in data
+Load in data from Martinez-Berdeja et a. https://datadryad.org/dataset/doi:10.25338/B8VS4P
 ```{r}
-adm = read.csv('data/1001genomes-FT10-FT16 and 1001genomes-accessions.csv')
-adm_nonas = dplyr::filter(adm, FT16_mean != 'NA') #remove individuals with missing data
+germ = read.csv('data/arabidopsis_germ_phen_chilling_DATA.csv')
+#will use d4_4C_perc and base_perc to look at affect of chilling
 
-meanFT10 = mean(adm_nonas$FT10_mean)
-meanFT16 = mean(adm_nonas$FT16_mean)
-
-#look at reaction norms
-
-par(mar=c(8,8,3,3), mfrow=c(1,1))
-plot(-10,-10, xlim = c(0.75,2.25), ylim = c(25, 160), ylab = "", xlab = "mean flowering time across lines", bty="n", xaxt='n', yaxt='n', cex.lab=2)
-axis(2, las=2, cex.lab=2, cex.axis=2, lwd=2)
-axis(1, at=c(1,2), labels = c('16C','10C'), cex.lab=2, cex.axis=2, lwd=2)
-mtext("Flowering time of each line", side=2, cex=2, line=5)
-test = sapply(1:nrow(adm_nonas), function(x){
-  points(c(1, 2), c(adm_nonas$FT10_mean[x], adm_nonas$FT16_mean[x]), type="l", col = mycol[4])
-})
 ```
 
 ```{r eval=F}
+
+#myG = read.table('data/1001-matrix-50Ksamp', header=T)
+#knames = sapply( names(myG)[-1] ,  function(x){as.integer(substring(x,2))})
+#myGt = data.frame(id = knames, t(myG[,-1]))
+#myGgr = dplyr::inner_join(germ, myGt, by = "id")
+#myKgr = make_k(as.matrix(myGgr[,-c(1:22)]))
+#eiggr = eigen(myKgr)
+#germData = myGgr[,1:22]
+#save(germData, eiggr, file = "data/germ_qpc_inputs.rda")
+
 #making a k matrix to go with data from both FT10 and FT16
 myG = read.table('data/1001-matrix-50Ksamp', header=T)
 knames = sapply( names(myG)[-1] ,  function(x){as.integer(substring(x,2))})
 myGt = data.frame(id = knames, t(myG[,-1]))
 
 #merge with trait data
-myGadm = dplyr::inner_join(adm_nonas, myGt, by = "id")
-myKadm = make_k(as.matrix(myGadm[,-c(1:17)]))
-eigadm = eigen(myKadm)
-admtData = myGadm[,1:17]
-save(admtData, myKadm,eigadm, file = "data/fw_qpc_inputs.rda")
+myGg = dplyr::inner_join(germ, myGt, by = "id")
+myKg = make_k(as.matrix(myGg[,-c(1:22)]))
+eigg = eigen(myKg)
+gData = myGg[,1:22]
+save(gData, myKg,eigg, file = "data/germ_qpc_inputs.rda")
 ```
 
 Look at relatedness in the Arabidopsis samples
