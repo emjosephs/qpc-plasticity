@@ -179,7 +179,7 @@ fibRxnFig()
 
 ```{r, eval=F, echo=F}
 ##make a figure
-postscript("figures/FIBRnorwichRxn.eps",height=6,width=6,paper="special",horizontal=FALSE,colormodel="cymk")
+postscript("figures/FIBRnorwichRxn.eps",height=6,width=8,paper="special",horizontal=FALSE,colormodel="cymk")
 
 fibRxnFig()
 dev.off()
@@ -276,6 +276,14 @@ dev.off()
 
 ```
 
+```{r, eval=F, echo=F}
+#is lm() the right thing to do in the plot?
+myQpc_NF6$cm[3] ## this should be the slope? no, it's the slope divided by the square root of the eigenvalue
+myQpc_NF6$cm[3]*sqrt(myLambdas[3])
 
+lm(plantDat$NorwichFall2006[-nrow(plantDat)]~myEig$vectors[,3])
+
+##ok they are the same!
+```
 
 
