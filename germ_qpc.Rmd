@@ -123,4 +123,6 @@ plotCondQpc(myQcondgerm, myEig = eigg, traitValues = gData$base_perc, population
 
 ```
 
-
+```{r}
+names(gData)
+```
