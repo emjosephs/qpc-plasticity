@@ -80,6 +80,8 @@ myQpc_strat = calcQpc(myZ = gData$d4_4C_perc, myU = eigg$vectors, myLambdas = ei
 
 myQpc_strat$pvals
 
+plotQPC(myQpc_strat, myEig = eigg, traitValues = gData$d4_4C_perc, populationLabels = gData$group, testPCs = 1)
+
 plotQPC(myQpc_strat, myEig = eigg, traitValues = gData$d4_4C_perc, populationLabels = gData$group, testPCs = 3)
 plotQPC(myQpc_strat, myEig = eigg, traitValues = gData$d4_4C_perc, populationLabels = gData$group, testPCs = 4)
 
@@ -90,6 +92,14 @@ Test for selection on the reaction norm
 #calculate the reaction norm
 gData$rxn <- gData$d4_4C_perc - gData$base_perc
 hist(gData$rxn, main="", xlab = "germ rate increase w/ cold treatment", border="white")
+
+
+
+ggplot(gData, aes(x=group, y=rxn)) +
+  geom_boxplot(aes(color = as.factor(group)), outlier.colour="white") +
+   geom_jitter(aes(color = as.factor(group))) +
+            theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) 
+  
 
 #do qpc on the reaction norm
 myQpc_rxn = calcQpc(myZ = gData$rxn, myU = eigg$vectors, myLambdas = eigg$values,  myM = 1:5, myL = 234:468)
