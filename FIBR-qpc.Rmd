@@ -286,4 +286,11 @@ lm(plantDat$NorwichFall2006[-nrow(plantDat)]~myEig$vectors[,3])
 ##ok they are the same!
 ```
 
+Make a figure of correlation between the two traits compared to expectation under selection on one trait and correlated selection on the other.
 
+```{r}
+par(mar=c(5,8,2,2))
+plot(plantDat$NorwichFall2006, plantDat$NorwichSpring2007, bty="n", col = plantDat$group, lwd=2, yaxt="n",xlab = "Flowering Time Fall", cex.lab=2, cex.axis=2, ylab = "")
+axis(2, las=2, cex.axis=1.5, lwd=2)
+mtext('Flowering Time Spring',side=2, line=5, cex=2)
+```
