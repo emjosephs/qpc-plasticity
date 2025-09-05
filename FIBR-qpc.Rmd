@@ -290,7 +290,60 @@ Make a figure of correlation between the two traits compared to expectation unde
 
 ```{r}
 par(mar=c(5,8,2,2))
-plot(plantDat$NorwichFall2006, plantDat$NorwichSpring2007, bty="n", col = plantDat$group, lwd=2, yaxt="n",xlab = "Flowering Time Fall", cex.lab=2, cex.axis=2, ylab = "")
+plantDat$group <- as.factor(plantDat$group) 
+
+myZ <- data.frame(NF6 = plantDat$NorwichFall2006, NS7 = plantDat$NorwichSpring2007,stringsAsFactors = F)
+
+#make the g matrix
+makeG <- function(myZ){
+  myZ1centered = (myZ[-nrow(myZ), 1] - mean(myZ[, 1])) 
+    myZ2centered = (myZ[-nrow(myZ), 2] - mean(myZ[, 2]))
+     Ca12 = sum(myZ1centered * myZ2centered)
+     Va1 <- sum(myZ1centered*myZ1centered)
+     Va2 <- sum(myZ2centered*myZ2centered)
+    myG <- matrix(data=c(Va1, Ca12, Ca12,Va2), ncol=2)
+    return(myG)
+}
+
+myG <- makeG(myZ) #make it from just phenotypes
+
+ellipse <- function(mu, sigma, alpha=.05, npoints=250,
+                    newplot=FALSE, draw=TRUE, ...) {
+  es <- eigen(sigma)
+  e1 <- es$vec%*%diag(sqrt(es$val))
+  r1 <- sqrt(qchisq(1-alpha,2))
+  theta <- seq(0,2*pi,len=npoints)
+  v1 <- cbind(r1*cos(theta),r1*sin(theta))
+  pts=t(mu-(e1%*%t(v1)))
+  if (newplot && draw) {
+    plot(pts, ...)
+  } else if (!newplot && draw) {
+    lines(pts, ...)
+  }
+  invisible(pts)
+}
+
+ellipsepts <- function(mu, sigma, alpha=.05, npoints=250,
+                    newplot=FALSE, draw=TRUE, ...) {
+  es <- eigen(sigma)
+  e1 <- es$vec%*%diag(sqrt(es$val))
+  r1 <- sqrt(qchisq(1-alpha,2))
+  theta <- seq(0,2*pi,len=npoints)
+  v1 <- cbind(r1*cos(theta),r1*sin(theta))
+  pts=t(mu-(e1%*%t(v1)))
+  return(pts)
+}
+
+myPts <- ellipsepts(mu=c(mean(myZ$NF6), mean(myZ$NS7)),myG)
+
+plot(plantDat$NorwichFall2006, plantDat$NorwichSpring2007, bty="n", col = plantDat$group, lwd=2, yaxt="n",xlab = "Flowering Time Fall", cex.lab=2, cex.axis=2, ylab = "", xlim=c(-5e4,8e4), ylim=c(-5e4,8e4))
 axis(2, las=2, cex.axis=1.5, lwd=2)
 mtext('Flowering Time Spring',side=2, line=5, cex=2)
+
+lines(pts, col="red", lwd=2)
+
+
+ellipse(mu=c(mean(myZ$NF6), mean(myZ$NS7)), myG,col="red",lwd=2)
+
+## why are these last two ellipses different???
 ```
