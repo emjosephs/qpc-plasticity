@@ -23,13 +23,15 @@ Load in data
 adm = read.csv('data/1001genomes-FT10-FT16 and 1001genomes-accessions.csv')
 adm_nonas = dplyr::filter(adm, FT16_mean != 'NA') #remove individuals with missing data
 
+#calculate means
 meanFT10 = mean(adm_nonas$FT10_mean)
 meanFT16 = mean(adm_nonas$FT16_mean)
 
-#look at reaction norms
-
+#plot reaction norms
 par(mar=c(8,8,3,3), mfrow=c(1,1))
-plot(-10,-10, xlim = c(0.75,2.25), ylim = c(25, 160), ylab = "", xlab = "mean flowering time across lines", bty="n", xaxt='n', yaxt='n', cex.lab=2)
+plot(-10,-10, xlim = c(0.75,2.25), ylim = c(25, 160), 
+     ylab = "", xlab = "mean flowering time across lines", bty="n", 
+     xaxt='n', yaxt='n')
 axis(2, las=2, cex.lab=2, cex.axis=2, lwd=2)
 axis(1, at=c(1,2), labels = c('16C','10C'), cex.lab=2, cex.axis=2, lwd=2)
 mtext("Flowering time of each line", side=2, cex=2, line=5)
