@@ -1,0 +1,138 @@
+---
+title: "germ_qpc.Rmd"
+author: "em"
+date: "July 13, 2018"
+output:
+  html_document:
+    keep_md: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd('~/Documents/qpc-plasticity/')
+library(dplyr)
+library(ggplot2)
+library(quaint)
+mycol <- c('#999999', '#E69F00', '#56B4E9', "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+palette(c(mycol, 'black', 'mediumpurple3'))
+
+```
+
+
+Load in data from Martinez-Berdeja et a. https://datadryad.org/dataset/doi:10.25338/B8VS4P
+```{r}
+germ = read.csv('data/arabidopsis_germ_phen_chilling_DATA.csv')
+#will use d4_4C_perc and base_perc to look at affect of chilling
+
+```
+
+```{r eval=F}
+
+
+#making a k matrix to go with data from Alejandra's experiment
+myG = read.table('data/1001-matrix-50Ksamp', header=T)
+knames = sapply( names(myG)[-1] ,  function(x){as.integer(substring(x,2))})
+myGt = data.frame(id = knames, t(myG[,-1]))
+
+#merge with trait data
+myGg = dplyr::inner_join(germ, myGt, by = "id")
+myKg = make_k(as.matrix(myGg[,-c(1:22)]))
+eigg = eigen(myKg)
+
+
+# merge with group data
+ccinfo <- read.csv('data/1001genomes-FT10-FT16 and 1001genomes-accessions.csv') |> select(id, group, latitude, longitude, country)
+gData <- dplyr::left_join(myGg[,1:22], ccinfo, by="id")
+
+save(gData, myKg,eigg, file = "data/germ_qpc_inputs.rda")
+```
+
+Look at relatedness in the Arabidopsis samples
+```{r}
+
+load('data/germ_qpc_inputs.rda')
+gData$group = as.factor(gData$group) #so they can be colored
+
+par(mar=c(6,6,3,3))
+cbPalette <- c('#999999', '#E69F00', '#56B4E9', "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+palette(c(cbPalette, 'black', 'mediumpurple3'))
+plot(eigg$vectors[,1], eigg$vectors[,2],col = gData$group, lwd=2, ylab = "", yaxt="n",xlab = "PC1", cex.lab=2, cex.axis=2, xaxt="n", bty="n")
+axis(1, cex.axis=1.5, lwd=2, at = c(-0.1, -0.05, 0, 0.05, 0.1,0.15))
+axis(2, las=2, cex.axis=1.5, lwd=2)
+legend('bottomright',levels(as.factor(gData$group)), pch=1, pt.lwd = 2,col = palette(), bty="n")
+```
+
+Test for germination rate without treatment.
+```{r, warning=F, message=F}
+myQpc_germ = calcQpc(myZ = gData$base_perc, myU = eigg$vectors, myLambdas = eigg$values, myM=1:5, myL = 234:468) 
+
+myQpc_germ$pvals
+
+plotQPC(myQpc_germ, myEig = eigg, traitValues = gData$base_perc, populationLabels = gData$group, testPCs = 1)
+plotQPC(myQpc_germ, myEig = eigg, traitValues = gData$base_perc, populationLabels = gData$group, testPCs = 3)
+
+```
+
+
+Test for selection on germination rate after cold treatment
+```{r, warning=F, message=F}
+myQpc_strat = calcQpc(myZ = gData$d4_4C_perc, myU = eigg$vectors, myLambdas = eigg$values, myM=1:5, myL = 234:468) 
+
+myQpc_strat$pvals
+
+plotQPC(myQpc_strat, myEig = eigg, traitValues = gData$d4_4C_perc, populationLabels = gData$group, testPCs = 1)
+
+plotQPC(myQpc_strat, myEig = eigg, traitValues = gData$d4_4C_perc, populationLabels = gData$group, testPCs = 3)
+plotQPC(myQpc_strat, myEig = eigg, traitValues = gData$d4_4C_perc, populationLabels = gData$group, testPCs = 4)
+
+```
+
+Test for selection on the reaction norm
+```{r}
+#calculate the reaction norm
+gData$rxn <- gData$d4_4C_perc - gData$base_perc
+hist(gData$rxn, main="", xlab = "germ rate increase w/ cold treatment", border="white")
+
+
+
+ggplot(gData, aes(x=group, y=rxn)) +
+  geom_boxplot(aes(color = as.factor(group)), outlier.colour="white") +
+   geom_jitter(aes(color = as.factor(group))) +
+            theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) 
+  
+
+#do qpc on the reaction norm
+myQpc_rxn = calcQpc(myZ = gData$rxn, myU = eigg$vectors, myLambdas = eigg$values,  myM = 1:5, myL = 234:468)
+myQpc_rxn$pvals
+plotQPC(myQpc_rxn, myEig = eigg, traitValues = gData$rxn, populationLabels = gData$group, testPCs = 1)
+```
+
+Look at correlations
+```{r}
+ggplot(gData, aes(x = base_perc, y = d4_4C_perc)) + 
+            geom_point(aes(color = as.factor(group))) +
+            theme_classic() + labs(x = "Base germination rate", y = "Germination rate after cold treatment")
+            
+cor.test(gData$base_perc, gData$d4_4C_perc)    
+```
+
+Apply the conditional test.
+
+```{r}
+myZ = data.frame(germ = gData$base_perc, strat = gData$d4_4C_perc, stringsAsFactors = F)
+myQcondgerm = condQpc(myZ = myZ, myU = eigg$vectors, myLambdas = eigg$values, myM = c(1,3,4), myL = 234:468)
+
+myZ2 = dplyr::select(myZ, strat, germ)
+myQcondstrat = condQpc(myZ = myZ2, myU = eigg$vectors, myLambdas = eigg$values, myM = c(1,3,4), myL = 234:468)
+
+myQcondgerm$pvals
+myQcondstrat$pvals
+
+plotCondQpc(myQcondgerm, myEig = eigg, traitValues = gData$base_perc, populationLabels = gData$group, testPCs = 1)
+
+
+```
+
+```{r}
+names(gData)
+```
