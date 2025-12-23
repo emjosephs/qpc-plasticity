@@ -2,6 +2,9 @@
 \setlength\parindent{0in}
 \setlength{\parskip}{1.5em}
 
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
 \usepackage{amsmath}
 \usepackage{graphicx}
 \usepackage{natbib}
@@ -41,53 +44,61 @@
 \maketitle
 \linenumbers
 
+\section*{Abstract}
+Determining the evolutionary forces shaping genetic variation for environmental responses (\gxe) is crucial for comprehensively understanding local adaptation and predicting responses to new environments. 
+We expect local adaptation for environmental responses to contribute to on a species-wide scale \gxe\ but we lack evidence of this process, in part because we lack rigorous methods for detecting it.
+Here we develop a new method based on \qf\ to detect divergence in environmental responses due to local adaptation.
+We apply this method to large multi-environment datasets from \textit{Arabidopsis thaliana}.
+For some traits, while there is evidence of selection on trait values across environment, our new method does not detect evidence of selection on environmental responses themselves.
+However, for flowering time measured in outdoor common gardens, we do detect evidence of local adaptation for environmental responses to season.
+Overall, these results suggest that local adaptation does contribute to \gxe\ in \textit{A. thaliana} and that these methods could be broadly applied to comprehensively evaluate the role of local adaptation in shaping \gxe.
+
 \section*{Introduction}
 
 %Big picture
-Traits are shaped by both genetics and the environment, so understanding the evolutionary forces shaping trait variation requires not only identifying genetic variation for traits but also how this variation differs across environments.
-Genotype by environment interactions in determining trait values (\gxe) are common (CITES) and can be thought of as the result of 1) genetic variation for environmental response or 2) environmental variation in the allelic effect sizes of segretating polymorphisms \citep{falconer1952problem, bradshaw1965evolutionary}.
-\gxe\ has long been of interest to evolutionary biologists because it could represent plasticity that has contributed to adaptation in new or unpredictable environments. \citep{schlichting1986evolution,scheiner1993genetics}.
-In particular, adaptation through the evolution of plastic responses could allow organisms to ... (CITES)
-However, \gxe\ may also result from different selection pressures across environments that constrain trait expression in some environments but allow trait expression to drift in other environments where selection is relaxed.
-These processes are often thought of in the context of cryptic variation.
-Alternatively, costs of plasticity could limit the evolution of plasticity in specific environments if costs vary by environment or if the benefits of plasticity do not outweigh costs in some environments \citep{dewitt1998costs, callahan2005plasticity}.
-In all cases, local adaptation is thought to be crucial for shaping \gxe.
+Traits are shaped by both genetics and the environment, so understanding the evolutionary forces shaping trait variation requires not only identifying genetic variation for traits but also determining how this variation differs across environments.
+Genetic variation for environmental response or 2) environmental variation in the allelic effect sizes of segregating polymorphisms can contribute to genotype by environment interactions (\gxe) in determining phenotypes \citep{falconer1952problem, bradshaw1965evolutionary}.
+\gxe\ has long been of interest to evolutionary biologists because it could represent adaptive phenotypic plasticity  \citep{schlichting1986evolution,scheiner1993genetics}.
+In particular, adaptation through the evolution of plastic responses could increase fitness in heterogeneous environments \citep{van1991evolution, baythavong2011linking, anderson2021selection}.
+However, the evolution of plasticity could be limited by costs or other factors \citep{dewitt1998costs, callahan2005plasticity, roberts2023weaker}.
+Alternatively, \gxe\ may also result from different selection pressures across environments that constrain trait expression in some environments but allow trait expression to drift in environments where selection is relaxed \citep{paaby2014cryptic}.
+Distinguishing between these scenarios has been challenging.
 
-The different conceptions of \gxe\ have contributed to different methods that have been used to detect the evolutionary forces shaping \gxe\.
+Different conceptions of \gxe\ have contributed to different methods that have been used to detect the evolutionary forces shaping \gxe.
 First, \gxe\ could be measured using reaction norms: functions of trait value expression across environments \citep{freeman1973statistical,scheiner1993genetics, morrissey2016variation, arnold2019analyse, de2025partitioning}.
-Reaction norms have been studied in a number of contexts and been used to demonstrate selection on for reduced plasticity \citep{valdes2023spring}. \dothis{add more}.
-%With a random regression approach, it is possible to estimate population-level variance in plasticity without needing to do 'statistics on statistics' \citep{arnold2019analyse}.
+Reaction norms have been studied in a number of contexts and been used to test for selection on plasticity \citep{valdes2023spring, wagner2018plasticity}.
+One limitation of reaction norms is often they require doing 'statistics on statistics', although the random regression approach allows the estimation population-level variance in plasticity without losing variation that went into the estimation of reaction norm properties \citep{arnold2019analyse}.
 Second, trait values measured across environments can be thought of as correlated traits, and the wide range of methods developed for studying multivariate trait evolution can be applied to \gxe.
-Studies of \gxe\ as a multivariate trait have found selection for plasticity \citep{anderson2021selection} \dothis{add more}.
+Studies of \gxe\ as a multivariate trait have found that the genetic basis of traits differs across environments \citep{yan2021genetic} and evidence of selection for plasticity in some cases \citep{anderson2021selection}.
 
-Alongside work on plasticity, a number of approaches have been used to detect local adaptation for plasticity.
-First, common garden experiments in different natural environments or with manipulated environmental conditions can be used to test for evidence of fitness differences related to plasticity (cite Dudley + Schmitt, Strauss lab work, others?).
+A number of experimental approaches have been used to test whether local adaptation for plasticity contributes to \gxe.
+First, common garden experiments in different natural environments or in manipulated environmental conditions have looked for evidence of associations between fitness and plasticity \citep{stinchcombe2004flowering, scheiner1999measuring, dudley1996testing, baythavong2010characterizing}.
 However, these types of manipulative experiments are not possible without either a plastic response that can be permanently induced, like shade response, or enough genetic variation in plasticity to detect a relationship between plasticity and fitness.
-In contrast, \qf\ and related methods use use evolutionary models of trait divergence between populations expected under drift and test for excess trait divergence, consistent with local adaptation \citep{prout1993f, spitze1993population, whitlock2008evolutionary, ovaskainen2011new, karhunen2013driftsel}.
+In contrast, \qf\ and related methods test for local adaptation by determining whether among-population trait divergence exceedes expectations under drift \citep{prout1993f, spitze1993population, whitlock2008evolutionary, ovaskainen2011new, karhunen2013driftsel}.
 A few previous applications of \qf\ to reaction norms have not detected evidence of adaptive divergence \citep{von2008partitioning,de2016evolution,lind2011gene}.
 Recent extensions of \qf\ have made it possible to use these inferences on structured diversity panels that are common in genome-wide association mapping studies \citep{Josephs2019}.
 
-Flowering time in the plant species \textit{Arabidopsis thaliana} has been a classic model for studying the evolution of plasticity and \gxe  \citep{Simpson285, mitchell2006genetic}.
+Flowering time in the plant species \textit{Arabidopsis thaliana} is a classic model for studying the evolution of plasticity and \gxe\  \citep{Simpson285, mitchell2006genetic}.
 Life history timing is a crucial aspect of fitness, especially in annual species \dothis{(CITES)} and the ideal timing of life history events often depends on the environment and can differ in space in time \dothis{(CITES)}.
-As would be expected for an annual plant with a large genographic range,\textit{A. thaliana} ecotypes exhibit a range of environmental sensitivites and life history strategies that can often be related to environmental or geographic variation, contributing to \gxe \citep{stinchcombe2004latitudinal, mitchell2006genetic, hancock2011adaptation}.
+As would be expected for an annual plant with a large geographic range,\textit{A. thaliana} ecotypes exhibit a range of life history strategies that can often be connected to environmental or geographic variation, contributing to \gxe \citep{stinchcombe2004latitudinal, mitchell2006genetic, hancock2011adaptation,martinez2020functional}.
 Many QTLs for flowering time are environment specific \citep{li2014genetic, li2010association}
-The relationship between environmental cues and flowering time also likely differ between growth chamber and field environments \citep{bergelson2010towards, Brachi2011, weinig2002novel}.
-Vernalization, the cold temperatures experienced by overwintering plants, is an important cue for flowering time and \textit{Arabidopsis thaliana} ecotypes differ in their sensitivity to vernalization \citep{shindo2006variation, sung2005remembering}.
+%The relationship between environmental cues and flowering time also likely differ between growth chamber and field environments \citep{bergelson2010towards, Brachi2011, weinig2002novel}.
+Vernalization, the cold temperatures experienced by overwintering plants, is an important cue for flowering time and \textit{A. thaliana} ecotypes differ in their sensitivity to vernalization \citep{shindo2006variation, sung2005remembering}.
 There is evidence for selection on one of the genes important for vernalization response, FRIGIDA \citep{Toomajian2006nonparametric}, however FRIGIDA variation alone cannot explain observed variation in response to vernalization \citep{wilczek2010genetic}.
-All together, we lack a clear link between variation in flowering time response to environment and selection on these responses.
+All together, we lack a clear link between variation in flowering time response to environment and selection on these responses. \dothis{update cites and flow}
 
 In this study, we develop methods to test for the contribution of local adaptation to \gxe.
 We first show that \qpc\ can be applied to reaction norms and next, develop an extension of \qpc\ to test for selection on a trait expressed in one environment conditional on that trait's expression in another environment.
 This second test allows us to determine if there has been adaptation for an environment-specific response.
-We next apply \qpc\ to two datasets of flowering time measured in \textit{Arabidopsis thaliana}.
+We next apply \qpc\ to two datasets of flowering time measured in \textit{A. thaliana}.
 We detect selection on flowering time and flowering time reaction norms but find that correlations between traits within environments and reaction norms could confound these results.
-Finally, we apply the new conditional \qpc\ test to show that, in one experiment, \gxe for flowering time reflects is consistent with relaxed constraint in one environment but that, in the second experiment, there is independent selection for flowering time in both environments, consistent with local adaptation contributing to genetic variation in plastic responses.
+Finally, we apply the new conditional \qpc\ test to show that, in one experiment, \gxe\ for flowering time is consistent with relaxed constraint in one environment but that, in the second experiment, there is independent selection for flowering time in both environments, consistent with local adaptation contributing to genetic variation in plastic responses.
 
 \section*{Materials and Methods}
 
 \subsection*{Testing for selection on plasticity}
 \cite{Josephs2019} previously developed methods for detecting selection on quantitative traits by extending $Q_{ST}-F_{ST}$ analyses to test for excess differentiation along specific principle components (PC) of genetic relatedness. 
-Specifically, if $\vec{Z}$ is a mean-centered vector of trait values measured in a controlled environment, we can model the neutral expectation for $\vec{Z}$ as 
+Specifically, if $\vec{Z}$ is a mean-centered vector of trait values measured in the same environment, we can model the neutral expectation for $\vec{Z}$ as 
 \begin{equation} \label{eq:mvn}
 \vec{Z} \sim MVN (\vec{0}, V_{A}F)
 \end{equation}
@@ -99,35 +110,62 @@ We can also model projections of the trait values onto specific genetic principa
 \end{equation}
 
 Crucially, the variance of these projections onto a set of eigenvectors can be used to estimate $V_{A}$ such that $V_{A, est} = \textnormal{Var}(\vec{Z}\cdot \vec{U_{L}}/\sqrt{\lambda_{L}})$ where $L$ is some set of principal components that does not include $m$.
-Then, we can use a test statistic called $Q_{PC}$ to test for selection on a specific PC that is not in the set used to estimate $V_{A}$. 
+Then, we can use a test statistic called $Q_{PC}$ to test for selection on a specific PC, $m$, that is not in the set used to estimate $V_{A}$. 
 
 \begin{equation}\label{eq:qpcbasic}
-Q_{PC} = \frac{\vec{Z}\cdot\vec{U_{m}}}{\sqrt{\lambda_{m}V_{A}}}\sim N(0,1).
+Q_{PC} = \frac{\vec{Z}\cdot\vec{U_{m}}}{\sqrt{\lambda_{m}V_{A,est}}}\sim N(0,1).
   \end{equation}
 
 We can apply the test described in Eq. \ref{eq:qpcbasic} to any quantitative trait and also, to any additive combination of quantitative traits, like a linear reaction norm (see the supplementary material for an explanation of why this test cannot be applied to non-additive measures of plasticity).
 
-We also expand upon a conditional test for adaptive differentiation developed by \cite{Berg2017} that tests for adaptation in a given trait ('trait 1') conditional on a second trait ('trait 2').
+We also expand upon a conditional test for adaptive differentiation developed by \cite{Berg2017} based on the framework of \cite{lande1979quantitative} that tests for adaptation in a given trait ('trait 1') conditional on a second trait ('trait 2').
 
 \begin{equation}
 Q_{PC, 1|2} = \frac{(Z_{1} - \vec{\mu_{1}'})\vec{U_{m}}}{\sqrt{V_{A,1}'\lambda_{m}}} = \sim N(0,1)
   \end{equation}
 
-In contrast to the test described in Eq. \ref{eq:qpcbasic}, a conditional mean ($\vec{\mu_{1}'}$) and variance ($V_{A,1}'$) incorporate information about trait values and additive genetic variance for trait 2, along with the additive genetic covariance between traits 1 and 2.
+In contrast to the test described in Eq. \ref{eq:qpcbasic}, a conditional mean ($\vec{\mu_{1}'}$) and variance ($V_{A,1}'$) for trait 1 incorporate information about trait values and additive genetic variance for trait 2, along with the additive genetic covariance between traits 1 and 2.
 See the supplemental material for more information.
 
 \subsection*{Simulations}
-We conducted simulations of neutrally evolving phenotypes to evaluate the behavior of our conditional test for selection.
-We simulated two corelated traits evolving 100 individuals from the \textit{Arabidopsis thaliana} population sample using the matrix.normal function from the MBSP package in R \citep{mbsp,r}.
-For these simulations, $V_{A,1} = V_{A,2} = 1$ and $C_{A,12} = 0.8$.\emjo{note that I could try extra sims varying these}
-\dothis{really need more details}
+%We conducted simulations of neutrally evolving phenotypes to evaluate the behavior of our conditional test for selection.
+%We simulated two correlated traits evolving 100 individuals from the \textit{A. thaliana} population sample using the matrix.normal function from the MBSP package in R \citep{mbsp,r}.
+%For these simulations, $V_{A,1} = V_{A,2} = 1$ and $C_{A,12} = 0.8$.\emjo{note that I could try extra sims varying these}
+%\dothis{really need more details}
 
-We next simulated selection on trait 2 along PC 2 of the kinship matrix by adding a selected effect equivalent to the line's position on PC 2 multiplied by $\lambda_{2}$ to each simulated value for trait 2.
-We simulated the correlated effects of selection on trait 1 by adding a selective effect to trait 1 values equivalent to position on PC 2 multipled by $C_{A, 12} \times \lambda_{2}$.
+%We next simulated selection on trait 2 along PC 2 of the kinship matrix by adding a selected effect equivalent to the line's position on PC 2 multiplied by $\lambda_{2}$ to each simulated value for trait 2.
+%We simulated the correlated effects of selection on trait 1 by adding a selective effect to trait 1 values equivalent to position on PC 2 multiplied by $C_{A, 12} \times \lambda_{2}$.
 
 
-\dothis{Describe simulations with SLIM}
+We used SLiM \citep{haller2025slim} to generate forward-in-time simulations of the evolution of a trait with plasticity. These Wright-Fisher simulations consisted of 100 demes with 50 individuals per deme organized in a 10 x 10 grid with a migration rate of 5\% between adjacent populations. 
 
+%We simulated the evolution of a trait with plasticity under Gaussian stabilizing selection. 
+Trait plasticity was modeled as two character states (e.g., pleiotropic traits whose expression depends on the environment) which we will refer to as trait 1 and trait 2. We draw the effect of a QTN on trait 1, $a_1$, as a random variable from a normal distribution of form $N(0,0.1)$. The effect of the same QTN on trait 2 was calculated by
+
+\begin{equation}
+    a_2 = a_{1}\rho + \sqrt{1 - \rho^2}X_2
+\end{equation}
+
+where $X_2$ is a second randomly sampled variable from the distribution defined above and $\rho$ is the correlation of effect sizes. 
+
+The simulated populations were subject to environmentally-dependent spatially heterogeneous balancing selection. T
+he average optimum trait value varied along the y-axis but was constant along the x-axis, representing a clinal trait optimum across latitude.
+For each generation, we modeled the effect of the individuals experiencing environment 1 or environment 2 that generation, and thus eliciting trait 1 or 2, by setting one trait to be under stabilizing selection while the other had no affect on fitness. 
+Fitness was determined by the difference in an individual's expressed trait value and the optimum at that latitude by a Gaussian function
+
+\begin{equation}
+    \omega_{ijy} = exp\{-\frac{1}{2}(\frac{T_{ijy} - \Theta_{jy}}{\sigma_\omega})^2\}
+\end{equation}
+
+where $T_{ijy}$ is the vector of $j$ character state trait values for individual $i$ in latitude $y$, $\Theta_{jy}$ is the optimum trait value for that latitude and character state, and $\sigma_\omega$ determines the strength of selection (a lower number being stronger selection).
+
+The genome consisted of 10 independently segregating 1 Mb chromosomes with a recombination rate of $1\times10^{-7}$. 
+The mutation rate for quantitative trait nucleotides (QTN) was set to $1\times10^{-8}$. 
+We implemented tree sequence recording in SLiM and overlaid neutral mutations in msprime \citep{msprime} at a rate of $1\times10^{-7}$. To reduce computational load, the genome size was reduced by a factor of 10 and the recombination and mutation rates were all increased by a factor of 10 (scaled values: chromosome length 100 kb; recombination rate $1\times10^{-6}$; QTN mutation rate $1\times10^{-7}$; neutral mutation rate $1\times10^{-6}$).
+
+For the burn-in, we simulated a single, randomly mating population with 1000 individuals with an optimal trait value of 1.0 for both character states and allowed the population to equilibrate for 5000 generations. The initial population was then used as founders for 100 demes with 50 individuals each in a 10 x 10 grid and a migration rate of 0.05 between adjacent demes. The optimal trait values for demes ranged from $1.0-3.25$ and $1.5-3.75$ for for trait 1 and trait 2, respectively. The optimal reaction norm did not vary across demes (equal to 0.5). The simulations were run for another 3000 generations, after which final genotypes (as tree sequences) and trait values for both character states were recorded for four randomly sampled individuals.
+
+We simulated populations with varying strengths of selection ($\sigma_\omega$ = 0.5, 1.0) and correlations of QTN effects between condition states ($\rho$ = 0.6, 0.75, 0.9). We simulated trait 2 evolving neutrally and under selection by setting its probability to be expressed to 0 and 0.5, respectively. We conducted 100 replicates for each combination of parameters. Finally, we tested for selection on both condition states using both standard and conditional $Q_{PC}$.
 
 \subsection*{\textit{A. thaliana} data}
 We evaluated our tests of selection on two datasets of \textit{A. thaliana} flowering time.
@@ -145,43 +183,114 @@ All SNP matrix for all the accessions analyzed was downloaded from the 1001 geno
 We constructed kinship matrices for the individuals in each dataset using 50,000 randomly sampled SNPs.
 In all tests of selection, we used the last half of the PCs to estimate $V_{A,1}$, $V_{A,2}$, and $C_{A,12}$.
 
+We identified genotypes with combinations of flowering time across environments that fell outside the bounds described by the G matrix.
+Our reasoning was that these genotypes have plastic responses that are distinct from most other genotypes in the sample and may provide interesting candidates for future studies.
+We used the phenotypes to estimate parameters of the $2x2$ G matrix. Each entry in the matrix, $G_{i,j} = (\vec{Z_i} \times \vec{Z_j})/n$, where $\vec{Z_i}$ is the mean-centered vector of values for trait i (or trait j in the case of $\vec{Z_h}$ and $n$ is the number of genotypes. 
+Note that these values of the matrix correspond to genetic variances where if $i=j$, $G_{i,j}$ is the genetic variance of the trait and if $i \neq j$, $G_{i,j}$ is the genetic covariance between traits.
+
+Once the $G$ was estimated, we could use it to generate an ellipse of expected values for two traits given the values of G. 
+We roughly followed the procedure used to generate figure 4 in \cite{machado2023rules}.
+We plotted each genotype with the trait in environment 1 on the X axis and the trait in environment 2 on the Y axis.
+We then described an ellipse of points $(x,y)$ where $x = \mu_1 - e_1\times V_{1,1}$ where \emjo{add more detail later}.
 
 
 \section*{Results}
 
 \subsection*{Simulations of Conditional $Q_{PC}$}
+%\begin{figure}[htbp]
+%  \centering
+%\includegraphics[width=\linewidth]{figures/toysim.eps}
+%\caption{ \textbf{Testing for selection on simulated neutral and %selected traits.}
+%The proportion of tests that were significant at a  $p < 0.05$ level %for signatures of adaptive divergence on traits that were simulated to %either be neutral, correlated with a selected trait, or directly under %selection. 200 simulates were conducted for each point.}
+%\label{fig:toysim}
+%\end{figure}
+
+%We simulated correlated traits evolving under neutrality and selection 200 times and counted the number of simulations that were significant at a level of $p < 0.05$.
+%Both standard $Q_{PC}$ and conditional $Q_{PC}$  detected evidence of selection on traits evolving neutrally in 6 (standard) and 8 (conditional) out of 200 simulations, consistent with neutral expectations.
+%Standard $Q_{PC}$ detected selection on a selected traits in 144 simulations and $Q_{PC}$ conditional on a correlated neutral trait detected selection in 93 simulations, suggesting that both tests are able to detect selection on a selected trait but that there is some loss of power if a correlated neutral trait is included.
+%Standard $Q_{PC}$ detected selection on a correlated trait in 110 out of 200 simulations but conditional $Q_{PC}$ detected selection in only 11 simulations, suggesting that the conditional test is able to correctly control for selection on a correlated trait (Fig. ~\ref{fig:toysim}).
+%\\
+%[1ex]
+
+%We simulated a plastic trait evolving under neutrality and selection a total of 1200 times (100 replicates of 12 unique parameter combinations). 
+First, we wanted to know how standard \qpc\ and conditional \qpc\ performed when plasticity is not under selection. 
+To do this, we conducted a total of 600 simulations where trait 1 was always under selection and a correlated trait 2 was always neutral, consistent with a scenario where a trait in environment 1 is always the trait under selection, and the trait in environment 2 is correlated with the trait in the selective environment, but itself evolves neutrally. 
+Across these scenarios, we correctly detected selection on trait 1 in 524 (standard) and 535 (conditional) out of 600 simulations (Table ~\ref{table:sims}). 
+We incorrectly detected selection on trait 2 in 186 (standard) and 18 (conditional) of the 600 simulations, giving a false positive rate of 0.31 for the standard test and 0.03 for the conditional test. 
+For both the conditional and standard test, the false positive rate was greater with stronger selection, with 102 of the 186 (standard) and 12 of the 18 (conditional) false positives found in the stronger selection regime ($\sigma_\omega = 0.05$). 
+The false positive rate in standard \qpc\ also increased as the correlation between traits, $\rho$ increased.
+%finding 11, 49, and 126 false positives for $\rho$ values of 0.6, 0.75, and 0.9, respectively. 
+However, conditional \qpc\ was robust to increasing correlations of trait effects ($\rho$). 
+%$\rho$, with 5, 7, and 6 false positives for $\rho$ values of 0.6, 0.75, and 0.9, respectively. 
+All together, the conditional test was able to detect selection on a specific trait and avoid detecting selection on a correlated trait, allowing it to identify selection on a trait in one environment.
+
+
+Second, we investigated a scenario where trait expression was independently under selection in two environments.
+To do this, for each generation we randomly sampled whether trait 1 or trait 2 was under selection.
+In these simulations, we detected selection with standard \qpc\ in 518 and 521 out of 600 simulations for trait 1 and trait 2, respectively. \todo{not sure the best way to add total summaries to the table}
+With the conditional test, we detected selection in 372 and 381 simulations for trait 1 and trait 2, respectively, demonstrating a loss of power when using the conditional test. 
+%Additionally, standard \qpc\ correctly detected selection for both trait 1 and trait 2 in 84.7\% of simulations while conditional $Q_{PC}$ only detected selection for both trait 1 and trait 2 in 49.8\% of simulations. 
+Conditional \qpc\ had markedly less power as the correlation between traits ($\rho$) and the strength of selection ($\sigma_\omega$) increased (Table ~\ref{table:sims}). 
+\emjo{I don't see the figure referenced anywhere here, would it make sense to merge it with the table in some way. Like you could add the number of significant simulations above the figure boxes?}
+%We identified selection in at least one trait in 87.3\% of simulations with a $\sigma_\omega$ of 0.5, but only in 64.0\% of simulations with a $\sigma_\omega$ of 1.0 and in 82.0\%,  77.5\%, and 67.5\% for $\rho$ values of 0.6, 0.75, and 0.9, respectively. 
+%On the other hand, the standard test was only sensitive to $\sigma_\omega$ in these simulations (and to a lesser extant than the conditional test), where we detected selection in at least one trait for 93.0\% and 84.0\% of simulations for $\sigma_\omega$ values of 0.5 and 1.0, respectively. 
+%Values of $\rho$ did not influence our ability to detect selection using standard $Q_{PC}$ where we detected selection in at least one of the two traits in 88.0\%, 88.0\%, and 89.5\% of simulations for $\rho$ values of 0.6, 0.75, and 0.9, respectively. 
+
 \begin{figure}[htbp]
   \centering
-\includegraphics[width=\linewidth]{toysim}
-\caption{ \textbf{Testing for selection on simulated neutral and selected traits.}
-The proportion of tests that were significant at a  $p < 0.05$ level for signatures of adaptive divergence on traits that were simulated to either be neutral, correlated with a selected trait, or directly underselection. 200 simulates were conducted for each point.}
-\label{fig:toysim}
+\includegraphics[width=\linewidth]{figures/pvalBoxplotAll.png}
+\caption{ \textbf{P values from selection tests on a simulated neutral and selected trait with conditional expression in two environments.}
+Results of simulations in SLiM for the four different selection tests run with $-log_{10}(p)$ plotted along the y-axis and the associated test plotted along the x-axis (qpc1: $Q_{PC}$ on trait1; qpc2: $Q_{PC}$ on trait2; cQpc1: conditional $Q_{PC}$ on trait1; cQpc2: conditional $Q_{PC}$ on trait2). We simulated trait2 evolving neutrally (A, C) or under selection (B, D) and with both condition states under stronger (A, B) or weaker (C, D) selection by varying levels of $\sigma_\omega$. The black dotted line represents the significance threshold at $-log_{10}(0.05) = 1.30$.}
+\label{fig:pvalBoxplot}
 \end{figure}
 
-We simulated correlated traits evolving under neutrality and selection 200 times and counted the number of simulations that were significant at a level of $p < 0.05$.
-Both standard $Q_{PC}$ and conditional $Q_{PC}$  detected evidence of selection on traits evolving neutrally in 6 (standard) and 8 (conditional) out of 200 simulations, consistent with neutral expectations.
-Standard $Q_{PC}$ detected selection on a selected traits in 144 simulations and $Q_{PC}$ conditional on a correlated neutral trait detected selection in 93 simulations, suggesting that both tests are able to detect selection on a selected trait but that there is some loss of power if a correlated neutral trait is included.
-Standard $Q_{PC}$ detected selection on a correlated trait in 110 out of 200 simulations but conditional $Q_{PC}$ detected selection in only 11 simulations, suggesting that the conditional test is able to correctly control for selection on a correlated trait (Fig. ~\ref{fig:toysim}).
-\\
-[1ex]
-\dothis{Stuff about SLIM-ulations goes here...}
+\nolinenumbers
+\begin{table}[ht]
+
+\begin{tabular}{lcccccc} 
+ \toprule
+ \multicolumn{3}{c}{}& \multicolumn{2}{c}{trait1} & \multicolumn{2}{c}{trait2} \\\cmidrule(l){4-5} \cmidrule(l){6-7}
+ & $\sigma_\omega$& $\rho$& Std. $Q_{PC}$& Cond. $Q_{PC}$& Std. $Q_{PC}$& Cond. $Q_{PC}$ \\\cmidrule{1-7} 
+ \multirow{6}{*}{Neutral}& 0.5& 0.60& 92& 93& 4& 5 \\
+ & 0.5& 0.75& 92& 94& 30 & 4 \\
+ & 0.5& 0.90& 88& 87& 68 & 3 \\\cmidrule{2-7}
+ & 1.0& 0.60& 88& 89& 7& 0 \\
+ &  1.0& 0.75& 81& 90& 19& 3 \\
+ &  1.0& 0.90& 83& 82& 58& 3 \\\cmidrule{4-7}
+ & & Total:& 524 (0.87)& 535 (0.89)& 186 (0.31)& 18 (0.03)\\
+ \midrule
+ \multirow{6}{*}{Selected}& 0.5& 0.60& 92& 87& 93& 85 \\
+ & 0.5& 0.75& 91& 77& 91& 71 \\
+ & 0.5& 0.90& 92& 63& 92& 73 \\\cmidrule{2-7}
+ & 1.0& 0.60& 78& 66& 79& 65 \\
+ & 1.0& 0.75& 81& 55& 81& 56 \\
+ & 1.0& 0.90& 84& 24& 85& 31 \\\cmidrule{4-7}
+ & & Total:& 518 (0.86)& 372 (0.62)& 521 (0.87)& 381 (0.64)\\
+ \bottomrule
+
+\end{tabular}
+\caption{\dothis{Table caption goes here}}
+ \label{table:sims}
+\end{table}
+
+\linenumbers
 
 \subsection*{Detecting selection on flowering time in individual environments}
-We first tested for selection on flowering time within specific environments.
+We first tested for selection on flowering time (days to flower) within specific environments.
 First, we applied tests for selection on environmental response to a dataset of flowering time measured in 971 \textit{Arabidopsis thaliana} accessions grown in two growth chamber environments: 16 \degree C and 10 \degree C \cite{alonso20161}.
-We tested for selection along the first 5 PCs and detected selection along PC 2 for flowering time at 16\degree C (Bonferonni corrected $p = 1.8 \times 10^{-3}$, \ref{fig:ft}A) and a signal of selection on flowering time along PC2 at 10\degree C (Bonferonni corrected $p = 0.034$, Fig. \ref{fig:ft}B).
+We tested for selection along the first 5 PCs and detected selection along PC 2 for flowering time at 16\degree C (Bonferroni corrected $p = 1.8 \times 10^{-3}$, \ref{fig:ft}A) and a signal of selection on flowering time along PC2 at 10\degree C (Bonferroni corrected $p = 0.034$, Fig. \ref{fig:ft}B).
 PC2 separates out relict and northern Swedish accessions from the rest of the \textit{A. thaliana} populations.
 
 Flowering time in controlled lab environments may not represent the phenotypic variation that occurs in nature and is under natural selection.
 Therefore, we tested for selection on flowering time in 141 accessions planted in two different seasons in the same location in Norwich, England \citep{fournier2011map}.
-In the first treatment, 'Fall', seedlings were transplanted in \dothis{DATE} and experienced natural cold vernalization while, in the second treatment, 'Spring', seedlings were transplanted on \dothis{DATE} and did not experience vernalization.
+In the first treatment, 'Fall', seedlings were transplanted in \dothis{DATE} and experienced natural cold vernalization while, in the second treatment, 'Spring', seedlings were transplanted on \dothis{DATE} and did not experience vernalization. In these experiments, flowering time was measured as photo-thermal units
 
-Using standard $Q_{PC}$ on the first 5 PCs, there was evidence of selection on flowering time in each treatment along PC 3 (Bonferonni corrected $p = 6.06 \times 10^{-3}$, Fig. ~\ref{fig:fibr}A) for Fall and $p = 7.25 x 10^{-4}$ for Spring, Fig. ~\ref{fig:fibr}B).
+Using standard $Q_{PC}$ on the first 5 PCs, there was evidence of selection on flowering time in each treatment along PC 3 (Bonferroni corrected $p = 6.06 \times 10^{-3}$, Fig. ~\ref{fig:fibr}A) for Fall and $p = 7.25 x 10^{-4}$ for Spring, Fig. ~\ref{fig:fibr}B).
 PC 3 in this population is similar to PC2 in the larger population phenotyped in the lab. Here, PC 3 separates northern Swedish ecotypes from other ecotypes.
 
-
+ 
 \subsection*{Detecting selection on reaction norms}
-In the growth chamber experiment, we calculated the difference in flowering time between the  16 \degree C and 10 \degree C environements and tested for selection on this difference, the reaction norm, along the first five PCs.
+In the growth chamber experiment, we calculated the difference in flowering time between the  16 \degree C and 10 \degree C environments and tested for selection on this difference, the reaction norm, along the first five PCs.
 We detected evidence for selection on the reaction norm along PC 2 ($p = 0.034$, Fig. \ref{fig:ft}C).
 However, it is unclear how correlations between flowering time in the two environments and the reaction norm affect signatures of selection.
 Flowering time in the two environments and the reaction norm were all correlated with each other (Fig. \ref{fig:ft}D, E).
@@ -193,7 +302,7 @@ The reaction norm showed marginal evidence of selection along PC 3 ($p = 0.0738$
 \begin{figure}[htbp]
   \centering
 \includegraphics[width=\linewidth]{figures/floweringtime.eps}
-\caption{ \textbf{Testing for selection on flowering time in lab grown \textit{A. thaliana}} Evidence of selection contributing to divergence for flowering time at (A) 16 \degree C, (B) 10\degree C, and (C) the difference between 16 \degree C and 10 \degree C. In all plots, each dot represents an \textit{A. thaliana} accession, black lines show the linear regression of trait onto PC 2, dashed blue lines show the 95\% confidence intervals for neutral evolution. (D) shows the correlation between flowering time at 16 \degree C and 10\degree C and (E) shows the correlation between flowering time at 16\degree C and the difference in flowering time between the two temperatures.
+\caption{ \textbf{Testing for selection on flowering time in lab grown \textit{A. thaliana}} Evidence of selection contributing to divergence for flowering time at (A) 16 \degree C, (B) 10\degree C, and (C) the difference between 16 \degree C and 10 \degree C. In all plots, the y axis is measured in days to flower, rach dot represents an \textit{A. thaliana} accession, black lines show the linear regression of trait onto PC 2, dashed blue lines show the 95\% confidence intervals for neutral evolution. (D) shows the correlation between flowering time at 16 \degree C and 10\degree C and (E) shows the correlation between flowering time at 16\degree C and the difference in flowering time between the two temperatures.
 }
 \label{fig:ft}
 \end{figure}
@@ -205,9 +314,11 @@ We interpret this as evidence of selection on flowering time at 16 \degree C, an
 This result suggests that there is not local adaptation along PC2 for an environmental response to temperature.
 
 
-To test for evidence of a plastic response to seasonal differences in plants grown in field  conditions, we conducted the conditional test described above, testing for selection in Fall flowering conditional on Spring and vice versa along P C3.
+To test for evidence of a plastic response to seasonal differences in plants grown in field  conditions, we conducted the conditional test described above, testing for selection in Fall flowering conditional on Spring and vice versa along PC3.
 There was evidence of selection on flowering time in vernalized plants conditional on flowering time in unvernalized plants ($p = 0.0123$) and evidence of selection on unvernalized flowering time conditional on vernalized flowering time ($p = 8.99 \times 10^{-4}$, Fig. \ref{fig:fibr}).
 We interpret this result as evidence that there has been independent local adaptation on flowering time in two different environments, and this has created genetic variation for plasticity ($G \times E$).
+
+We also visualized patterns of plasticity compared to an expectation based on the G matrix generated from phenotypic variation.
 
 
 \begin{figure}[htbp]
@@ -222,7 +333,7 @@ We interpret this result as evidence that there has been independent local adapt
 \begin{figure}[htbp]
   \centering
 \includegraphics[width=\linewidth]{figures/FIBRfig.eps}
-\caption{ \textbf{Testing for selection on flowering time in field grown \textit{A. thaliana} with the original test and a conditional test}. The conditional test for selection on flowering time in Fall plants conditional on for Spring plants (A) and for flowering time in Spring plants conditional on flowering time in Fall plants (B). In all plots, each dot represents an \textit{A. thaliana} accession with colors representing population in the same scheme as Fig. \ref{fig:ft}, black lines show the linear regression of trait onto PC 2, dashed blue lines show the 95\% confidence intervals for neutral evolution based on the standard test and dashed orange lines show the 95\% confidence intervals for neutral evolution based on the conditional test. }
+\caption{ \textbf{Testing for selection on flowering time in field grown \textit{A. thaliana} with the original test and a conditional test}. The conditional test for selection on flowering time in Fall plants conditional on for Spring plants (A) and for flowering time in Spring plants conditional on flowering time in Fall plants (B). In all plots, the y axis is measured in photothermal units to bolting, each dot represents an \textit{A. thaliana} accession with colors representing population in the same scheme as Fig. \ref{fig:ft}, black lines show the linear regression of trait onto PC 2, dashed blue lines show the 95\% confidence intervals for neutral evolution based on the standard test and dashed orange lines show the 95\% confidence intervals for neutral evolution based on the conditional test. }
 \label{fig:fibr}
 \end{figure}
 
@@ -230,7 +341,8 @@ We interpret this result as evidence that there has been independent local adapt
 
 \section*{Discussion}
 
-\section*{Acknowledgements}
+\section*{Acknowledgments}
+Helpful discussions with and/or comments from Graham Coop, Jean-Luc Jannink, Randy Wisser. This work was funded by a National Institutes of Health grant (R35 GM142829) to E.B.J.
 
 \bibliography{mybib}
 
@@ -285,13 +397,13 @@ z_{v,i} = \frac{1}{4}\sum^{L}_{l=1}[(\alpha_{1,l}^{2} + \alpha_{2,l}^{2})p_{l,i}
   \end{equation}
 
 Crucially, Eq. \ref{eq:zvi} shows that since $z_{v,i}$ cannot be written in terms of additive combinations of allele frequencies and allelic effects.
-Therefore, even though the allele frequencies of the loci that affect the trait can be modelled following the multivariate normal distribution, we cannot model $z_{v}$ as a multivariate normal distribution.
+Therefore, even though the allele frequencies of the loci that affect the trait can be modeled following the multivariate normal distribution, we cannot model $z_{v}$ as a multivariate normal distribution.
 
 
 \subsection*{Conditional tests for adaptive differentiation}
 As an alternative to detecting selection on reaction norms, we adapted $Q_{PC}$ to test for excess trait differentiation in a focal trait conditional on differentiation in a second trait.
 We base our use of the conditional test on \cite{Berg2017}, who developed a two-trait conditional test for polygenic adaptation.
-We discuss two traits here, but we intend to use these analyses in situtations where the two traits are measurements of the same trait in two different environments.
+We discuss two traits here, but we intend to use these analyses in situations where the two traits are measurements of the same trait in two different environments.
 
 We first extend the model for a neutral distribution of a trait to deal with two correlated traits.
 If $\vec{Z_{1}}$ is a vector of trait values for a set of individuals and $\vec{Z_{2}}$ is a vector of trait values for a different trait in those same individuals, we can model the joint distribution of these trait values under neutrality as follows
@@ -339,20 +451,20 @@ Seeing a value of $X_{m,cond}$ that falls outside the normal distribution is con
 
 
 
-\subsection{Conditional test on reaction norms}
-The conditional test could provide a way to test for evidence of selection on a reaction norm while removing selection on the trait itself.
-For example, we can generate a conditional expectation for the reaction norm based on trait expression in a single environment.
-\begin{equation}
-\vec{Z_{R}}|\vec{Z_{1}} \sim MVN(\vec{\mu_{R}'}, V_{A,R}'F)
-\end{equation}
-where
-\begin{equation}
-  \vec{\mu_{R}'}  = \mu_{R} + \frac{C_{A,1R}}{V_{A,1}}(\vec{Z_{1}} - \mu_{1}) = \mu{_1} - \mu_{2} + \frac{V_{A,1} - C_{A, 12}}{V_{A,1}}(\vec{Z_{1}} - \mu_{1})
-\end{equation}
-and
-\begin{equation}
-  V_{A,R}' =  V_{A,R} - \frac{C_{A,1R}^{2}}{V_{A, 1}} = V_{A,1}V_{A,2} - C_{A,12} - \frac{(V_{A,1} - C_{A,12})^{2}}{V_{A,1}}.
-  \end{equation}
+%\subsection{Conditional test on reaction norms}
+%The conditional test could provide a way to test for evidence of selection on a reaction norm while removing selection on the trait itself.
+%For example, we can generate a conditional expectation for the reaction norm based on trait expression in a single environment.
+%\begin{equation}
+%\vec{Z_{R}}|\vec{Z_{1}} \sim MVN(\vec{\mu_{R}'}, V_{A,R}'F)
+%\end{equation}
+%where
+%\begin{equation}
+%  \vec{\mu_{R}'}  = \mu_{R} + \frac{C_{A,1R}}{V_{A,1}}(\vec{Z_{1}} - \mu_{1}) = \mu{_1} - \mu_{2} + \frac{V_{A,1} - C_{A, 12}}{V_{A,1}}(\vec{Z_{1}} - \mu_{1})
+%\end{equation}
+%and
+%\begin{equation}
+%  V_{A,R}' =  V_{A,R} - \frac{C_{A,1R}^{2}}{V_{A, 1}} = V_{A,1}V_{A,2} - C_{A,12} - \frac{(V_{A,1} - C_{A,12})^{2}}{V_{A,1}}.
+%  \end{equation}
 
 
 
