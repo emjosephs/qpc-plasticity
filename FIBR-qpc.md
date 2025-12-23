@@ -317,11 +317,11 @@ abline(a=mean(myZ[,1]), b = mylb$coefficients[2] + myCI_sf[myPC], lty=2, col="#E
 abline(a=mean(myZ[,1]), b = mylb$coefficients[2] -myCI_sf[myPC], lty=2, col="#E69F00", lwd=2)
 mtext('B', side=3, line=0, cex=2.5, adj = -0.3)
 }
-
+par(mar = c(5,5,5,5), xpd=T, mfrow=c(1,3))
 cfibrfig()
 ```
 
-![](FIBR-qpc_files/figure-html/unnamed-chunk-8-1.png)<!-- -->![](FIBR-qpc_files/figure-html/unnamed-chunk-8-2.png)<!-- -->![](FIBR-qpc_files/figure-html/unnamed-chunk-8-3.png)<!-- -->
+![](FIBR-qpc_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
 
 
 

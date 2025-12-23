@@ -16,13 +16,15 @@ Load in data
 adm = read.csv('data/1001genomes-FT10-FT16 and 1001genomes-accessions.csv')
 adm_nonas = dplyr::filter(adm, FT16_mean != 'NA') #remove individuals with missing data
 
+#calculate means
 meanFT10 = mean(adm_nonas$FT10_mean)
 meanFT16 = mean(adm_nonas$FT16_mean)
 
-#look at reaction norms
-
+#plot reaction norms
 par(mar=c(8,8,3,3), mfrow=c(1,1))
-plot(-10,-10, xlim = c(0.75,2.25), ylim = c(25, 160), ylab = "", xlab = "mean flowering time across lines", bty="n", xaxt='n', yaxt='n', cex.lab=2)
+plot(-10,-10, xlim = c(0.75,2.25), ylim = c(25, 160), 
+     ylab = "", xlab = "mean flowering time across lines", bty="n", 
+     xaxt='n', yaxt='n')
 axis(2, las=2, cex.lab=2, cex.axis=2, lwd=2)
 axis(1, at=c(1,2), labels = c('16C','10C'), cex.lab=2, cex.axis=2, lwd=2)
 mtext("Flowering time of each line", side=2, cex=2, line=5)
@@ -348,4 +350,46 @@ dev.off()
 ```
 
 
+Make a figure of correlation between the two traits compared to expectation under selection on one trait and correlated selection on the other.
 
+
+``` r
+par(mar=c(5,8,2,2))
+
+#make the g matrix
+makeG <- function(myZ){
+  myZ1centered = (myZ[-nrow(myZ), 1] - mean(myZ[, 1])) 
+    myZ2centered = (myZ[-nrow(myZ), 2] - mean(myZ[, 2]))
+     Ca12 = sum(myZ1centered * myZ2centered)/nrow(myZ)
+     Va1 <- sum(myZ1centered*myZ1centered)/nrow(myZ)
+     Va2 <- sum(myZ2centered*myZ2centered)/nrow(myZ)
+    myG <- matrix(data=c(Va1, Ca12, Ca12,Va2), ncol=2)
+    return(myG)
+}
+
+myG <- makeG(myZFT) #make it from just phenotypes
+
+ellipse <- function(mu, sigma, alpha=.05, npoints=250,
+                    newplot=FALSE, draw=TRUE, ...) {
+  es <- eigen(sigma)
+  e1 <- es$vec%*%diag(sqrt(es$val))
+  r1 <- sqrt(qchisq(1-alpha,2))
+  theta <- seq(0,2*pi,len=npoints)
+  v1 <- cbind(r1*cos(theta),r1*sin(theta))
+  pts=t(mu-(e1%*%t(v1)))
+  if (newplot && draw) {
+    plot(pts, ...)
+  } else if (!newplot && draw) {
+    lines(pts, ...)
+  }
+  invisible(pts)
+}
+
+par(mfrow=c(1,1))
+plot(admtData$FT16_mean, admtData$FT10_mean, bty="n", col = admtData$group, lwd=2, yaxt="n",xlab = "Flowering Time 16", cex.lab=2, cex.axis=2, ylab = "", xlim=c(0,160), ylim = c(0,160))
+axis(2, las=2, cex.axis=1.5, lwd=2)
+mtext('Flowering Time 10',side=2, line=5, cex=2)
+ellipse(mu=c(mean(myZFT$ft16), mean(myZFT$ft10)), sigma=myG,col="pink",lwd=2)
+```
+
+![](flowering_time_qpc_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
