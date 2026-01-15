@@ -248,6 +248,68 @@ dev.off()
 
 Make a figure of correlation between the two traits compared to expectation under selection on one trait and correlated selection on the other.
 
+```{r, eval=F, echo=F}
+##some noodling for intuition 
+set.seed(10122021)
+myTrait1 = rnorm(100) #randomly sample 100 from normal
+myTrait2 = rep(0,100) #trait 2 has no variation
+myG <- makeG(cbind(myTrait1, myTrait2))
+myG #get a G matrix where the only thing that varies is Va1. Va2, C12 =0
+
+mu = c(mean(myTrait1), mean(myTrait2))
+  es <- eigen(myG)
+  e1 <- es$vec%*%diag(sqrt(es$val))
+  r1 <- sqrt(qchisq(1-0.05,2))
+
+v1 <-cbind(r1*cos(pi),r1*sin(pi)) ## this is for 0 radians
+pts1 <- t(mu-(e1%*%t(v1)))
+pts1 #so the ellipse radius is r1*Va?
+
+#make the figure
+par(mfrow=c(1,1))
+plot(myTrait1, myTrait2, bty="n", lwd=2,xlab = "Trait 1", ylab = "Trait 2")
+ellipse(mu=c(mean(myTrait1), mean(myTrait1)), sigma=myG,col="pink",lwd=2)
+
+## now add in trait2 variation
+
+myTrait2 = rnorm(100) #trait 2 varies but isn't correlated
+myG <- makeG(cbind(myTrait1, myTrait2))
+myG 
+
+mu = c(mean(myTrait1), mean(myTrait2))
+  es <- eigen(myG)
+  e1 <- es$vec%*%diag(sqrt(es$val))
+  r1 <- sqrt(qchisq(1-0.05,2))
+
+v1 <-cbind(r1*cos(pi/2),r1*sin(pi/2)) ## this is for 0 radians
+pts1 <- t(mu-(e1%*%t(v1)))
+pts1 #so the ellipse radius is r1*Va?
+
+#make the figure
+par(mfrow=c(1,1))
+plot(myTrait1, myTrait2, bty="n", lwd=2,xlab = "Trait 1", ylab = "Trait 2")
+ellipse(mu=c(mean(myTrait1), mean(myTrait1)), sigma=myG,col="pink",lwd=2)
+
+## now add in correlation
+myTrait2 = myTrait1/2 + rnorm(100)
+myG <- makeG(cbind(myTrait1, myTrait2))
+myG 
+
+mu = c(mean(myTrait1), mean(myTrait2))
+  es <- eigen(myG)
+  e1 <- es$vec%*%diag(sqrt(es$val))
+  r1 <- sqrt(qchisq(1-0.05,2))
+
+v1 <-cbind(r1*cos(pi),r1*sin(pi)) 
+pts1 <- t(mu-(e1%*%t(v1)))
+pts1 #so the ellipse radius is r1*Va?
+
+#make the figure
+par(mfrow=c(1,1))
+plot(myTrait1, myTrait2, bty="n", lwd=2,xlab = "Trait 1", ylab = "Trait 2")
+ellipse(mu=c(mean(myTrait1), mean(myTrait1)), sigma=myG,col="pink",lwd=2)
+```
+
 ```{r}
 par(mar=c(5,8,2,2))
 
@@ -284,5 +346,5 @@ par(mfrow=c(1,1))
 plot(admtData$FT16_mean, admtData$FT10_mean, bty="n", col = admtData$group, lwd=2, yaxt="n",xlab = "Flowering Time 16", cex.lab=2, cex.axis=2, ylab = "", xlim=c(0,160), ylim = c(0,160))
 axis(2, las=2, cex.axis=1.5, lwd=2)
 mtext('Flowering Time 10',side=2, line=5, cex=2)
-ellipse(mu=c(mean(myZFT$ft16), mean(myZFT$ft10)), sigma=myG,col="pink",lwd=2)
+ellipse(mu=c(mean(myZFT$ft16), mean(myZFT$ft10)), sigma=myG,col="pink",lwd=2, alpha=0.01)
 ```

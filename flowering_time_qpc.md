@@ -353,6 +353,8 @@ dev.off()
 Make a figure of correlation between the two traits compared to expectation under selection on one trait and correlated selection on the other.
 
 
+
+
 ``` r
 par(mar=c(5,8,2,2))
 
@@ -389,7 +391,7 @@ par(mfrow=c(1,1))
 plot(admtData$FT16_mean, admtData$FT10_mean, bty="n", col = admtData$group, lwd=2, yaxt="n",xlab = "Flowering Time 16", cex.lab=2, cex.axis=2, ylab = "", xlim=c(0,160), ylim = c(0,160))
 axis(2, las=2, cex.axis=1.5, lwd=2)
 mtext('Flowering Time 10',side=2, line=5, cex=2)
-ellipse(mu=c(mean(myZFT$ft16), mean(myZFT$ft10)), sigma=myG,col="pink",lwd=2)
+ellipse(mu=c(mean(myZFT$ft16), mean(myZFT$ft10)), sigma=myG,col="pink",lwd=2, alpha=0.01)
 ```
 
-![](flowering_time_qpc_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
+![](flowering_time_qpc_files/figure-html/unnamed-chunk-11-1.png)<!-- -->

@@ -331,7 +331,7 @@ par(mfrow=c(1,1))
 plot(plantDat$NorwichFall2006, plantDat$NorwichSpring2007, bty="n", col = plantDat$group, lwd=2, yaxt="n",xlab = "Flowering Time Fall", cex.lab=2, cex.axis=2, ylab = "", ylim = c(4e3, 18e3), xlim=c(4e3, 18e3))
 axis(2, las=2, cex.axis=1.5, lwd=2)
 mtext('Flowering Time Spring',side=2, line=5, cex=2)
-ellipse(mu=c(mean(myZ$NF6), mean(myZ$NS7)), myG,col="pink",lwd=2)
+ellipse(mu=c(mean(myZ$NF6), mean(myZ$NS7)), myG,col="pink",lwd=2, alpha=0.01)
 
 
 ```
