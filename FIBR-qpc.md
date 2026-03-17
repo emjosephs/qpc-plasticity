@@ -62,19 +62,9 @@ Test for selection in Norwich
 load('data/Norwich_qpc_inputs.rda')
 
 # Norwich fall 2006
-myQpc_NF6 = calcQpc(myZ = plantDat$NorwichFall2006, myU = myEig$vectors, myLambdas = myEig$values, myM = 1:5, myL = 70:140) 
-plotQPC(myQpc_NF6, myEig = myEig, traitValues = plantDat$NorwichFall2006, populationLabels =plantDat$group, testPCs = 3)
-```
-
-```
-## [[1]]
-```
-
-![](FIBR-qpc_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
-
-``` r
-#the pvalues
-myQpc_NF6$pvals*length(myQpc_NF6$pvals)
+myQpc_NF6 = calcQpc(myZ = plantDat$NorwichFall2006, myU = myEig$vectors, myLambdas = myEig$values, myM = 1:5, myL = 70:140)  # run the test
+#plotQPC(myQpc_NF6, myEig = myEig, traitValues = plantDat$NorwichFall2006, populationLabels =plantDat$group, testPCs = 3) #make the plot
+myQpc_NF6$pvals*length(myQpc_NF6$pvals) #get pvalues (bonf corrected)
 ```
 
 ```
@@ -83,9 +73,9 @@ myQpc_NF6$pvals*length(myQpc_NF6$pvals)
 
 ``` r
 #Norwich spring 2007
-myQpc_NS7 = calcQpc(myZ = plantDat$NorwichSpring2007, myU = myEig$vectors, myLambdas = myEig$values, myM = 1:5, myL = 70:140) 
-
-myQpc_NS7$pvals*length(myQpc_NS7$pvals)
+myQpc_NS7 = calcQpc(myZ = plantDat$NorwichSpring2007, myU = myEig$vectors, myLambdas = myEig$values, myM = 1:5, myL = 70:140) # do the test
+#plotQPC(myQpc_NS7, myEig = myEig, traitValues = plantDat$NorwichSpring2007, populationLabels =plantDat$group, testPCs = 3) #make the plot
+myQpc_NS7$pvals*length(myQpc_NS7$pvals) #get bonf corrected pvals
 ```
 
 ```
@@ -93,36 +83,21 @@ myQpc_NS7$pvals*length(myQpc_NS7$pvals)
 ```
 
 ``` r
-plotQPC(myQpc_NS7, myEig = myEig, traitValues = plantDat$NorwichSpring2007, populationLabels =plantDat$group, testPCs = 3)
-```
-
-```
-## [[1]]
-```
-
-![](FIBR-qpc_files/figure-html/unnamed-chunk-3-2.png)<!-- -->
-
-``` r
+## make a figure for the paper (you can see a better version in the figures/ folder)
 plantDat$group <- as.factor(plantDat$group) #make factor so we get colors
 
 #calculate the CIs
 myCINF6 = 1.96*sqrt(var0(myQpc_NF6$cml)*myEig$values)
 myCINS7 = 1.96*sqrt(var0(myQpc_NS7$cml)*myEig$values)
 
-#calculate the CIs
-myCINF6 = 1.96*sqrt(var0(myQpc_NF6$cml)*myEig$values)
-myCINS7 = 1.96*sqrt(var0(myQpc_NS7$cml)*myEig$values)
-
-plantDat$group <- as.factor(plantDat$group)
-
-
 fibrfig <- function(){
 par(mar = c(5,8,5,5), xpd=T, mfrow=c(1,3))
 plot.new()
+#make the legend
 legend('left', levels(plantDat$group)[-1], pch=1, pt.lwd = 2,col = palette()[-1], bty="n", text.width = 0.04, cex=1.5)
 legend('bottomleft', c('Observed','95% CI'), lty = c(1,2),lwd = 3,col = c('black','#0072B2'), bty="n", text.width = 0.04, cex=1.5)
 
-
+#plot Norwich Fall 2006
 plot(myEig$vectors[,3], plantDat$NorwichFall2006[-nrow(plantDat)], bty="n", col = plantDat$group, lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n", ylim = c(5500, 17000))
 axis(1, cex.axis=1.5, lwd=2)
 axis(2, las=2, cex.axis=2, lwd=2, at = seq(6000, 16000, by = 2000), lab = seq(6, 16, by=2))
@@ -133,6 +108,7 @@ abline(a=mean(plantDat$NorwichFall2006), b = myCINF6[3], lty=2, col='#0072B2', l
 abline(a=mean(plantDat$NorwichFall2006), b = -myCINF6[3], lty=2, col='#0072B2', lwd=2)
 mtext('A', side=3, line=1, cex=2.5, adj = -0.1)
 
+#plot Norwich Spring
 plot(myEig$vectors[,3], plantDat$NorwichSpring2007[-nrow(plantDat)], bty="n", col = plantDat$group, lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n", ylim = c(5500, 17000))
 axis(1, cex.axis=1.5, lwd=2)
 axis(2, las=2, cex.axis=2, lwd=2, at = seq(6000, 16000, by = 2000), lab = seq(6, 16, by=2))
@@ -146,7 +122,7 @@ mtext('B', side=3, line=1, cex=2.5, adj = -0.1)
 fibrfig()
 ```
 
-![](FIBR-qpc_files/figure-html/unnamed-chunk-3-3.png)<!-- -->
+![](FIBR-qpc_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
 
 
 
@@ -154,10 +130,10 @@ Test for selection on the reaction norm between spring and fall in Norwich
 
 
 ``` r
-plantDat$rn = plantDat$NorwichSpring2007 - plantDat$NorwichFall2006 #calculate the reaction norm. Positive values mean later flowering in spring plantins. Negative values mean later flowering in fall plantings.
+plantDat$rn = plantDat$NorwichSpring2007 - plantDat$NorwichFall2006 #calculate the reaction norm. Positive values mean later flowering in spring plantings. Negative values mean later flowering in fall plantings.
 
 par(mfrow=c(1,1))
-hist(plantDat$rn, col = mycol[3], border="white", xlab = "", main="PTU Spring-Fall")
+hist(plantDat$rn, col = mycol[3], border="white", xlab = "", main="PTU Spring - Fall")
 ```
 
 ![](FIBR-qpc_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
@@ -192,20 +168,19 @@ abline(a = 0, b=1)
 ``` r
 ## You can see a tail of accessions that need vernalization.
 
-
+#calculate qpc on the reaction norm (only doing pc 3)
 myQpc_rn = calcQpc(myZ = plantDat$rn, myU = myEig$vectors, myLambdas = myEig$values, myM = 1:3, myL = 70:140) 
-
-
-myQpc_rn$pvals
+myQpc_rn$pvals[3]
 ```
 
 ```
-## [1] 0.51167181 0.96099670 0.07381048
+## [1] 0.07381048
 ```
 
 ``` r
+#make a figure of the reaction norm
 fibRxnFig <- function(x){
-myCIrn = 1.96*sqrt(var0(myQpc_rn$cml)*myEig$values)
+myCIrn = 1.96*sqrt(var0(myQpc_rn$cml)*myEig$values) #calculate CIs
 par(mar = c(5,8,5,14), xpd=T, mfrow=c(1,1))
 plot(myEig$vectors[,3], plantDat$rn[-nrow(plantDat)], bty="n", col = plantDat$group, lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n")
 axis(1, cex.axis=1.5, lwd=2)
@@ -230,9 +205,9 @@ Doing the conditional test
 
 ``` r
 #test for selection on Norwich spring given Norwich fall
-myZ2 = data.frame(NS7 = plantDat$NorwichSpring2007, NF6 = plantDat$NorwichFall2006, stringsAsFactors = F)
-myQcondNS7 = condQpc(myZ = myZ2, myU = myEig$vectors, myLambdas = myEig$values, myM = 3, myL = 70:140)
-myQcondNS7$pvals
+myZ2 = data.frame(NS7 = plantDat$NorwichSpring2007, NF6 = plantDat$NorwichFall2006, stringsAsFactors = F) #make a dataframe with the focal trait in column 1 and the controlled-for trait in column 2
+myQcondNS7 = condQpc(myZ = myZ2, myU = myEig$vectors, myLambdas = myEig$values, myM = 3, myL = 70:140) #do the conditional test just for PC3
+myQcondNS7$pvals #get the p value
 ```
 
 ```
@@ -241,9 +216,9 @@ myQcondNS7$pvals
 ```
 
 ``` r
-#vice versa
-myZ3 = data.frame(NF6 = plantDat$NorwichFall2006, NS7 = plantDat$NorwichSpring2007, stringsAsFactors = F)
-myQcondNF6 = condQpc(myZ = myZ3, myU = myEig$vectors, myLambdas = myEig$values, myM = 3, myL = 70:140)
+#selection on Norwich fall given norwich spring
+myZ3 = data.frame(NF6 = plantDat$NorwichFall2006, NS7 = plantDat$NorwichSpring2007, stringsAsFactors = F) #make a dataframe with the focal trait in column 1 and the controlled-for trait in column 2
+myQcondNF6 = condQpc(myZ = myZ3, myU = myEig$vectors, myLambdas = myEig$values, myM = 3, myL = 70:140) #do the conditional test just for PC3
 myQcondNF6$pvals
 ```
 
@@ -254,67 +229,42 @@ myQcondNF6$pvals
 
 
 ``` r
-## making figures
-myZ = myZ2
-myU = myEig$vectors
-myLambdas = myEig$values
-myM = 3 
-myL = 70:140
-myPC = 3
+## making figures of the conditional test
 
-# get Xms for each PC (for Z1, the focal trait and Z2, the correlated trait) THESE ARE MEAN CENTERED
-myXNS7centered = (myZ[-nrow(myZ),1]-mean(myZ[,1]))%*%myU/sqrt(myLambdas)
-myXNF6centered = (myZ[-nrow(myZ),2]-mean(myZ[,2]))%*%myU/sqrt(myLambdas)
-
-#get mu' for each PC
-
-Ca_sf = sum(myXNF6centered[myL]*myXNS7centered[myL])/length(myL) 
-Va_f = (sum(myXNF6centered[myL]^2))/length(myL) #for NF6
-Va_s = (sum(myXNS7centered[myL]^2))/length(myL) #for NS7
-
-mu_fs_cond = mean(myZ[-nrow(myZ),2]) + (Ca_sf/Va_s)*(myZ[-nrow(myZ),1] - mean(myZ[,1])) #one value for each 
-mu_sf_cond = mean(myZ[-nrow(myZ),1]) + (Ca_sf/Va_f)*(myZ[-nrow(myZ),2] - mean(myZ[,2])) #one value for each 
-
-va_fs_cond = Va_f - (Ca_sf^2)/Va_s  #for NF6
-va_sf_cond = Va_s - (Ca_sf^2)/Va_f  #for NF6
-
-myCI_fs = 1.96*sqrt(va_fs_cond*myLambdas)
-myCI_sf = 1.96*sqrt(va_sf_cond*myLambdas)
-
-
-myZfibr= myZ
-myZfibr2 = myZ2
+#get CIs for each comparison
+myCI_fs = 1.96*sqrt(myQcondNF6$va1cond*myEig$values)
+myCI_sf = 1.96*sqrt(myQcondNS7$va1cond*myEig$values)
 
 
 cfibrfig <-function(){
 #legend('left', levels(plantDat$group)[-1], pch=1, pt.lwd = 2,col = palette()[-1], bty="n", text.width = 0.04, cex=2.5)
   plot.new()
-legend('left', c("Asia","Central Europe","Germany","North Sweden","Relict","South Sweden", "Spain","Western Europe"), pch=1, pt.lwd = 2,col = palette()[-1], bty="n", text.width = 0.04, cex=2.5)
-  legend('bottomleft', c('Observed','95% CI', '95% conditional CI'), lty = c(1,2,2),lwd = 2,col = c('black','#0072B2',"#E69F00"), bty="n", text.width = 0.04, cex=2.5)
+legend('left', c("Asia","Central Europe","Germany","North Sweden","Relict","South Sweden", "Spain","Western Europe"), pch=1, pt.lwd = 2,col = palette()[-1], bty="n", text.width = 0.04, cex=1.5)
+  legend('bottomleft', c('Observed','95% CI', '95% conditional CI'), lty = c(1,2,2),lwd = 2,col = c('black','#0072B2',"#E69F00"), bty="n", text.width = 0.04, cex=1.5)
 
 plot(myEig$vectors[,3], plantDat$NorwichFall2006[-nrow(plantDat)], bty="n", col = plantDat$group, lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n", ylim = c(5500, 18000))
 axis(1, cex.axis=1.5, lwd=2)
 axis(2, las=2, cex.axis=2, lwd=2, at = seq(6000, 18000, by = 2000), lab = seq(6, 18, by=2))
 mtext('1000 PTU to flower, Fall',side=2, line=5, cex=2)
 par(xpd=F)
-myl <- lm(plantDat$NorwichFall2006[-nrow(plantDat)]~myEig$vectors[,3])
-abline(myl, lwd=4, col = "black")
+myl = lm(myQcondNF6$mu1cond~myEig$vectors[,3]) ##conditional expectation of the relationsip
+abline(lm(plantDat$NorwichFall2006[-nrow(plantDat)]~myEig$vectors[,3]), lwd=4, col = "black")
 abline(a=mean(plantDat$NorwichFall2006), b = myCINF6[3], lty=2, col='#0072B2', lwd=2)
 abline(a=mean(plantDat$NorwichFall2006), b = -myCINF6[3], lty=2, col='#0072B2', lwd=2)
-abline(a=mean(myZ[,2]), b = myl$coefficients[2] + myCI_fs[myPC], lty=2, col="#E69F00", lwd=2)
-abline(a=mean(myZ[,2]), b = myl$coefficients[2] -myCI_fs[myPC], lty=2, col="#E69F00", lwd=2)
+abline(a=mean(plantDat$NorwichFall2006), b = myl$coefficients[2] + myCI_fs[3], lty=2, col="#E69F00", lwd=2)
+abline(a=mean(mean(plantDat$NorwichFall2006)), b = myl$coefficients[2] -myCI_fs[3], lty=2, col="#E69F00", lwd=2)
 mtext('A', side=3, line=0, cex=2.5, adj = -0.3)
 
 plot(myEig$vectors[,3], plantDat$NorwichSpring2007[-nrow(plantDat)], bty="n", col = plantDat$group, lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n", ylim = c(5500, 18000))
 axis(1, cex.axis=1.5, lwd=2)
 axis(2, las=2, cex.axis=2, lwd=2, at = seq(6000, 18000, by = 2000), lab = seq(6, 18, by=2))
 mtext('1000 PTU to flower, Spring',side=2, line=5, cex=2)
-mylb <- lm(plantDat$NorwichSpring2007[-nrow(plantDat)]~myEig$vectors[,3])
-abline(mylb, lwd=4, col = "black")
+mylb = lm(myQcondNS7$mu1cond~myEig$vectors[,3]) ##conditional expectation of the relationship
+abline(lm(plantDat$NorwichSpring2007[-nrow(plantDat)]~myEig$vectors[,3]), lwd=4, col = "black")
 abline(a=mean(plantDat$NorwichSpring2007), b = myCINS7[3], lty=2, col='#0072B2', lwd=2)
 abline(a=mean(plantDat$NorwichSpring2007), b = -myCINS7[3], lty=2, col='#0072B2', lwd=2)
-abline(a=mean(myZ[,1]), b = mylb$coefficients[2] + myCI_sf[myPC], lty=2, col="#E69F00", lwd=2)
-abline(a=mean(myZ[,1]), b = mylb$coefficients[2] -myCI_sf[myPC], lty=2, col="#E69F00", lwd=2)
+abline(a=mean(mean(plantDat$NorwichSpring2007)), b = mylb$coefficients[2] + myCI_sf[3], lty=2, col="#E69F00", lwd=2)
+abline(a=mean(mean(plantDat$NorwichSpring2007)), b = mylb$coefficients[2] -myCI_sf[3], lty=2, col="#E69F00", lwd=2)
 mtext('B', side=3, line=0, cex=2.5, adj = -0.3)
 }
 par(mar = c(5,5,5,5), xpd=T, mfrow=c(1,3))
@@ -379,13 +329,17 @@ ellipse <- function(mu, sigma, alpha=.05, npoints=250,
   invisible(pts)
 }
 
-
+par(mfrow=c(1,1))
 plot(plantDat$NorwichFall2006, plantDat$NorwichSpring2007, bty="n", col = plantDat$group, lwd=2, yaxt="n",xlab = "Flowering Time Fall", cex.lab=2, cex.axis=2, ylab = "", ylim = c(4e3, 18e3), xlim=c(4e3, 18e3))
 axis(2, las=2, cex.axis=1.5, lwd=2)
 mtext('Flowering Time Spring',side=2, line=5, cex=2)
-
-
-ellipse(mu=c(mean(myZ$NF6), mean(myZ$NS7)), myG,col="pink",lwd=2)
+ellipse(mu=c(mean(myZ$NF6), mean(myZ$NS7)), myG,col="pink",lwd=2, alpha=0.01)
 ```
 
 ![](FIBR-qpc_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
+
+
+```
+## png 
+##   2
+```
