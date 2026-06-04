@@ -238,7 +238,32 @@ cor.test(admtData$FT16_mean, admtData$fw)
 ```
 
 
-Apply the conditional test.
+Test for selection on reaction norm conditional on the mean.
+
+
+``` r
+myZM = data.frame(fw = admtData$fw, meanft = (admtData$FT16_mean+admtData$FT10_mean)/2, stringsAsFactors = F)
+myQcondfw = condQpc(myZ = myZM, myU = eigadm$vectors, myLambdas = eigadm$values, myM = 2, myL = 485:969)
+myQcondfw$pvals
+```
+
+```
+##           [,1]
+## [1,] 0.2509915
+```
+
+``` r
+plotCondQpc(myQcondfw, myEig = eigadm, traitValues = admtData$fw, populationLabels = admtData$group, testPCs = 2)
+```
+
+```
+## [[1]]
+```
+
+![](flowering_time_qpc_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
+
+
+Apply the conditional test (correlated traits version)
 
 
 
@@ -274,7 +299,7 @@ plotCondQpc(myQcond16, myEig = eigadm, traitValues = admtData$FT16_mean, populat
 ## [[1]]
 ```
 
-![](flowering_time_qpc_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
+![](flowering_time_qpc_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
 
 ``` r
 plotCondQpc(myQcond10, myEig = eigadm, traitValues = admtData$FT10_mean, populationLabels = admtData$group, testPCs = 2)
@@ -284,7 +309,13 @@ plotCondQpc(myQcond10, myEig = eigadm, traitValues = admtData$FT10_mean, populat
 ## [[1]]
 ```
 
-![](flowering_time_qpc_files/figure-html/unnamed-chunk-9-2.png)<!-- -->
+![](flowering_time_qpc_files/figure-html/unnamed-chunk-10-2.png)<!-- -->
+
+``` r
+#myZF2 = data.frame(rn = admtData$fw, mean = (admtData$FT16_mean+admtData$FT10_mean)/2, stringsAsFactors = F)
+#myQcondrxn = condQpc(myZ = myZF2, myU = eigadm$vectors, myLambdas = eigadm$values, myM = 2, myL = 485:969)
+#myQcondrxn
+```
 
 
 
@@ -394,4 +425,4 @@ mtext('Flowering Time 10',side=2, line=5, cex=2)
 ellipse(mu=c(mean(myZFT$ft16), mean(myZFT$ft10)), sigma=myG,col="pink",lwd=2, alpha=0.01)
 ```
 
-![](flowering_time_qpc_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
+![](flowering_time_qpc_files/figure-html/unnamed-chunk-12-1.png)<!-- -->

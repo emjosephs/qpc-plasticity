@@ -163,7 +163,18 @@ cor.test(admtData$FT16_mean, admtData$fw)
 ```
 
 
-Apply the conditional test.
+Test for selection on reaction norm conditional on the mean.
+
+```{r}
+myZM = data.frame(fw = admtData$fw, meanft = (admtData$FT16_mean+admtData$FT10_mean)/2, stringsAsFactors = F)
+myQcondfw = condQpc(myZ = myZM, myU = eigadm$vectors, myLambdas = eigadm$values, myM = 2, myL = 485:969)
+myQcondfw$pvals
+
+plotCondQpc(myQcondfw, myEig = eigadm, traitValues = admtData$fw, populationLabels = admtData$group, testPCs = 2)
+```
+
+
+Apply the conditional test (correlated traits version)
 
 
 ```{r}
@@ -180,7 +191,9 @@ plotCondQpc(myQcond16, myEig = eigadm, traitValues = admtData$FT16_mean, populat
 
 plotCondQpc(myQcond10, myEig = eigadm, traitValues = admtData$FT10_mean, populationLabels = admtData$group, testPCs = 2)
 
-
+#myZF2 = data.frame(rn = admtData$fw, mean = (admtData$FT16_mean+admtData$FT10_mean)/2, stringsAsFactors = F)
+#myQcondrxn = condQpc(myZ = myZF2, myU = eigadm$vectors, myLambdas = eigadm$values, myM = 2, myL = 485:969)
+#myQcondrxn
 ```
 
 
