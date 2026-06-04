@@ -137,7 +137,7 @@ par(mfrow=c(1,1))
 hist(plantDat$rn, col = mycol[3], border="white", xlab = "", main="PTU Spring - Fall")
 ## most are negative which makes sense since the fall plants had to overwinter.
 
-plot(plantDat$NorwichSpring2007, plantDat$NorwichFall2006, col = plantDat$group, bty="n", xlab = "Spring", ylab="Fall", lwd=2)
+plot(plantDat$NorwichSpring2007, plantDat$NorwichFall2006, col = as.factor(plantDat$group), bty="n", xlab = "Spring", ylab="Fall", lwd=2)
 cor.test(plantDat$NorwichFall2006, plantDat$NorwichSpring2007)
 abline(a = 0, b=1)
 ## You can see a tail of accessions that need vernalization.
@@ -155,7 +155,7 @@ plotQPC(myQpc_rn, myEig = myEig, traitValues = plantDat$rn, populationLabels = p
 fibRxnFig <- function(x){
 myCIrn = 1.96*sqrt(var0(myQpc_rn$cml)*myEig$values) #calculate CIs
 par(mar = c(5,8,5,14), xpd=T, mfrow=c(1,1))
-plot(myEig$vectors[,3], plantDat$rn[-nrow(plantDat)], bty="n", col = plantDat$group, lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n")
+plot(myEig$vectors[,3], plantDat$rn[-nrow(plantDat)], bty="n", col = as.factor(plantDat$group), lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n")
 axis(1, cex.axis=1.5, lwd=2)
 axis(2, las=2, cex.axis=1.5, lwd=2)
 mtext('Reaction Norm',side=2, line=5, cex=2)
@@ -173,7 +173,18 @@ dev.off()
 ```
 
 
-Doing the conditional test
+Conditional test on the reaction norm
+
+```{r}
+myZrn = data.frame(rn = plantDat$rn, meanft=(plantDat$NorwichFall2006+plantDat$NorwichSpring2007)/2, stringsAsFactors = F) #make a dataframe with the focal trait in column 1 and the controlled-for trait in column 2
+myQcondrn = condQpc(myZ = myZrn, myU = myEig$vectors, myLambdas = myEig$values, myM = 3, myL = 70:140) #do the conditional test just for PC3
+myQcondrn$pvals #get the p value
+
+plotCondQpc(myQcondrn,myEig,plantDat$rn,populationLabels=plantDat$group, 3)
+```
+
+
+The conditional test on the correlated traits view
 ```{r}
 #test for selection on Norwich spring given Norwich fall
 myZ2 = data.frame(NS7 = plantDat$NorwichSpring2007, NF6 = plantDat$NorwichFall2006, stringsAsFactors = F) #make a dataframe with the focal trait in column 1 and the controlled-for trait in column 2
@@ -186,13 +197,6 @@ myQcondNF6 = condQpc(myZ = myZ3, myU = myEig$vectors, myLambdas = myEig$values, 
 myQcondNF6$pvals
 ```
 
-```{r, eval=F, echo=F}
-#conditional test on reaction norm
-#test for selection on Norwich spring given Norwich fall
-myZ3 = data.frame(rxn = plantDat$rn, mean = (plantDat$NorwichSpring2007 +plantDat$NorwichFall2006)/2, stringsAsFactors = F) #make a dataframe with the focal trait in column 1 and the controlled-for trait in column 2
-myQcondrn = condQpc(myZ = myZ3, myU = myEig$vectors, myLambdas = myEig$values, myM = 1:5, myL = 70:140) #do the conditional test just for PC3
-myQcondrn$pvals #get the p value
-```
 
 ```{r}
 ## making figures of the conditional test
@@ -208,27 +212,27 @@ cfibrfig <-function(){
 legend('left', c("Asia","Central Europe","Germany","North Sweden","Relict","South Sweden", "Spain","Western Europe"), pch=1, pt.lwd = 2,col = palette()[-1], bty="n", text.width = 0.04, cex=1.5)
   legend('bottomleft', c('Observed','95% CI', '95% conditional CI'), lty = c(1,2,2),lwd = 2,col = c('black','#0072B2',"#E69F00"), bty="n", text.width = 0.04, cex=1.5)
 
-plot(myEig$vectors[,3], plantDat$NorwichFall2006[-nrow(plantDat)], bty="n", col = plantDat$group, lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n", ylim = c(5500, 18000))
+plot(myEig$vectors[,3], plantDat$NorwichFall2006[-nrow(plantDat)], bty="n", col = as.factor(plantDat$group), lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n", ylim = c(5500, 18000))
 axis(1, cex.axis=1.5, lwd=2)
 axis(2, las=2, cex.axis=2, lwd=2, at = seq(6000, 18000, by = 2000), lab = seq(6, 18, by=2))
 mtext('1000 PTU to flower, Fall',side=2, line=5, cex=2)
 par(xpd=F)
 myl = lm(myQcondNF6$mu1cond~myEig$vectors[,3]) ##conditional expectation of the relationsip
 abline(lm(plantDat$NorwichFall2006[-nrow(plantDat)]~myEig$vectors[,3]), lwd=4, col = "black")
-abline(a=mean(plantDat$NorwichFall2006), b = myCINF6[3], lty=2, col='#0072B2', lwd=2)
-abline(a=mean(plantDat$NorwichFall2006), b = -myCINF6[3], lty=2, col='#0072B2', lwd=2)
+abline(a=mean(plantDat$NorwichFall2006), b = myCI_fs[3], lty=2, col='#0072B2', lwd=2)
+abline(a=mean(plantDat$NorwichFall2006), b = -myCI_fs[3], lty=2, col='#0072B2', lwd=2)
 abline(a=mean(plantDat$NorwichFall2006), b = myl$coefficients[2] + myCI_fs[3], lty=2, col="#E69F00", lwd=2)
 abline(a=mean(mean(plantDat$NorwichFall2006)), b = myl$coefficients[2] -myCI_fs[3], lty=2, col="#E69F00", lwd=2)
 mtext('A', side=3, line=0, cex=2.5, adj = -0.3)
 
-plot(myEig$vectors[,3], plantDat$NorwichSpring2007[-nrow(plantDat)], bty="n", col = plantDat$group, lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n", ylim = c(5500, 18000))
+plot(myEig$vectors[,3], plantDat$NorwichSpring2007[-nrow(plantDat)], bty="n", col = as.factor(plantDat$group), lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n", ylim = c(5500, 18000))
 axis(1, cex.axis=1.5, lwd=2)
 axis(2, las=2, cex.axis=2, lwd=2, at = seq(6000, 18000, by = 2000), lab = seq(6, 18, by=2))
 mtext('1000 PTU to flower, Spring',side=2, line=5, cex=2)
 mylb = lm(myQcondNS7$mu1cond~myEig$vectors[,3]) ##conditional expectation of the relationship
 abline(lm(plantDat$NorwichSpring2007[-nrow(plantDat)]~myEig$vectors[,3]), lwd=4, col = "black")
-abline(a=mean(plantDat$NorwichSpring2007), b = myCINS7[3], lty=2, col='#0072B2', lwd=2)
-abline(a=mean(plantDat$NorwichSpring2007), b = -myCINS7[3], lty=2, col='#0072B2', lwd=2)
+abline(a=mean(plantDat$NorwichSpring2007), b = myCI_sf[3], lty=2, col='#0072B2', lwd=2)
+abline(a=mean(plantDat$NorwichSpring2007), b = -myCI_sf[3], lty=2, col='#0072B2', lwd=2)
 abline(a=mean(mean(plantDat$NorwichSpring2007)), b = mylb$coefficients[2] + myCI_sf[3], lty=2, col="#E69F00", lwd=2)
 abline(a=mean(mean(plantDat$NorwichSpring2007)), b = mylb$coefficients[2] -myCI_sf[3], lty=2, col="#E69F00", lwd=2)
 mtext('B', side=3, line=0, cex=2.5, adj = -0.3)
@@ -296,7 +300,7 @@ ellipse <- function(mu, sigma, alpha=.05, npoints=250,
 }
 
 par(mfrow=c(1,1))
-plot(plantDat$NorwichFall2006, plantDat$NorwichSpring2007, bty="n", col = plantDat$group, lwd=2, yaxt="n",xlab = "Flowering Time Fall", cex.lab=2, cex.axis=2, ylab = "", ylim = c(4e3, 18e3), xlim=c(4e3, 18e3))
+plot(plantDat$NorwichFall2006, plantDat$NorwichSpring2007, bty="n", col = as.factor(plantDat$group), lwd=2, yaxt="n",xlab = "Flowering Time Fall", cex.lab=2, cex.axis=2, ylab = "", ylim = c(4e3, 18e3), xlim=c(4e3, 18e3))
 axis(2, las=2, cex.axis=1.5, lwd=2)
 mtext('Flowering Time Spring',side=2, line=5, cex=2)
 ellipse(mu=c(mean(myZ$NF6), mean(myZ$NS7)), myG,col="pink",lwd=2, alpha=0.01)
@@ -304,13 +308,13 @@ ellipse(mu=c(mean(myZ$NF6), mean(myZ$NS7)), myG,col="pink",lwd=2, alpha=0.01)
 
 ```
 
-```{r, eval=T, echo=F}
+```{r, eval=F, echo=F}
 ##make a figure
 postscript("figures/ellipse.eps",height=12,width=12,paper="special",horizontal=FALSE,colormodel="cymk")
 par(mfrow=c(2,2), mar=c(8,8,3,3))
 cfibrfig()
 
-plot(plantDat$NorwichFall2006, plantDat$NorwichSpring2007, bty="n", col = plantDat$group, lwd=2, yaxt="n",xlab = "1000 PTU Fall", cex.lab=2, cex.axis=2, ylab = "", ylim = c(4e3, 18e3), xlim=c(4e3, 18e3))
+plot(plantDat$NorwichFall2006, plantDat$NorwichSpring2007, bty="n", col = as.factor(plantDat$group), lwd=2, yaxt="n",xlab = "1000 PTU Fall", cex.lab=2, cex.axis=2, ylab = "", ylim = c(4e3, 18e3), xlim=c(4e3, 18e3))
 axis(2, las=2, cex.axis=1.5, lwd=2)
 mtext('1000 PTU Spring',side=2, line=5, cex=2)
 ellipse(mu=c(mean(myZ$NF6), mean(myZ$NS7)), myG,col="pink",lwd=2)

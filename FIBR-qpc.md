@@ -82,48 +82,6 @@ myQpc_NS7$pvals*length(myQpc_NS7$pvals) #get bonf corrected pvals
 ## [1] 3.9285150433 2.7253684974 0.0007245085 3.9720526437 4.1050533899
 ```
 
-``` r
-## make a figure for the paper (you can see a better version in the figures/ folder)
-plantDat$group <- as.factor(plantDat$group) #make factor so we get colors
-
-#calculate the CIs
-myCINF6 = 1.96*sqrt(var0(myQpc_NF6$cml)*myEig$values)
-myCINS7 = 1.96*sqrt(var0(myQpc_NS7$cml)*myEig$values)
-
-fibrfig <- function(){
-par(mar = c(5,8,5,5), xpd=T, mfrow=c(1,3))
-plot.new()
-#make the legend
-legend('left', levels(plantDat$group)[-1], pch=1, pt.lwd = 2,col = palette()[-1], bty="n", text.width = 0.04, cex=1.5)
-legend('bottomleft', c('Observed','95% CI'), lty = c(1,2),lwd = 3,col = c('black','#0072B2'), bty="n", text.width = 0.04, cex=1.5)
-
-#plot Norwich Fall 2006
-plot(myEig$vectors[,3], plantDat$NorwichFall2006[-nrow(plantDat)], bty="n", col = plantDat$group, lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n", ylim = c(5500, 17000))
-axis(1, cex.axis=1.5, lwd=2)
-axis(2, las=2, cex.axis=2, lwd=2, at = seq(6000, 16000, by = 2000), lab = seq(6, 16, by=2))
-mtext('1000 PTU to flower, Fall',side=2, line=5, cex=2)
-par(xpd=F)
-abline(lm(plantDat$NorwichFall2006[-nrow(plantDat)]~myEig$vectors[,3]), lwd=4, col = "black")
-abline(a=mean(plantDat$NorwichFall2006), b = myCINF6[3], lty=2, col='#0072B2', lwd=2)
-abline(a=mean(plantDat$NorwichFall2006), b = -myCINF6[3], lty=2, col='#0072B2', lwd=2)
-mtext('A', side=3, line=1, cex=2.5, adj = -0.1)
-
-#plot Norwich Spring
-plot(myEig$vectors[,3], plantDat$NorwichSpring2007[-nrow(plantDat)], bty="n", col = plantDat$group, lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n", ylim = c(5500, 17000))
-axis(1, cex.axis=1.5, lwd=2)
-axis(2, las=2, cex.axis=2, lwd=2, at = seq(6000, 16000, by = 2000), lab = seq(6, 16, by=2))
-mtext('1000 PTU to flower, Spring',side=2, line=5, cex=2)
-abline(lm(plantDat$NorwichSpring2007[-nrow(plantDat)]~myEig$vectors[,3]), lwd=4, col = "black")
-abline(a=mean(plantDat$NorwichSpring2007), b = myCINS7[3], lty=2, col='#0072B2', lwd=2)
-abline(a=mean(plantDat$NorwichSpring2007), b = -myCINS7[3], lty=2, col='#0072B2', lwd=2)
-mtext('B', side=3, line=1, cex=2.5, adj = -0.1)
-}
-
-fibrfig()
-```
-
-![](FIBR-qpc_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
-
 
 
 Test for selection on the reaction norm between spring and fall in Norwich
@@ -141,7 +99,7 @@ hist(plantDat$rn, col = mycol[3], border="white", xlab = "", main="PTU Spring - 
 ``` r
 ## most are negative which makes sense since the fall plants had to overwinter.
 
-plot(plantDat$NorwichSpring2007, plantDat$NorwichFall2006, col = plantDat$group, bty="n", xlab = "Spring", ylab="Fall", lwd=2)
+plot(plantDat$NorwichSpring2007, plantDat$NorwichFall2006, col = as.factor(plantDat$group), bty="n", xlab = "Spring", ylab="Fall", lwd=2)
 cor.test(plantDat$NorwichFall2006, plantDat$NorwichSpring2007)
 ```
 
@@ -178,22 +136,11 @@ myQpc_rn$pvals[3]
 ```
 
 ``` r
-#make a figure of the reaction norm
-fibRxnFig <- function(x){
-myCIrn = 1.96*sqrt(var0(myQpc_rn$cml)*myEig$values) #calculate CIs
-par(mar = c(5,8,5,14), xpd=T, mfrow=c(1,1))
-plot(myEig$vectors[,3], plantDat$rn[-nrow(plantDat)], bty="n", col = plantDat$group, lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n")
-axis(1, cex.axis=1.5, lwd=2)
-axis(2, las=2, cex.axis=1.5, lwd=2)
-mtext('Reaction Norm',side=2, line=5, cex=2)
-legend(0.13, 5000, levels(plantDat$group), pch=1, pt.lwd = 2,col = palette(), bty="n", text.width = 0.04, cex=1.3)
-par(xpd=F)
-abline(lm(plantDat$rn[-nrow(plantDat)]~myEig$vectors[,3]), lwd=4, col = "black")
-abline(a=mean(plantDat$rn), b = myCIrn[3], lty=2, col='#0072B2', lwd=2)
-abline(a=mean(plantDat$rn), b = -myCIrn[3], lty=2, col='#0072B2', lwd=2)
-}
+plotQPC(myQpc_rn, myEig = myEig, traitValues = plantDat$rn, populationLabels = plantDat$group, testPCs = 3)
+```
 
-fibRxnFig()
+```
+## [[1]]
 ```
 
 ![](FIBR-qpc_files/figure-html/unnamed-chunk-5-3.png)<!-- -->
@@ -201,7 +148,32 @@ fibRxnFig()
 
 
 
-Doing the conditional test
+Conditional test on the reaction norm
+
+
+``` r
+myZrn = data.frame(rn = plantDat$rn, meanft=(plantDat$NorwichFall2006+plantDat$NorwichSpring2007)/2, stringsAsFactors = F) #make a dataframe with the focal trait in column 1 and the controlled-for trait in column 2
+myQcondrn = condQpc(myZ = myZrn, myU = myEig$vectors, myLambdas = myEig$values, myM = 3, myL = 70:140) #do the conditional test just for PC3
+myQcondrn$pvals #get the p value
+```
+
+```
+##           [,1]
+## [1,] 0.4390403
+```
+
+``` r
+plotCondQpc(myQcondrn,myEig,plantDat$rn,populationLabels=plantDat$group, 3)
+```
+
+```
+## [[1]]
+```
+
+![](FIBR-qpc_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
+
+
+The conditional test on the correlated traits view
 
 ``` r
 #test for selection on Norwich spring given Norwich fall
@@ -228,6 +200,7 @@ myQcondNF6$pvals
 ```
 
 
+
 ``` r
 ## making figures of the conditional test
 
@@ -242,27 +215,27 @@ cfibrfig <-function(){
 legend('left', c("Asia","Central Europe","Germany","North Sweden","Relict","South Sweden", "Spain","Western Europe"), pch=1, pt.lwd = 2,col = palette()[-1], bty="n", text.width = 0.04, cex=1.5)
   legend('bottomleft', c('Observed','95% CI', '95% conditional CI'), lty = c(1,2,2),lwd = 2,col = c('black','#0072B2',"#E69F00"), bty="n", text.width = 0.04, cex=1.5)
 
-plot(myEig$vectors[,3], plantDat$NorwichFall2006[-nrow(plantDat)], bty="n", col = plantDat$group, lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n", ylim = c(5500, 18000))
+plot(myEig$vectors[,3], plantDat$NorwichFall2006[-nrow(plantDat)], bty="n", col = as.factor(plantDat$group), lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n", ylim = c(5500, 18000))
 axis(1, cex.axis=1.5, lwd=2)
 axis(2, las=2, cex.axis=2, lwd=2, at = seq(6000, 18000, by = 2000), lab = seq(6, 18, by=2))
 mtext('1000 PTU to flower, Fall',side=2, line=5, cex=2)
 par(xpd=F)
 myl = lm(myQcondNF6$mu1cond~myEig$vectors[,3]) ##conditional expectation of the relationsip
 abline(lm(plantDat$NorwichFall2006[-nrow(plantDat)]~myEig$vectors[,3]), lwd=4, col = "black")
-abline(a=mean(plantDat$NorwichFall2006), b = myCINF6[3], lty=2, col='#0072B2', lwd=2)
-abline(a=mean(plantDat$NorwichFall2006), b = -myCINF6[3], lty=2, col='#0072B2', lwd=2)
+abline(a=mean(plantDat$NorwichFall2006), b = myCI_fs[3], lty=2, col='#0072B2', lwd=2)
+abline(a=mean(plantDat$NorwichFall2006), b = -myCI_fs[3], lty=2, col='#0072B2', lwd=2)
 abline(a=mean(plantDat$NorwichFall2006), b = myl$coefficients[2] + myCI_fs[3], lty=2, col="#E69F00", lwd=2)
 abline(a=mean(mean(plantDat$NorwichFall2006)), b = myl$coefficients[2] -myCI_fs[3], lty=2, col="#E69F00", lwd=2)
 mtext('A', side=3, line=0, cex=2.5, adj = -0.3)
 
-plot(myEig$vectors[,3], plantDat$NorwichSpring2007[-nrow(plantDat)], bty="n", col = plantDat$group, lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n", ylim = c(5500, 18000))
+plot(myEig$vectors[,3], plantDat$NorwichSpring2007[-nrow(plantDat)], bty="n", col = as.factor(plantDat$group), lwd=2, ylab = "", yaxt="n",xlab = "PC3", cex.lab=2, cex.axis=2, xaxt="n", ylim = c(5500, 18000))
 axis(1, cex.axis=1.5, lwd=2)
 axis(2, las=2, cex.axis=2, lwd=2, at = seq(6000, 18000, by = 2000), lab = seq(6, 18, by=2))
 mtext('1000 PTU to flower, Spring',side=2, line=5, cex=2)
 mylb = lm(myQcondNS7$mu1cond~myEig$vectors[,3]) ##conditional expectation of the relationship
 abline(lm(plantDat$NorwichSpring2007[-nrow(plantDat)]~myEig$vectors[,3]), lwd=4, col = "black")
-abline(a=mean(plantDat$NorwichSpring2007), b = myCINS7[3], lty=2, col='#0072B2', lwd=2)
-abline(a=mean(plantDat$NorwichSpring2007), b = -myCINS7[3], lty=2, col='#0072B2', lwd=2)
+abline(a=mean(plantDat$NorwichSpring2007), b = myCI_sf[3], lty=2, col='#0072B2', lwd=2)
+abline(a=mean(plantDat$NorwichSpring2007), b = -myCI_sf[3], lty=2, col='#0072B2', lwd=2)
 abline(a=mean(mean(plantDat$NorwichSpring2007)), b = mylb$coefficients[2] + myCI_sf[3], lty=2, col="#E69F00", lwd=2)
 abline(a=mean(mean(plantDat$NorwichSpring2007)), b = mylb$coefficients[2] -myCI_sf[3], lty=2, col="#E69F00", lwd=2)
 mtext('B', side=3, line=0, cex=2.5, adj = -0.3)
@@ -271,7 +244,7 @@ par(mar = c(5,5,5,5), xpd=T, mfrow=c(1,3))
 cfibrfig()
 ```
 
-![](FIBR-qpc_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
+![](FIBR-qpc_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
 
 
 
@@ -330,16 +303,12 @@ ellipse <- function(mu, sigma, alpha=.05, npoints=250,
 }
 
 par(mfrow=c(1,1))
-plot(plantDat$NorwichFall2006, plantDat$NorwichSpring2007, bty="n", col = plantDat$group, lwd=2, yaxt="n",xlab = "Flowering Time Fall", cex.lab=2, cex.axis=2, ylab = "", ylim = c(4e3, 18e3), xlim=c(4e3, 18e3))
+plot(plantDat$NorwichFall2006, plantDat$NorwichSpring2007, bty="n", col = as.factor(plantDat$group), lwd=2, yaxt="n",xlab = "Flowering Time Fall", cex.lab=2, cex.axis=2, ylab = "", ylim = c(4e3, 18e3), xlim=c(4e3, 18e3))
 axis(2, las=2, cex.axis=1.5, lwd=2)
 mtext('Flowering Time Spring',side=2, line=5, cex=2)
 ellipse(mu=c(mean(myZ$NF6), mean(myZ$NS7)), myG,col="pink",lwd=2, alpha=0.01)
 ```
 
-![](FIBR-qpc_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
+![](FIBR-qpc_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
 
 
-```
-## png 
-##   2
-```
