@@ -170,11 +170,6 @@ postscript("figures/FIBRnorwichRxn.eps",height=6,width=8,paper="special",horizon
 
 fibRxnFig()
 dev.off()
-
-
-
-
-
 ```
 
 
