@@ -120,4 +120,8 @@ calcQpc(myZ = (myZs[,1]+myZs[,2])/2, myLambdas = myEig$values, myU = myEig$vecto
 #is there selection on reaction norm?
 calcQpc(myZ = myZs[,1]-myZs[,2], myLambdas = myEig$values, myU = myEig$vectors, myM = 1:3, myL = 70:140)$pvals[3]
 
+#How does condqpc work? Note that these are already mean centered, so throwing condQpc function off... hmm
+condQpc(myZ, myEig$vectors, myEig$values, myM=1:3, myL=70:140)
+
+
 ```
