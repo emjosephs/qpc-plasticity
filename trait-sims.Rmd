@@ -13,6 +13,9 @@ library(MBSP)
 
 mycol =  c('#999999', '#E69F00', '#56B4E9', "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
+##pull in one of our actual kinship matrices
+load('data/Norwich_qpc_inputs.rda')
+
 ```
 
 
@@ -23,27 +26,30 @@ mycol =  c('#999999', '#E69F00', '#56B4E9', "#009E73", "#F0E442", "#0072B2", "#D
 #140 individuals, 2 traits
 myM = matrix(0, nrow=140, ncol=2)
 
-##pull in one of our actual kinship matrices
-load('data/Norwich_qpc_inputs.rda')
-
 #make up some Vas and Cs. 
 myV = matrix(c(1,.5,.5,1), nrow=2)
 
-set.seed(3)
+set.seed(333)
 
 myZ = matrix_normal(M = myM, U = myK, V = myV)
 
-par(mfrow=c(1,3))
-hist(myZ[,1], col = mycol[1], border="white", breaks=10, main = "", xlab = "trait 1")
-hist(myZ[,2], col = mycol[2], border="white", breaks=10, main= "", xlab = "trait 2")
-plot(myZ[,1], myZ[,2], xlab = "trait 1", ylab = "trait 2", bty="n", col = mycol[3], lwd=2)
-cor.test(myZ[,1], myZ[,2])
+#par(mfrow=c(1,3))
+#hist(myZ[,1], col = mycol[1], border="white", breaks=10, main = "", xlab = "trait 1")
+#hist(myZ[,2], col = mycol[2], border="white", breaks=10, main= "", xlab = "trait 2")
+#plot(myZ[,1], myZ[,2], xlab = "trait 1", ylab = "trait 2", bty="n", col = mycol[3], lwd=2)
+#cor.test(myZ[,1], myZ[,2])
 
 par(mfrow=c(1,1))
 plot(myEig$vectors[,3],myZ[,2], xlab = "PC3", ylab = "trait", col="white", bty="n") #trait under selection
 abline(lm(myZ[,2]~myEig$vectors[,3]))
 abline(lm(myZ[,1]~myEig$vectors[,3]), lty=2)
 legend('topleft',c('neutral trait','neutral trait'),bty="n",lty=c(1,2))
+
+myQpc1 = calc_qpc(trait_values = myZ[,1], eigen_k = myEig, test_pcs = 1:10,var_pcs = 70:140)
+myQpc2 = calc_qpc(trait_values = myZ[,2], eigen_k = myEig, test_pcs = 1:10,var_pcs = 70:140)
+
+myQpc1$pvals[3] #neutral trait
+myQpc2$pvals[3] #neutral trait
 
 ```
 
@@ -69,21 +75,30 @@ abline(lm(myZs[,1]~myEig$vectors[,3]), lty=2)
 legend('topleft',c('selected trait','neutral trait'),bty="n",lty=c(1,2))
 
 
-par(mfrow=c(1,3))
-hist(myZs[,1], col = mycol[1], border="white", breaks=10, main = "", xlab = "trait 1")
-hist(myZs[,2], col = mycol[2], border="white", breaks=10, main= "", xlab = "trait 2")
-plot(myZs[,1], myZs[,2], xlab = "trait 1", ylab = "trait 2", bty="n", col = mycol[3], lwd=2)
-cor.test(myZ[,1], myZ[,2])
+#par(mfrow=c(1,3))
+#hist(myZs[,1], col = mycol[1], border="white", breaks=10, main = "", xlab = "trait 1")
+#hist(myZs[,2], col = mycol[2], border="white", breaks=10, main= "", xlab = "trait 2")
+#plot(myZs[,1], myZs[,2], xlab = "trait 1", ylab = "trait 2", bty="n", col = mycol[3], lwd=2)
+#cor.test(myZ[,1], myZ[,2])
 
 
 ##does it work to create differences detectable by regular qpc
 
-myQpc1s = calcQpc(myZ = myZs[,1], myLambdas = myEig$values, myU = myEig$vectors, myM = 1:10, myL = 70:140)
-myQpc2s = calcQpc(myZ = myZs[,2], myLambdas = myEig$values, myU = myEig$vectors, myM = 1:10, myL = 70:140)
+myQpc1s = calc_qpc(trait_values = myZs[,1], eigen_k = myEig, test_pcs = 1:10,var_pcs = 70:140) #neutral trait
+myQpc2s = calc_qpc(trait_values = myZs[,2], eigen_k = myEig, test_pcs = 1:10,var_pcs = 70:140) #selected trait
 myQpc1s$pvals[3]
 myQpc2s$pvals[3]
 
-#condQpc(myZs,, myM=3,myL=70:140)
+
+##what does it look like from the reaction norm perspective?
+myZs = data.frame(myZs)
+myZs$rn = myZs[,1] - myZs[,2]
+
+plot(myEig$vectors[,3],myZs$rn, xlab = "PC3", ylab = "rxn norm", col="white", bty="n") 
+abline(lm(myZs$rn~myEig$vectors[,3]))
+
+calc_qpc(trait_values = myZs$rn, eigen_k = myEig, test_pcs = 1:10,var_pcs = 70:140)$pvals[3] ## so this manifests as weak selection on the reaction norm in this one case.
+
 ```
 
 ##3 Now we want to simulate selection on the reaction norm
@@ -93,14 +108,38 @@ tc = .6 #set trait cor
 myM = matrix(0, nrow=140, ncol=2)
 myV = matrix(c(1,tc,tc,1), nrow=2)
 
-set.seed(555)
+set.seed(1221)
 myZ = matrix_normal(myM, myK, myV) ## sim the neutral traits
 
 
-#selected traits -- For trait 2, selection effect is PC3*5. For trait 1, selection effect is PC3*-5. So we have selection for different optima in each environment
-selectionEffect = matrix(-c(myEig$vectors[,3]*2, -5*myEig$vectors[,3]), nrow=140) 
-myZs = myZ + selectionEffect
+#adding selection onto the reaction norm
+myZ = data.frame(myZ)
+myZ$rn = myZs[,1] - myZs[,2]
+selectionEffect = myEig$vectors[,3]*7
+myZ$rns = myZ$rn - selectionEffect #note need to check direction before adding
 
+plot(myEig$vectors[,3],myZ$rns, xlab = "PC3", ylab = "rxn norm", col="white", bty="n") 
+abline(lm(myZ$rn~myEig$vectors[,3]))
+abline(lm(myZ$rns~myEig$vectors[,3]), lty=2)
+
+calc_qpc(trait_values = myZ$rns, eigen_k = myEig, test_pcs = 1:10,var_pcs = 70:140)$pvals[3]
+
+##issue is this is separate from the trait values -- just shows we can add selection onto a reaction norm... can we make it into trait values? Imagine we hold trait 1 steady and add the reaction norm on for trait 2
+
+myZ$trait1s = myZ[,2]+ myZ$rns
+
+
+plot(myEig$vectors[,3],myZ$trait1s, xlab = "PC3", ylab = "rxn norm", col="white", bty="n") 
+abline(lm(myZ[,2]~myEig$vectors[,3]))
+abline(lm(myZ$trait1s~myEig$vectors[,3]), lty=2)
+legend('topright',c('selected trait','neutral trait'),bty="n",lty=c(2,1))
+
+calc_qpc(trait_values = myZ$trait1s, eigen_k = myEig, test_pcs = 1:10,var_pcs = 70:140)$pvals[3]
+
+```
+
+##R independent selection on each trait IN PROGRESS
+```{r, eval=F, echo=F}
 
 par(mfrow=c(1,2))
 plot(myEig$vectors[,3],myZs[,2], xlab = "PC3", ylab = "trait", col="white", bty="n") #trait under selection
