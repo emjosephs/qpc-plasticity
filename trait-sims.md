@@ -90,13 +90,18 @@ legend('topleft',c('selected trait','neutral trait'),bty="n",lty=c(1,2))
 
 ##does it work to create differences detectable by regular qpc
 
+<<<<<<< Updated upstream
 myQpc1s = calc_qpc(trait_values = myZs[,1], eigen_k = myEig, test_pcs = 1:10,var_pcs = 70:140) #neutral trait
 myQpc2s = calc_qpc(trait_values = myZs[,2], eigen_k = myEig, test_pcs = 1:10,var_pcs = 70:140) #selected trait
+=======
+myQpc1s = calc_qpc(trait_values = c(myZs[,1], 0), eigen_k = myEig, test_pcs = 1:10, var_pcs = 70:140)
+myQpc2s = calc_qpc(trait_values = c(myZs[,2], 0), eigen_k = myEig, test_pcs = 1:10, var_pcs = 70:140)
+>>>>>>> Stashed changes
 myQpc1s$pvals[3]
 ```
 
 ```
-## [1] 0.02213327
+## [1] 0.02213254
 ```
 
 ``` r
@@ -104,7 +109,7 @@ myQpc2s$pvals[3]
 ```
 
 ```
-## [1] 0.0004651775
+## [1] 0.0004648274
 ```
 
 ``` r
@@ -152,7 +157,12 @@ abline(lm(myZ$rns~myEig$vectors[,3]), lty=2)
 ![](trait-sims_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
 
 ``` r
+<<<<<<< Updated upstream
 calc_qpc(trait_values = myZ$rns, eigen_k = myEig, test_pcs = 1:10,var_pcs = 70:140)$pvals[3]
+=======
+#is there selection on trait 1?
+calc_qpc(trait_values = c(myZs[,1], 0), eigen_k = myEig, test_pcs = 1:3, var_pcs = 70:140)$pvals[3]
+>>>>>>> Stashed changes
 ```
 
 ```
@@ -160,6 +170,7 @@ calc_qpc(trait_values = myZ$rns, eigen_k = myEig, test_pcs = 1:10,var_pcs = 70:1
 ```
 
 ``` r
+<<<<<<< Updated upstream
 ##issue is this is separate from the trait values -- just shows we can add selection onto a reaction norm... can we make it into trait values? Imagine we hold trait 1 steady and add the reaction norm on for trait 2
 
 myZ$trait1s = myZ[,2]+ myZ$rns
@@ -183,3 +194,38 @@ calc_qpc(trait_values = myZ$trait1s, eigen_k = myEig, test_pcs = 1:10,var_pcs = 
 
 ##R independent selection on each trait IN PROGRESS
 
+=======
+calc_qpc(trait_values = c(myZs[,2], 0), eigen_k = myEig, test_pcs = 1:3, var_pcs = 70:140)$pvals[3]
+```
+
+```
+## [1] 3.260973e-05
+```
+
+``` r
+#is there selection on mean?
+calc_qpc((c(myZs[,1], 0)+c(myZs[,2], 0))/2, myEig, 1:3, 70:140)$pvals[3]
+```
+
+```
+## [1] 0.01684066
+```
+
+``` r
+#is there selection on reaction norm?
+calc_qpc((c(myZs[,1], 0)-c(myZs[,2], 0)), myEig, 1:3, 70:140)$pvals[3]
+```
+
+```
+## [1] 6.090026e-07
+```
+
+``` r
+#How does 
+calc_cond_qpc(c(myZs[,1], 0), c(myZs[,2], 0), myEig, 1:3, 70:140)$pvals[3]
+```
+
+```
+## [1] 3.056339e-05
+```
+>>>>>>> Stashed changes

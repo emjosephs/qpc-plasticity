@@ -90,8 +90,13 @@ cor.test(myZ[,1], myZ[,2])
 
 ##does it work to create differences detectable by regular qpc
 
+<<<<<<< Updated upstream
 myQpc1s = calc_qpc(trait_values = myZs[,1], eigen_k = myEig, test_pcs = 1:10,var_pcs = 70:140) #neutral trait
 myQpc2s = calc_qpc(trait_values = myZs[,2], eigen_k = myEig, test_pcs = 1:10,var_pcs = 70:140) #selected trait
+=======
+myQpc1s = calc_qpc(trait_values = c(myZs[,1], 0), eigen_k = myEig, test_pcs = 1:10, var_pcs = 70:140)
+myQpc2s = calc_qpc(trait_values = c(myZs[,2], 0), eigen_k = myEig, test_pcs = 1:10, var_pcs = 70:140)
+>>>>>>> Stashed changes
 myQpc1s$pvals[3]
 myQpc2s$pvals[3]
 
@@ -125,13 +130,19 @@ myV = matrix(c(1,tc,tc,1), nrow=2)
 
 set.seed(1221)
 myZ = matrix_normal(myM, myK, myV) ## sim the neutral traits
+myZ = rbind(myZ, c(0,0))
 
-
+<<<<<<< Updated upstream
 #adding selection onto the reaction norm
 myZ = data.frame(myZ)
 myZ$rn = myZs[,1] - myZs[,2]
 selectionEffect = myEig$vectors[,3]*7
 myZ$rns = myZ$rn - selectionEffect #note need to check direction before adding
+=======
+#selected traits -- For trait 2, selection effect is PC3*5. For trait 1, selection effect is PC3*-5. So we have selection for different optima in each environment
+selectionEffect = matrix(-c(myEig$vectors[,3]*2, -5*myEig$vectors[,3]), nrow=141) 
+myZs = myZ + selectionEffect
+>>>>>>> Stashed changes
 
 plot(myEig$vectors[,3],myZ$rns, xlab = "PC3", ylab = "rxn norm", col="white", bty="n") 
 abline(lm(myZ$rn~myEig$vectors[,3]))
@@ -165,17 +176,33 @@ legend('topleft',c('trait 1','trait2'),bty="n",lty=c(1,2))
 plot(myZs[,1], myZs[,2], xlab = "trait 1", ylab = "trait 2", bty="n", col = mycol[3], lwd=2)
 abline(lm(myZs[,1]~myZs[,2]), lty=1)
 
-#is there selection on trait 1?
-calcQpc(myZ = myZs[,1], myLambdas = myEig$values, myU = myEig$vectors, myM = 1:3, myL = 70:140)$pvals[3]
-#is there selection on trait 2
-calcQpc(myZ = myZs[,2], myLambdas = myEig$values, myU = myEig$vectors, myM = 1:3, myL = 70:140)$pvals[3]
-#is there selection on mean?
-calcQpc(myZ = (myZs[,1]+myZs[,2])/2, myLambdas = myEig$values, myU = myEig$vectors, myM = 1:3, myL = 70:140)$pvals[3]
-#is there selection on reaction norm?
-calcQpc(myZ = myZs[,1]-myZs[,2], myLambdas = myEig$values, myU = myEig$vectors, myM = 1:3, myL = 70:140)$pvals[3]
 
-#How does 
-condQpc(myZ, myEig$vectors, myEig$values, myM=1:3, myL=70:140)
+traits <- tibble(trait1 = myZs[,1], 
+                 trait2 = myZs[,2], 
+                 reaction_norm = trait1-trait2, 
+                 mean = (trait1+trait2)/2)
+
+#is there selection on trait 1?
+calc_qpc(trait_values = traits$trait1, eigen_k = myEig, test_pcs = 1:3, var_pcs = 70:140)$pvals[3]
+#is there selection on trait 2?
+calc_qpc(trait_values = traits$trait2, eigen_k = myEig, test_pcs = 1:3, var_pcs = 70:140)$pvals[3]
+#is there selection on mean?
+calc_qpc(traits$mean, myEig, 1:3, 70:140)$pvals[3]
+#is there selection on reaction norm?
+calc_qpc(traits$reaction_norm, myEig, 1:3, 70:140)$pvals[3]
+
+# Is there selection on trait 1 conditional on trait 2?
+calc_cond_qpc(traits$trait1, traits$trait2, myEig, 1:3, 70:140)$pvals[3]
+
+# Is there selection on trait 2 conditional on trait 1?
+calc_cond_qpc(traits$trait2, traits$trait1, myEig, 1:3, 70:140)$pvals[3]
+
+# Is there selection on the reaction norm conditional on the mean?
+calc_cond_qpc(traits$reaction_norm, traits$mean, myEig, 1:3, 70:140)$pvals[3]
+
+ggplot(traits, aes(x = reaction_norm, y = mean)) + 
+  geom_point() +
+  theme_classic()
 
 
 ```
