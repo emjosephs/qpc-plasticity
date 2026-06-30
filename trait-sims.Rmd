@@ -6,10 +6,11 @@ output:
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-# setwd('~/Documents/qpc-plasticity/')
+setwd('~/Documents/qpc-plasticity/')
 library(dplyr)
 library(quaint)
 library(MBSP)
+library(ggplot2)
 
 mycol =  c('#999999', '#E69F00', '#56B4E9', "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
@@ -56,7 +57,7 @@ myQpc2$pvals[3] #neutral trait
 ##2. Simulate trait data for 2 correlated traits where trait 1 is neutral and trait 2  is under selection. No selection on plasticity or the reaction norm.
 
 ```{r}
-tc = .6 #set trait cor
+tc = .4 #set trait cor
 myM = matrix(0, nrow=140, ncol=2)
 myV = matrix(c(1,tc,tc,1), nrow=2)
 
@@ -64,66 +65,48 @@ set.seed(555)
 #neutral traits
 myZ = matrix_normal(myM, myK, myV)
 
-#selected traits -- could add separate selection by adding different PCs into the mix. Yes, this is hacky. But right now what I'm doing in is adding the selection effect is the position on PC3*the variance explained by PC3 on trait 2. For trait 1, I'm multiplying this by the correlation btw traits
-selectionEffect = matrix(c(myEig$vectors[,3]*myEig$values[3]*tc, myEig$vectors[,3]*myEig$values[3]), nrow=140) 
-myZs = myZ + selectionEffect
+#selected traits 
+selectionEffect = matrix(c(myEig$vectors[,3]*myEig$values[3],rep(0,140)), nrow=140) 
+myZs = myZ + selectionEffect ## trait 1 is under s
+
 new_traits = tibble(trait1 = myZs[,1]) |> 
   rowwise() |>
-  mutate(trait2 = (tc*trait1 + sqrt(1 - tc^2)*rnorm(n = 1, mean = trait1, sd =  sqrt(1))),
-  rn = trait1 - trait2)
+  mutate(trait2 = (tc*trait1 + sqrt(1 - tc^2)*rnorm(n = 1, mean = trait1, sd =  sqrt(1))), #this sets up trait 2 to be correlated with trait 1
+  rn1 = trait1 - trait2,
+  rn2 = trait2-trait1) #trait 1 is under selection
 
-ggplot(new_traits, aes(x = trait1, y = trait2)) + geom_point() + geom_smooth(method = "lm") + theme_classic()
+#ggplot(new_traits, aes(x = trait1, y = trait2)) + geom_point() + geom_smooth(method = "lm") + theme_classic()
+cor.test(new_traits$trait1, new_traits$trait2) ##seems way too high, revisit
 
 par(mfrow=c(1,1))
-plot(myEig$vectors[,3],myZs[,2], xlab = "PC3", ylab = "trait", col="white", bty="n") #trait under selection
-abline(lm(myZs[,2]~myEig$vectors[,3]))
-abline(lm(myZs[,1]~myEig$vectors[,3]), lty=2)
+plot(myEig$vectors[,3],new_traits$trait2, xlab = "PC3", ylab = "trait", col="white", bty="n") 
+abline(lm(new_traits$trait1~myEig$vectors[,3])) #trait under selection
+abline(lm(new_traits$trait2~myEig$vectors[,3]), lty=2)
 legend('topleft',c('selected trait','neutral trait'),bty="n",lty=c(1,2))
-
-
-par(mfrow=c(1,3))
-hist(myZs[,1], col = mycol[1], border="white", breaks=10, main = "", xlab = "trait 1")
-hist(myZs[,2], col = mycol[2], border="white", breaks=10, main= "", xlab = "trait 2")
-plot(myZs[,1], myZs[,2], xlab = "trait 1", ylab = "trait 2", bty="n", col = mycol[3], lwd=2)
-cor.test(myZ[,1], myZ[,2])
-
+## why is the slope stronger for the neutral trait?
 
 ##does it work to create differences detectable by regular qpc
-
-<<<<<<< Updated upstream
-myQpc1s = calc_qpc(trait_values = myZs[,1], eigen_k = myEig, test_pcs = 1:10,var_pcs = 70:140) #neutral trait
-myQpc2s = calc_qpc(trait_values = myZs[,2], eigen_k = myEig, test_pcs = 1:10,var_pcs = 70:140) #selected trait
-=======
-myQpc1s = calc_qpc(trait_values = c(myZs[,1], 0), eigen_k = myEig, test_pcs = 1:10, var_pcs = 70:140)
-myQpc2s = calc_qpc(trait_values = c(myZs[,2], 0), eigen_k = myEig, test_pcs = 1:10, var_pcs = 70:140)
->>>>>>> Stashed changes
-myQpc1s$pvals[3]
-myQpc2s$pvals[3]
-
-
-##what does it look like from the reaction norm perspective?
-myZs = data.frame(myZs)
-myZs$rn = myZs[,1] - myZs[,2]
-
-plot(myEig$vectors[,3],myZs$rn, xlab = "PC3", ylab = "rxn norm", col="white", bty="n") 
-abline(lm(myZs$rn~myEig$vectors[,3]))
-
-calc_qpc(trait_values = myZs$rn, eigen_k = myEig, test_pcs = 1:10,var_pcs = 70:140)$pvals[3] ## so this manifests as weak selection on the reaction norm in this one case.
-
 calc_qpc(trait_values = new_traits$trait1, eigen_k = myEig, test_pcs = 1:3,var_pcs = 70:140)$pvals[3]
 calc_qpc(trait_values = new_traits$trait2, eigen_k = myEig, test_pcs = 1:3,var_pcs = 70:140)$pvals[3]
-calc_qpc(trait_values = new_traits$rn, eigen_k = myEig, test_pcs = 1:3,var_pcs = 70:140)$pvals[3]
+calc_qpc(trait_values = new_traits$rn1, eigen_k = myEig, test_pcs = 1:3,var_pcs = 70:140)$pvals[3]
+calc_qpc(trait_values = new_traits$rn2, eigen_k = myEig, test_pcs = 1:3,var_pcs = 70:140)$pvals[3]
+## in this case, get the same answer no matter how you calculate rn
+
 
 calc_cond_qpc(focal_trait = new_traits$trait1, cor_trait = new_traits$trait2, eigen_k = myEig, test_pcs = 1:3,var_pcs = 70:140)$pvals[3]
 calc_cond_qpc(focal_trait = new_traits$trait2, cor_trait = new_traits$trait1, eigen_k = myEig, test_pcs = 1:3,var_pcs = 70:140)$pvals[3]
 
-calc_qpc(trait_values = rowMeans(new_traits[,c("trait1","trait2")]), eigen_k = myEig, test_pcs = 1:3,var_pcs = 70:140)$pvals[3]
+calc_cond_qpc(focal_trait = new_traits$rn1, cor_trait = rowMeans(new_traits[,c("trait1","trait2")]), eigen_k = myEig, test_pcs = 1:3,var_pcs = 70:140)$pvals[3]
+calc_cond_qpc(focal_trait = new_traits$rn2, cor_trait = rowMeans(new_traits[,c("trait1","trait2")]), eigen_k = myEig, test_pcs = 1:3,var_pcs = 70:140)$pvals[3]
+
+#ok in this case you do get the same conditional test
+
 
 ```
 
 ##3 Now we want to simulate selection on the reaction norm
 
-```{r}
+```{r, eval=F}
 tc = .6 #set trait cor
 myM = matrix(0, nrow=140, ncol=2)
 myV = matrix(c(1,tc,tc,1), nrow=2)
