@@ -71,7 +71,7 @@ myZs = myZ + selectionEffect ## trait 1 is under s
 
 new_traits = tibble(trait1 = myZs[,1]) |> 
   rowwise() |>
-  mutate(trait2 = (tc*trait1 + sqrt(1 - tc^2)*rnorm(n = 1, mean = trait1, sd =  sqrt(1))), #this sets up trait 2 to be correlated with trait 1
+  mutate(trait2 = (tc*trait1 + sqrt(1 - tc^2)*rnorm(n = 1, mean = 0, sd =  sqrt(1))), #this sets up trait 2 to be correlated with trait 1
   rn1 = trait1 - trait2,
   rn2 = trait2-trait1) #trait 1 is under selection
 
