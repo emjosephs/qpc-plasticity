@@ -1,7 +1,6 @@
 ---
 title: "ft_qpc.Rmd"
 author: "em"
-date: "July 13, 2018"
 output:
   html_document:
     keep_md: yes
@@ -70,8 +69,9 @@ Test for flowering time at 16C and get the Bonferroni-corrected pvalues
 
 ``` r
 #test for selection on flowering time at 16C
-myQpc_16 = calcQpc(myZ = admtData$FT16_mean, myU = eigadm$vectors, myLambdas = eigadm$values, myM = 1:5, myL = 485:969) 
-plotQPC(myQpc_16, myEig = eigadm, traitValues = admtData$FT16_mean, populationLabels = admtData$group, testPCs = 2)
+
+myQpc_16 = calc_qpc(trait_values = admtData$FT16_mean, eigen_k = eigadm, test_pcs = 1:5, var_pcs=485:969)
+plot_qpc(qpc= myQpc_16, trait_values = admtData$FT16_mean, eigen_k=eigadm, pop_labels = admtData$group, test_pcs = 2)
 ```
 
 ```
@@ -93,8 +93,8 @@ myQpc_16$pvals*length(myQpc_16$pvals) #Bonferroni corrected pvalues
 Test for selection on flowering time at 10C and get the Bonferroni-corrected pvalues
 
 ``` r
-myQpc_10 = calcQpc(myZ = admtData$FT10_mean, myU = eigadm$vectors, myLambdas = eigadm$values,  myM = 1:5, myL = 485:969)
-plotQPC(myQpc_10, myEig = eigadm, traitValues = admtData$FT10_mean, populationLabels = admtData$group, testPCs = 2)
+myQpc_10 = calc_qpc(trait_values = admtData$FT10_mean, eigen_k = eigadm, test_pcs = 1:5, var_pcs=485:969)
+plot_qpc(qpc= myQpc_10, trait_values = admtData$FT10_mean, eigen_k=eigadm, pop_labels = admtData$group, test_pcs = 2)
 ```
 
 ```
@@ -112,24 +112,25 @@ myQpc_10$pvals*length(myQpc_10$pvals)
 ## [1] 2.66617246 0.03427832 0.07767821 3.16738551 1.15988186
 ```
 
+``` r
+plot_qpc(qpc= myQpc_10, trait_values = admtData$FT10_mean, eigen_k=eigadm, pop_labels = admtData$group, test_pcs = 3)
+```
+
+```
+## [[1]]
+```
+
+![](flowering_time_qpc_files/figure-html/unnamed-chunk-5-2.png)<!-- -->
+
 Test for selection on the reaction norm
 
 ``` r
 #calculate the reaction norm
 admtData$fw <- admtData$FT16_mean - admtData$FT10_mean
 
-#do qpc on the reaction norm
-myQpc_fw = calcQpc(myZ = admtData$fw, myU = eigadm$vectors, myLambdas = eigadm$values,  myM = 1:5, myL = 485:969)
-myCIfw = 1.96*sqrt(var0(myQpc_fw$cml)*eigadm$values)
-myQpc_fw$pvals*length(myQpc_fw$pvals) #p values
-```
-
-```
-## [1] 3.1108457 0.1740702 4.5207241 3.6610508 2.4389781
-```
-
-``` r
-plotQPC(myQpc_fw, myEig = eigadm, traitValues = admtData$fw, populationLabels = admtData$group, testPCs = 2)
+#do qpc on the reaction norm only on 3
+myQpc_fw = calc_qpc(trait_values = admtData$fw, eigen_k = eigadm, test_pcs = 3, var_pcs=485:969)
+plot_qpc(qpc= myQpc_fw, trait_values = admtData$fw, eigen_k=eigadm, pop_labels = admtData$group, test_pcs = 2)
 ```
 
 ```
@@ -137,6 +138,10 @@ plotQPC(myQpc_fw, myEig = eigadm, traitValues = admtData$fw, populationLabels = 
 ```
 
 ![](flowering_time_qpc_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
+
+``` r
+myCIfw = 1.96*sqrt(var0(myQpc_fw$cml)*eigadm$values)
+```
 
 
 
@@ -240,10 +245,8 @@ cor.test(admtData$FT16_mean, admtData$fw)
 
 Test for selection on reaction norm conditional on the mean.
 
-
 ``` r
-myZM = data.frame(fw = admtData$fw, meanft = (admtData$FT16_mean+admtData$FT10_mean)/2, stringsAsFactors = F)
-myQcondfw = condQpc(myZ = myZM, myU = eigadm$vectors, myLambdas = eigadm$values, myM = 2, myL = 485:969)
+myQcondfw = calc_cond_qpc(focal_trait = admtData$fw, cor_trait = (admtData$FT16_mean+admtData$FT10_mean)/2, eigen_k = eigadm, test_pcs = 2, var_pcs = 485:969)
 myQcondfw$pvals
 ```
 
@@ -253,7 +256,7 @@ myQcondfw$pvals
 ```
 
 ``` r
-plotCondQpc(myQcondfw, myEig = eigadm, traitValues = admtData$fw, populationLabels = admtData$group, testPCs = 2)
+plot_cond_qpc(cond_qpc = myQcondfw, eigen_k=eigadm, trait_values = admtData$fw, test_pcs=2, pop_labels = admtData$group)
 ```
 
 ```
@@ -263,17 +266,10 @@ plotCondQpc(myQcondfw, myEig = eigadm, traitValues = admtData$fw, populationLabe
 ![](flowering_time_qpc_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
 
 
-Apply the conditional test (correlated traits version)
-
-
+Test for selection on each trait conditional on the other
 
 ``` r
-myZFT = data.frame(ft16 = admtData$FT16_mean, ft10 = admtData$FT10_mean, stringsAsFactors = F)
-myQcond16 = condQpc(myZ = myZFT, myU = eigadm$vectors, myLambdas = eigadm$values, myM = 2, myL = 485:969)
-
-myZFT10 = data.frame(ft10 = admtData$FT10_mean,ft16 = admtData$FT16_mean, stringsAsFactors = F)
-myQcond10 = condQpc(myZ = myZFT10, myU = eigadm$vectors, myLambdas = eigadm$values, myM = 2, myL = 485:969)
-
+myQcond16 = calc_cond_qpc(focal_trait = admtData$FT16_mean, cor_trait = admtData$FT10_mean, eigen_k = eigadm, test_pcs = 2, var_pcs = 485:969)
 myQcond16$pvals
 ```
 
@@ -283,6 +279,7 @@ myQcond16$pvals
 ```
 
 ``` r
+myQcond10 = calc_cond_qpc(focal_trait = admtData$FT10_mean, cor_trait = admtData$FT16_mean, eigen_k = eigadm, test_pcs = 2, var_pcs = 485:969)
 myQcond10$pvals
 ```
 
@@ -292,7 +289,7 @@ myQcond10$pvals
 ```
 
 ``` r
-plotCondQpc(myQcond16, myEig = eigadm, traitValues = admtData$FT16_mean, populationLabels = admtData$group, testPCs = 2)
+plot_cond_qpc(cond_qpc = myQcond16, eigen_k=eigadm, trait_values = admtData$FT16_mean, test_pcs=2, pop_labels = admtData$group)
 ```
 
 ```
@@ -302,7 +299,7 @@ plotCondQpc(myQcond16, myEig = eigadm, traitValues = admtData$FT16_mean, populat
 ![](flowering_time_qpc_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
 
 ``` r
-plotCondQpc(myQcond10, myEig = eigadm, traitValues = admtData$FT10_mean, populationLabels = admtData$group, testPCs = 2)
+plot_cond_qpc(cond_qpc = myQcond10, eigen_k=eigadm, trait_values = admtData$FT10_mean, test_pcs=2, pop_labels = admtData$group)
 ```
 
 ```
@@ -311,12 +308,6 @@ plotCondQpc(myQcond10, myEig = eigadm, traitValues = admtData$FT10_mean, populat
 
 ![](flowering_time_qpc_files/figure-html/unnamed-chunk-10-2.png)<!-- -->
 
-``` r
-#myZF2 = data.frame(rn = admtData$fw, mean = (admtData$FT16_mean+admtData$FT10_mean)/2, stringsAsFactors = F)
-#myQcondrxn = condQpc(myZ = myZF2, myU = eigadm$vectors, myLambdas = eigadm$values, myM = 2, myL = 485:969)
-#myQcondrxn
-```
-
 
 
 
@@ -324,7 +315,7 @@ plotCondQpc(myQcond10, myEig = eigadm, traitValues = admtData$FT10_mean, populat
 ##Figure for publication
 #legend('topleft', levels(admtData$group), pch=1, pt.lwd = 2,col = palette(), bty="n", text.width = 0.04, cex=1.75)
 
-myZ = myZFT10
+myZ = data.frame(ft10 = admtData$FT10_mean,ft16 = admtData$FT16_mean, stringsAsFactors = F)
 myU = eigadm$vectors
 myLambdas = eigadm$values
 myM = 2 
@@ -380,7 +371,6 @@ mtext('Flowering time 16C', side=2, line=4, cex=2)
 dev.off()
 ```
 
-
 Make a figure of correlation between the two traits compared to expectation under selection on one trait and correlated selection on the other.
 
 
@@ -400,6 +390,7 @@ makeG <- function(myZ){
     return(myG)
 }
 
+myZFT = data.frame(ft16 = admtData$FT16_mean, ft10 = admtData$FT10_mean, stringsAsFactors = F)
 myG <- makeG(myZFT) #make it from just phenotypes
 
 ellipse <- function(mu, sigma, alpha=.05, npoints=250,
