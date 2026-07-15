@@ -1,7 +1,6 @@
 ---
 title: "FIBR-qpc"
 author: "em"
-date: "Feb 26, 2025"
 output:
   html_document:
     keep_md: yes
@@ -62,8 +61,17 @@ Test for selection in Norwich
 load('data/Norwich_qpc_inputs.rda')
 
 # Norwich fall 2006
-myQpc_NF6 = calcQpc(myZ = plantDat$NorwichFall2006, myU = myEig$vectors, myLambdas = myEig$values, myM = 1:5, myL = 70:140)  # run the test
-#plotQPC(myQpc_NF6, myEig = myEig, traitValues = plantDat$NorwichFall2006, populationLabels =plantDat$group, testPCs = 3) #make the plot
+myQpc_NF6 = calc_qpc(trait_values = plantDat$NorwichFall2006, eigen_k = myEig, test_pcs = 1:5, var_pcs=70:140)
+plot_qpc(qpc= myQpc_NF6, trait_values = plantDat$NorwichFall2006, eigen_k=myEig, pop_labels = plantDat$group, test_pcs = 3)
+```
+
+```
+## [[1]]
+```
+
+![](FIBR-qpc_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
+
+``` r
 myQpc_NF6$pvals*length(myQpc_NF6$pvals) #get pvalues (bonf corrected)
 ```
 
@@ -73,9 +81,18 @@ myQpc_NF6$pvals*length(myQpc_NF6$pvals) #get pvalues (bonf corrected)
 
 ``` r
 #Norwich spring 2007
-myQpc_NS7 = calcQpc(myZ = plantDat$NorwichSpring2007, myU = myEig$vectors, myLambdas = myEig$values, myM = 1:5, myL = 70:140) # do the test
-#plotQPC(myQpc_NS7, myEig = myEig, traitValues = plantDat$NorwichSpring2007, populationLabels =plantDat$group, testPCs = 3) #make the plot
-myQpc_NS7$pvals*length(myQpc_NS7$pvals) #get bonf corrected pvals
+myQpc_NS7 = calc_qpc(trait_values = plantDat$NorwichSpring2007, eigen_k = myEig, test_pcs = 1:5, var_pcs=70:140)
+plot_qpc(qpc= myQpc_NS7, trait_values = plantDat$NorwichSpring2007, eigen_k=myEig, pop_labels = plantDat$group, test_pcs = 3)
+```
+
+```
+## [[1]]
+```
+
+![](FIBR-qpc_files/figure-html/unnamed-chunk-3-2.png)<!-- -->
+
+``` r
+myQpc_NS7$pvals*length(myQpc_NF6$pvals) #get pvalues (bonf corrected)
 ```
 
 ```
@@ -127,16 +144,8 @@ abline(a = 0, b=1)
 ## You can see a tail of accessions that need vernalization.
 
 #calculate qpc on the reaction norm (only doing pc 3)
-myQpc_rn = calcQpc(myZ = plantDat$rn, myU = myEig$vectors, myLambdas = myEig$values, myM = 1:3, myL = 70:140) 
-myQpc_rn$pvals[3]
-```
-
-```
-## [1] 0.07381048
-```
-
-``` r
-plotQPC(myQpc_rn, myEig = myEig, traitValues = plantDat$rn, populationLabels = plantDat$group, testPCs = 3)
+myQpc_rn = calc_qpc(trait_values = plantDat$rn, eigen_k = myEig, test_pcs = 1:3, var_pcs=70:140)
+plot_qpc(qpc= myQpc_rn, trait_values = plantDat$rn, eigen_k=myEig, pop_labels = plantDat$group, test_pcs = 3)
 ```
 
 ```
@@ -145,6 +154,14 @@ plotQPC(myQpc_rn, myEig = myEig, traitValues = plantDat$rn, populationLabels = p
 
 ![](FIBR-qpc_files/figure-html/unnamed-chunk-5-3.png)<!-- -->
 
+``` r
+myQpc_rn$pvals[3]
+```
+
+```
+## [1] 0.07381048
+```
+
 
 
 
@@ -152,9 +169,8 @@ Conditional test on the reaction norm
 
 
 ``` r
-myZrn = data.frame(rn = plantDat$rn, meanft=(plantDat$NorwichFall2006+plantDat$NorwichSpring2007)/2, stringsAsFactors = F) #make a dataframe with the focal trait in column 1 and the controlled-for trait in column 2
-myQcondrn = condQpc(myZ = myZrn, myU = myEig$vectors, myLambdas = myEig$values, myM = 3, myL = 70:140) #do the conditional test just for PC3
-myQcondrn$pvals #get the p value
+myQcondrn = calc_cond_qpc(focal_trait=plantDat$rn, cor_trait=(plantDat$NorwichSpring2007 + plantDat$NorwichFall2006)/2, eigen_k=myEig, test_pcs = 3, var_pcs = 70:140) #do the conditional test just for PC3
+myQcondrn$pvals
 ```
 
 ```
@@ -163,7 +179,7 @@ myQcondrn$pvals #get the p value
 ```
 
 ``` r
-plotCondQpc(myQcondrn,myEig,plantDat$rn,populationLabels=plantDat$group, 3)
+plot_cond_qpc(cond_qpc = myQcondrn, eigen_k=myEig, trait_values = plantDat$rn, test_pcs=3, pop_labels = plantDat$group)
 ```
 
 ```
@@ -177,8 +193,8 @@ The conditional test on the correlated traits view
 
 ``` r
 #test for selection on Norwich spring given Norwich fall
-myZ2 = data.frame(NS7 = plantDat$NorwichSpring2007, NF6 = plantDat$NorwichFall2006, stringsAsFactors = F) #make a dataframe with the focal trait in column 1 and the controlled-for trait in column 2
-myQcondNS7 = condQpc(myZ = myZ2, myU = myEig$vectors, myLambdas = myEig$values, myM = 3, myL = 70:140) #do the conditional test just for PC3
+
+myQcondNS7 = calc_cond_qpc(focal_trait = plantDat$NorwichSpring2007, cor_trait = plantDat$NorwichFall2006, eigen_k = myEig, test_pcs = 3, var_pcs = 70:140)
 myQcondNS7$pvals #get the p value
 ```
 
@@ -189,9 +205,8 @@ myQcondNS7$pvals #get the p value
 
 ``` r
 #selection on Norwich fall given norwich spring
-myZ3 = data.frame(NF6 = plantDat$NorwichFall2006, NS7 = plantDat$NorwichSpring2007, stringsAsFactors = F) #make a dataframe with the focal trait in column 1 and the controlled-for trait in column 2
-myQcondNF6 = condQpc(myZ = myZ3, myU = myEig$vectors, myLambdas = myEig$values, myM = 3, myL = 70:140) #do the conditional test just for PC3
-myQcondNF6$pvals
+myQcondNF6 = calc_cond_qpc(cor_trait = plantDat$NorwichSpring2007, focal_trait = plantDat$NorwichFall2006, eigen_k = myEig, test_pcs = 3, var_pcs = 70:140)
+myQcondNF6$pvals #get the p value
 ```
 
 ```
@@ -205,8 +220,8 @@ myQcondNF6$pvals
 ## making figures of the conditional test
 
 #get CIs for each comparison
-myCI_fs = 1.96*sqrt(myQcondNF6$va1cond*myEig$values)
-myCI_sf = 1.96*sqrt(myQcondNS7$va1cond*myEig$values)
+myCI_fs = 1.96*sqrt(myQcondNF6$cond_va*myEig$values)
+myCI_sf = 1.96*sqrt(myQcondNS7$cond_va*myEig$values)
 
 
 cfibrfig <-function(){
@@ -220,7 +235,7 @@ axis(1, cex.axis=1.5, lwd=2)
 axis(2, las=2, cex.axis=2, lwd=2, at = seq(6000, 18000, by = 2000), lab = seq(6, 18, by=2))
 mtext('1000 PTU to flower, Fall',side=2, line=5, cex=2)
 par(xpd=F)
-myl = lm(myQcondNF6$mu1cond~myEig$vectors[,3]) ##conditional expectation of the relationsip
+myl = lm(myQcondNF6$mu_cond~myEig$vectors[,3]) ##conditional expectation of the relationsip
 abline(lm(plantDat$NorwichFall2006[-nrow(plantDat)]~myEig$vectors[,3]), lwd=4, col = "black")
 abline(a=mean(plantDat$NorwichFall2006), b = myCI_fs[3], lty=2, col='#0072B2', lwd=2)
 abline(a=mean(plantDat$NorwichFall2006), b = -myCI_fs[3], lty=2, col='#0072B2', lwd=2)
@@ -232,7 +247,7 @@ plot(myEig$vectors[,3], plantDat$NorwichSpring2007[-nrow(plantDat)], bty="n", co
 axis(1, cex.axis=1.5, lwd=2)
 axis(2, las=2, cex.axis=2, lwd=2, at = seq(6000, 18000, by = 2000), lab = seq(6, 18, by=2))
 mtext('1000 PTU to flower, Spring',side=2, line=5, cex=2)
-mylb = lm(myQcondNS7$mu1cond~myEig$vectors[,3]) ##conditional expectation of the relationship
+mylb = lm(myQcondNS7$mu_cond~myEig$vectors[,3]) ##conditional expectation of the relationship
 abline(lm(plantDat$NorwichSpring2007[-nrow(plantDat)]~myEig$vectors[,3]), lwd=4, col = "black")
 abline(a=mean(plantDat$NorwichSpring2007), b = myCI_sf[3], lty=2, col='#0072B2', lwd=2)
 abline(a=mean(plantDat$NorwichSpring2007), b = -myCI_sf[3], lty=2, col='#0072B2', lwd=2)
