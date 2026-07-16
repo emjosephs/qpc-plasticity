@@ -65,7 +65,7 @@ axis(2, las=2, cex.axis=1.5, lwd=2)
 
 ![](flowering_time_qpc_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
 
-Test for flowering time at 16C and get the Bonferroni-corrected pvalues
+Test for flowering time at 16C
 
 ``` r
 #test for selection on flowering time at 16C
@@ -82,15 +82,18 @@ plot_qpc(qpc= myQpc_16, trait_values = admtData$FT16_mean, eigen_k=eigadm, pop_l
 
 ``` r
 myCI16 = 1.96*sqrt(var0(myQpc_16$cml)*eigadm$values) #get CIs for later
-myQpc_16$pvals*length(myQpc_16$pvals) #Bonferroni corrected pvalues
+#myQpc_16$pvals*length(myQpc_16$pvals) #Bonferroni corrected pvalues
+
+X2 <- -2 * sum(log(myQpc_16$pvals))
+pchisq(X2, df = 10, lower.tail = FALSE)
 ```
 
 ```
-## [1] 2.029116414 0.001765576 0.369807501 2.715622749 3.914836588
+## [1] 0.006114931
 ```
 
 
-Test for selection on flowering time at 10C and get the Bonferroni-corrected pvalues
+Test for selection on flowering time at 10C
 
 ``` r
 myQpc_10 = calc_qpc(trait_values = admtData$FT10_mean, eigen_k = eigadm, test_pcs = 1:5, var_pcs=485:969)
@@ -105,11 +108,12 @@ plot_qpc(qpc= myQpc_10, trait_values = admtData$FT10_mean, eigen_k=eigadm, pop_l
 
 ``` r
 myCI10 = 1.96*sqrt(var0(myQpc_10$cml)*eigadm$values) #get CIs for later
-myQpc_10$pvals*length(myQpc_10$pvals)
+#myQpc_10$pvals*length(myQpc_10$pvals)
+pchisq(-2 * sum(log(myQpc_10$pvals)), df = 10, lower.tail = FALSE)
 ```
 
 ```
-## [1] 2.66617246 0.03427832 0.07767821 3.16738551 1.15988186
+## [1] 0.009403215
 ```
 
 ``` r
