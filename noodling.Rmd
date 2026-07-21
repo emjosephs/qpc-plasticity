@@ -1,0 +1,37 @@
+---
+title: "noodling"
+output: html_document
+date: "2026-07-21"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd('~/Documents/qpc-plasticity/')
+library(quaint)
+library(ggplot2)
+library(dplyr)
+```
+
+Husain says: Also, I have some of those examples where the reaction norm is found to be under selection by conditional QPC but not the unconditional test. I saved it just as a list of lists, with phenos and eigen decomposition for 5 different simulation runs. The list items are labeled based on their simulation index so you can pair them.
+
+```{r}
+load('example_reaction_norms.RData')
+
+
+
+## look at first sim
+i=1
+myqpc = cbind(data$phenos[[i]][-400,], data.frame(data$eigs[[i]]$vectors))
+
+## trait 1 correlated with PC?
+ggplot(myqpc, aes(x = X2, y = trait1)) + 
+  geom_point() +
+  stat_smooth(method = "lm", col = "darkred") +
+  theme_classic()
+
+## trait 2 correlated with PC?
+ggplot(myqpc, aes(x = X2, y = trait2)) + 
+  geom_point() +
+  stat_smooth(method = "lm", col = "darkred") +
+  theme_classic()
+```
