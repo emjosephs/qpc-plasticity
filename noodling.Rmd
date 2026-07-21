@@ -1,6 +1,8 @@
 ---
 title: "noodling"
-output: html_document
+output:
+  html_document:
+    keep_md: yes
 date: "2026-07-21"
 ---
 
@@ -21,17 +23,151 @@ load('example_reaction_norms.RData')
 
 ## look at first sim
 i=1
-myqpc = cbind(data$phenos[[i]][-400,], data.frame(data$eigs[[i]]$vectors))
+mydata = cbind(data$phenos[[i]][-400,], data.frame(data$eigs[[i]]$vectors))
+mydata$rxn = mydata$trait2 - mydata$trait1
+mydata$mean = (mydata$trait1+mydata$trait2)/2
 
-## trait 1 correlated with PC?
-ggplot(myqpc, aes(x = X2, y = trait1)) + 
-  geom_point() +
-  stat_smooth(method = "lm", col = "darkred") +
-  theme_classic()
+#check the qpc for reaction norm
+myqpc = calc_qpc(mydata$rxn,data$eigs[[i]],test_pcs=1:2,var_pcs=200:399)
+myqpc$pvals[2]
+mycond = calc_cond_qpc(focal_trait=mydata$rxn,cor_trait=mydata$mean,data$eigs[[i]],test_pcs=2,var_pcs=200:399)
+mycond$pvals
 
-## trait 2 correlated with PC?
-ggplot(myqpc, aes(x = X2, y = trait2)) + 
-  geom_point() +
-  stat_smooth(method = "lm", col = "darkred") +
-  theme_classic()
+plot_qpc(myqpc,trait_values = mydata$rxn, eigen_k = data$eigs[[i]], test_pcs=2, pop_labels=mydata$pop)
+
+plot_cond_qpc(mycond,trait_values = mydata$rxn, eigen_k = data$eigs[[i]], test_pcs=2, pop_labels=mydata$pop)
+
+#what does the mean look like?
+ggplot(mydata, aes(x = X2, y = mean)) + 
+   geom_point() +
+   stat_smooth(method = "lm", col = "darkred") +
+   theme_classic()
+
+ggplot(mydata, aes(x = rxn, y = mean)) + 
+   geom_point() +
+   stat_smooth(method = "lm", col = "darkred") +
+   theme_classic()
+
+#how correlated are they?
+cor.test(mydata$rxn, mydata$mean)
+
+##so what's happening to the variances?
+
+#is va est changing?
+ var0(myqpc$cml) #for qpc
+ mycond$cond_va# for cond test
+ #it's pretty similar
+ #lambdas are the same
+ 
+ #how are the projections changing?
+ rxn_meancentered = mydata$rxn[1:399] - mean(mydata$rxn) 
+rxn_meancentered %*% mydata$X2 #for qpc
+ (rxn_meancentered- mycond$mu_cond)%*% mydata$X2    # for conditional test
+
+#so the difference is that subtracting mu_cond increases the variance that loads on pc2. Why?
+
+mydata$mu_cond = mycond$mu_cond
+
+ggplot(mydata, aes(x = X2, y = mu_cond)) + 
+   geom_point() +
+   stat_smooth(method = "lm", col = "darkred") +
+   theme_classic()
+
+```
+
+Try another example
+
+```{r}
+## look at second sim
+i=2
+mydata = cbind(data$phenos[[i]][-400,], data.frame(data$eigs[[i]]$vectors))
+mydata$rxn = mydata$trait2 - mydata$trait1
+mydata$mean = (mydata$trait1+mydata$trait2)/2
+
+#check the qpc for reaction norm
+myqpc = calc_qpc(mydata$rxn,data$eigs[[i]],test_pcs=1:2,var_pcs=200:399)
+myqpc$pvals[2]
+mycond = calc_cond_qpc(focal_trait=mydata$rxn,cor_trait=mydata$mean,data$eigs[[i]],test_pcs=2,var_pcs=200:399)
+mycond$pvals
+
+plot_qpc(myqpc,trait_values = mydata$rxn, eigen_k = data$eigs[[i]], test_pcs=2, pop_labels=mydata$pop)
+
+plot_cond_qpc(mycond,trait_values = mydata$rxn, eigen_k = data$eigs[[i]], test_pcs=2, pop_labels=mydata$pop)
+
+#what does the mean look like?
+ggplot(mydata, aes(x = X2, y = mean)) + 
+   geom_point() +
+   stat_smooth(method = "lm", col = "darkred") +
+   theme_classic()
+
+ggplot(mydata, aes(x = rxn, y = mean)) + 
+   geom_point() +
+   stat_smooth(method = "lm", col = "darkred") +
+   theme_classic()
+
+
+#is va est changing?
+ var0(myqpc$cml) #for qpc
+ mycond$cond_va# for cond test
+ #it's pretty similar
+
+#how are the projections changing?
+ rxn_meancentered = mydata$rxn[1:399] - mean(mydata$rxn) 
+rxn_meancentered %*% mydata$X2 #for qpc
+ (rxn_meancentered- mycond$mu_cond)%*% mydata$X2    # for conditional test
+
+mydata$mu_cond = mycond$mu_cond
+
+ggplot(mydata, aes(x = X2, y = mu_cond)) + 
+   geom_point() +
+   stat_smooth(method = "lm", col = "darkred") +
+   theme_classic()
+```
+
+Try for the third one
+```{r}
+i=3
+mydata = cbind(data$phenos[[i]][-400,], data.frame(data$eigs[[i]]$vectors))
+mydata$rxn = mydata$trait2 - mydata$trait1
+mydata$mean = (mydata$trait1+mydata$trait2)/2
+
+#check the qpc for reaction norm
+myqpc = calc_qpc(mydata$rxn,data$eigs[[i]],test_pcs=1,var_pcs=200:399)
+myqpc$pvals
+mycond = calc_cond_qpc(focal_trait=mydata$rxn,cor_trait=mydata$mean,data$eigs[[i]],test_pcs=1,var_pcs=200:399)
+mycond$pvals
+
+plot_qpc(myqpc,trait_values = mydata$rxn, eigen_k = data$eigs[[i]], test_pcs=1, pop_labels=mydata$pop)
+
+plot_cond_qpc(mycond,trait_values = mydata$rxn, eigen_k = data$eigs[[i]], test_pcs=1, pop_labels=mydata$pop)
+
+#what does the mean look like?
+ggplot(mydata, aes(x = X2, y = mean)) + 
+   geom_point() +
+   stat_smooth(method = "lm", col = "darkred") +
+   theme_classic()
+
+ggplot(mydata, aes(x = rxn, y = mean)) + 
+   geom_point() +
+   stat_smooth(method = "lm", col = "darkred") +
+   theme_classic()
+
+
+#is va est changing?
+ var0(myqpc$cml) #for qpc
+ mycond$cond_va# for cond test
+ #it's pretty similar
+
+#how are the projections changing?
+ rxn_meancentered = mydata$rxn[1:399] - mean(mydata$rxn) 
+rxn_meancentered %*% mydata$X1 #for qpc
+ (rxn_meancentered- mycond$mu_cond)%*% mydata$X1    # for conditional test
+
+mydata$mu_cond = mycond$mu_cond
+
+ggplot(mydata, aes(x = X2, y = mu_cond)) + 
+   geom_point() +
+   stat_smooth(method = "lm", col = "darkred") +
+   theme_classic()
+
 ```
