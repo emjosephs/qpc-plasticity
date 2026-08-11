@@ -27,6 +27,9 @@ mydata = cbind(data$phenos[[i]][-400,], data.frame(data$eigs[[i]]$vectors))
 mydata$rxn = mydata$trait2 - mydata$trait1
 mydata$mean = (mydata$trait1+mydata$trait2)/2
 
+cor.test(mydata$trait1, mydata$trait2)
+
+
 #check the qpc for reaction norm
 myqpc = calc_qpc(mydata$rxn,data$eigs[[i]],test_pcs=1:2,var_pcs=200:399)
 myqpc$pvals[2]
@@ -83,6 +86,9 @@ i=2
 mydata = cbind(data$phenos[[i]][-400,], data.frame(data$eigs[[i]]$vectors))
 mydata$rxn = mydata$trait2 - mydata$trait1
 mydata$mean = (mydata$trait1+mydata$trait2)/2
+
+cor.test(mydata$trait1, mydata$trait2)
+
 
 #check the qpc for reaction norm
 myqpc = calc_qpc(mydata$rxn,data$eigs[[i]],test_pcs=1:2,var_pcs=200:399)
@@ -169,5 +175,7 @@ ggplot(mydata, aes(x = X2, y = mu_cond)) +
    geom_point() +
    stat_smooth(method = "lm", col = "darkred") +
    theme_classic()
+
+cor.test(mydata$trait1, mydata$trait2)
 
 ```

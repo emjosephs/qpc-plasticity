@@ -22,6 +22,24 @@ mydata = cbind(data$phenos[[i]][-400,], data.frame(data$eigs[[i]]$vectors))
 mydata$rxn = mydata$trait2 - mydata$trait1
 mydata$mean = (mydata$trait1+mydata$trait2)/2
 
+cor.test(mydata$trait1, mydata$trait2)
+```
+
+```
+## 
+## 	Pearson's product-moment correlation
+## 
+## data:  mydata$trait1 and mydata$trait2
+## t = 7.2103, df = 397, p-value = 2.842e-12
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  0.2504736 0.4242814
+## sample estimates:
+##       cor 
+## 0.3402807
+```
+
+``` r
 #check the qpc for reaction norm
 myqpc = calc_qpc(mydata$rxn,data$eigs[[i]],test_pcs=1:2,var_pcs=200:399)
 myqpc$pvals[2]
@@ -176,6 +194,24 @@ mydata = cbind(data$phenos[[i]][-400,], data.frame(data$eigs[[i]]$vectors))
 mydata$rxn = mydata$trait2 - mydata$trait1
 mydata$mean = (mydata$trait1+mydata$trait2)/2
 
+cor.test(mydata$trait1, mydata$trait2)
+```
+
+```
+## 
+## 	Pearson's product-moment correlation
+## 
+## data:  mydata$trait1 and mydata$trait2
+## t = 7.8663, df = 397, p-value = 3.495e-14
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  0.2791036 0.4491967
+## sample estimates:
+##       cor 
+## 0.3672162
+```
+
+``` r
 #check the qpc for reaction norm
 myqpc = calc_qpc(mydata$rxn,data$eigs[[i]],test_pcs=1:2,var_pcs=200:399)
 myqpc$pvals[2]
@@ -423,3 +459,21 @@ ggplot(mydata, aes(x = X2, y = mu_cond)) +
 ```
 
 ![](noodling_files/figure-html/unnamed-chunk-3-5.png)<!-- -->
+
+``` r
+cor.test(mydata$trait1, mydata$trait2)
+```
+
+```
+## 
+## 	Pearson's product-moment correlation
+## 
+## data:  mydata$trait1 and mydata$trait2
+## t = 7.3065, df = 397, p-value = 1.517e-12
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  0.2547200 0.4279935
+## sample estimates:
+##       cor 
+## 0.3442851
+```
