@@ -246,6 +246,30 @@ cor.test(admtData$FT16_mean, admtData$fw)
 ## 0.8234889
 ```
 
+``` r
+plot((admtData$FT16_mean+admtData$FT10_mean)/2, admtData$fw, bty="n", lwd=2, col=admtData$group, xlab = "Flowering time mean", ylab = "Reaction norm", cex.axis=1.5, cex.lab=1.5)
+```
+
+![](flowering_time_qpc_files/figure-html/unnamed-chunk-8-3.png)<!-- -->
+
+``` r
+cor.test((admtData$FT16_mean+admtData$FT10_mean)/2, admtData$fw)
+```
+
+```
+## 
+## 	Pearson's product-moment correlation
+## 
+## data:  (admtData$FT16_mean + admtData$FT10_mean)/2 and admtData$fw
+## t = 30.679, df = 969, p-value < 2.2e-16
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  0.6685557 0.7325082
+## sample estimates:
+##      cor 
+## 0.701944
+```
+
 
 Test for selection on reaction norm conditional on the mean.
 

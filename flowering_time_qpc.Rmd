@@ -163,6 +163,10 @@ plot(admtData$FT16_mean, admtData$fw, bty="n", lwd=2, col=admtData$group, xlab =
 cor.test(admtData$FT16_mean, admtData$FT10_mean)
 cor.test(admtData$FT16_mean, admtData$fw)
 
+
+plot((admtData$FT16_mean+admtData$FT10_mean)/2, admtData$fw, bty="n", lwd=2, col=admtData$group, xlab = "Flowering time mean", ylab = "Reaction norm", cex.axis=1.5, cex.lab=1.5)
+cor.test((admtData$FT16_mean+admtData$FT10_mean)/2, admtData$fw)
+
 ```
 
 
