@@ -1,0 +1,655 @@
+---
+title: "Conditional Q_PC: simulation figures"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+
+library(tidyverse)
+
+# every figure is written here as publication-quality .eps, matching the
+# repo's figures/ directory. No raster preview is generated or committed --
+# GitHub can't render .eps inline, so each section below links to its file
+# instead.
+fig_dir <- "figures"
+dir.create(fig_dir, showWarnings = FALSE, recursive = TRUE)
+
+# postscript()'s own default family is already "Helvetica" (matching the
+# collaborator's own unmodified default, from whom this base-R plotting style
+# -- bty="n" + manual axis()/mtext() calls -- is taken), so no family=
+# override is needed anywhere below.
+```
+
+This document regenerates every simulation figure for the conditional
+Q_PC / plasticity manuscript from the raw SLiM simulation output. Each
+section below mirrors one of the standalone plotting scripts previously kept
+in `symmetric/src/` and `negative_rho/src/` (see `SLiM/`); this file replaces
+those four scripts as the single source for the figures. Running it produces
+this document plus every figure in `figures/` as a publication-ready `.eps`.
+
+## Symmetric simulations
+
+Trait optima form a symmetric cline (trait1: -1 to 1, trait2: 1 to -1).
+Selection is present on both traits (`env2prob = 0.5`) or neither (`env2prob
+= 0`, "Neutral"); `rho` (the genetic correlation between the two traits) is
+0.6, 0.75, or 0.9; `sigma_omega` (the width of the fitness function) is 0.5
+or 1.0.
+
+```{r symmetric-data}
+# Each RData file holds qpc_list (one entry per simulation, with $trait1,
+# $trait1_cond, $trait2, $trait2_cond, $rxn, $rxn_cond each holding $pvals for
+# the two tested PCs) and params (the seed -> env2prob/rho/sdW lookup table).
+# load() is called inside this function so each multi-hundred-MB object is
+# dropped once its small summary tibble has been extracted.
+process_qpc_symmetric <- function(rdata_file) {
+  e <- new.env()
+  load(rdata_file, envir = e)
+  qpc_list <- e$qpc_list
+  params <- e$params
+
+  pvals <- map_dfr(qpc_list, function(x) {
+    tibble(
+      seed = x$seed,
+      trait1 = x$trait1$pvals,
+      trait1_cond = c(x$trait1_cond$pvals),
+      trait2 = x$trait2$pvals,
+      trait2_cond = c(x$trait2_cond$pvals),
+      rxn = x$rxn$pvals,
+      rxn_cond = c(x$rxn_cond$pvals),
+      pc = c(1, 2)
+    )
+  })
+
+  left_join(pvals, select(params, env2prob, rho, sdW, seed), by = "seed") |>
+    # the conditional test is two-tailed, so double the one-tailed p-value
+    mutate(across(ends_with("cond"), ~ .x * 2)) |>
+    pivot_longer(trait1:rxn_cond, names_to = "test", values_to = "pval") |>
+    # per simulation, find whichever of the two tested PCs achieved the single
+    # lowest p-value across all tests, and keep only that PC's rows (so every
+    # test for a given simulation is reported on the same, best-supported PC)
+    group_by(seed) |>
+    mutate(min_pc = pc[which.min(pval)]) |>
+    filter(pc == min_pc) |>
+    select(-min_pc) |>
+    ungroup()
+}
+
+sym_dir <- "/mnt/research/josephslab/Husain/cond_Qpc/symmetric"
+pvals_sel     <- process_qpc_symmetric(file.path(sym_dir, "qpc_results.RData"))         # env2prob 0.5, sdW 0.5
+pvals_neutral <- process_qpc_symmetric(file.path(sym_dir, "qpc_results_neutral.RData")) # env2prob 0,   sdW 0.5
+pvals_sd1     <- process_qpc_symmetric(file.path(sym_dir, "qpc_results_sd.RData"))      # env2prob 0/0.5, sdW 1.0
+
+pvals_params_sym <- bind_rows(pvals_sel, pvals_neutral, pvals_sd1)
+
+rho_colors_sym <- c("0.6" = "#1B9E77", "0.75" = "#D95F02", "0.9" = "#7570B3")
+rho_levels_sym <- c("0.6", "0.75", "0.9")
+```
+
+### Q_PC and conditional Q_PC results (Figure 1)
+
+Standard and conditional Q_PC tests on trait1 and trait2, faceted by
+selection regime (Neutral vs. Selected) and `sigma_omega`, colored by `rho`.
+The x axis uses a two-level nested label (a bracket spanning each pair):
+outer label = Q_PC/Conditional Q_PC, inner label = trait1/trait2.
+
+```{r sim-results-prep}
+test_order_qpc <- c("trait1", "trait2", "trait1_cond", "trait2_cond")
+
+pvals_plot_qpc <- pvals_params_sym |>
+  filter(test %in% test_order_qpc) |>
+  mutate(
+    test = factor(test, levels = test_order_qpc),
+    rho = factor(rho, levels = c(0.6, 0.75, 0.9)),
+    # env2prob is stored as either a bare number or the literal string used to
+    # build it (e.g. "rep(0.5,metapopSide)") depending on which params file it
+    # came from -- pull the numeral out either way
+    env2prob_num = as.numeric(str_extract(as.character(env2prob), "[0-9.]+")),
+    selection = factor(
+      case_when(
+        env2prob_num == 0   ~ "Neutral",
+        env2prob_num == 0.5 ~ "Selected"
+      ),
+      levels = c("Neutral", "Selected")
+    ),
+    sigma_omega = factor(sdW, levels = c(0.5, 1.0)),
+    # cap every p-value at a floor of 2.2e-16: some underflow to exactly 0,
+    # but others compute to genuine values far below 2.2e-16 without hitting
+    # exact 0 -- both cases are capped alike so nothing on the plot reads as
+    # more significant than the chosen floor
+    pval = pmax(pval, 2.2e-16),
+    neg_log10_p = -log10(pval)
+  ) |>
+  filter(!is.na(selection))
+
+# x positions: 4 groups (trait1/trait2 under Qpc, trait1/trait2 under
+# Conditional Qpc), 3 rho boxes per group, with a wider gap between the Qpc
+# and Conditional Qpc halves than between trait1/trait2 within a half
+rho_offsets_qpc <- c("0.6" = 0, "0.75" = 0.32, "0.9" = 0.64)
+group_left_qpc   <- c(trait1 = 0.7, trait2 = 1.74, trait1_cond = 3.5, trait2_cond = 4.54)
+group_center_qpc <- group_left_qpc + 0.32
+box_positions_qpc <- expand_grid(test = names(group_left_qpc), rho = rho_levels_sym) |>
+  mutate(x = group_left_qpc[test] + rho_offsets_qpc[rho])
+
+xlim_qpc <- c(0.4, 5.2)
+y_max_qpc <- max(pvals_plot_qpc$neg_log10_p, na.rm = TRUE)
+ylim_qpc <- c(0, y_max_qpc * 1.08)
+
+# same y-axis scale on every panel (fixed ylim above), so only the left
+# column needs to actually draw it -- panels stay directly comparable
+draw_panel_qpc <- function(dat, letter, show_left_axis,
+                            top_title = NULL, right_title = NULL) {
+  plot(NA, xlim = xlim_qpc, ylim = ylim_qpc, bty = "n", xaxt = "n", yaxt = "n",
+       xlab = "", ylab = "")
+  abline(h = -log10(0.05), lty = 3, lwd = 1.3, col = "black")
+
+  for (tst in names(group_left_qpc)) {
+    for (rh in rho_levels_sym) {
+      vals <- dat$neg_log10_p[dat$test == tst & dat$rho == rh]
+      xpos <- box_positions_qpc$x[box_positions_qpc$test == tst & box_positions_qpc$rho == rh]
+      col <- rho_colors_sym[rh]
+      if (length(vals) == 0) next
+      stripchart(vals, at = xpos, method = "jitter", jitter = 0.09, vertical = TRUE,
+                 add = TRUE, pch = 1, col = col, cex = 0.55, lwd = 1)
+      boxplot(vals, at = xpos, add = TRUE, outline = FALSE, boxwex = 0.24,
+              col = NA, border = "black", axes = FALSE, lwd = 1.2)
+    }
+  }
+
+  # identical axis() call on every panel (not a labels=FALSE variant on the
+  # right column) so the tick marks and axis line are scaled the same way
+  # everywhere
+  axis(2, las = 2, cex.axis = 1.05, lwd = 1.5, mgp = c(3, 0.5, 0), tcl = -0.3)
+  # a small unlabeled tick, matching every panel -- the full nested
+  # trait1/trait2 x Qpc/Conditional Qpc labels live in their own shared strip
+  # below the grid instead (draw_x_axis_strip_qpc()), not in each panel's own
+  # margin, so both rows get the same (minimal) bottom margin and therefore
+  # the same y-axis height
+  axis(1, at = group_center_qpc, labels = FALSE, lwd = 1.5, tcl = -0.3)
+
+  if (show_left_axis) {
+    mtext(expression(-log[10](p)), side = 2, line = 2.3, cex = 1.0)
+  }
+
+  mtext(letter, side = 3, line = 0.5, cex = 1.5, adj = -0.18, font = 2)
+  if (!is.null(top_title)) mtext(top_title, side = 3, line = 0.5, cex = 1.05)
+  if (!is.null(right_title)) {
+    # mtext(side=4) rotates text to read bottom-to-top -- the opposite of
+    # ggplot2's facet_grid right-strip labels, which read top-to-bottom.
+    # draw it manually with srt=270 (the flipped rotation) instead, using
+    # grconvertX for a DPI-independent inch-based offset from the panel edge
+    x_in <- grconvertX(par("usr")[2], from = "user", to = "inches") + 0.1
+    x_pos <- grconvertX(x_in, from = "inches", to = "user")
+    text(x_pos, mean(par("usr")[3:4]), labels = right_title, srt = 270, cex = 1.3, xpd = NA)
+  }
+}
+
+# the shared trait1/trait2 x Qpc/Conditional Qpc axis strip below a column --
+# drawn once per column instead of duplicated inside each bottom panel's own
+# (otherwise inflated) margin, so every content panel can use the same small
+# bottom margin and end up with matching y-axis heights. Text only, no
+# axis() call -- the content panel directly above already draws the one
+# visible tick line at the true boundary; a second axis() here would draw a
+# second, redundant x-axis line right underneath it.
+draw_x_axis_strip_qpc <- function() {
+  plot(NA, xlim = xlim_qpc, ylim = c(0, 1), bty = "n", xaxt = "n", yaxt = "n", xlab = "", ylab = "")
+  text(group_center_qpc, 0.94, labels = c("trait1", "trait2", "trait1", "trait2"),
+       cex = 0.95, col = "grey30")
+  bracket_y <- 0.55
+  text_y    <- 0.3
+  segments(group_left_qpc["trait1"], bracket_y, group_left_qpc["trait2"] + 0.64, bracket_y)
+  segments(group_left_qpc["trait1_cond"], bracket_y, group_left_qpc["trait2_cond"] + 0.64, bracket_y)
+  text(mean(c(group_left_qpc["trait1"], group_left_qpc["trait2"] + 0.64)), text_y,
+       labels = expression(Q[PC]), cex = 1.0)
+  text(mean(c(group_left_qpc["trait1_cond"], group_left_qpc["trait2_cond"] + 0.64)), text_y,
+       labels = expression(paste("Conditional ", Q[PC])), cex = 1.0)
+}
+
+draw_sim_results <- function() {
+  # 2x2 grid, with each panel's margins trimmed to just what its own labels
+  # need (not a uniform margin for all four) -- this is what actually frees
+  # up enough physical plotting width/height to fit the nested
+  # trait1/trait2 x Qpc/Conditional Qpc labels without R silently dropping
+  # colliding ones, and removes the excess whitespace between panels
+  # content rows (A/B, C/D), a shared x-axis-label strip row (one per
+  # column, not duplicated inside each bottom panel's own margin), then the
+  # legend row -- keeping every content panel's margin identical (both rows)
+  # is what makes their y-axis heights match
+  layout(matrix(c(1, 2, 3, 4, 5, 6, 7, 7), nrow = 4, byrow = TRUE),
+         heights = c(1, 1, 0.24, 0.12))
+
+  panels <- list(
+    list(sigma = 0.5, sel = "Neutral",  letter = "A", top = "Neutral",  right = NULL),
+    list(sigma = 0.5, sel = "Selected", letter = "B", top = "Selected", right = expression(paste(sigma[omega], " = ", "0.5"))),
+    list(sigma = 1.0, sel = "Neutral",  letter = "C", top = NULL,       right = NULL),
+    # plotmath parses "sigma[omega]==1.0" as the number 1, dropping the
+    # trailing zero -- quote the value as a string instead so "1.0" survives
+    list(sigma = 1.0, sel = "Selected", letter = "D", top = NULL,       right = expression(paste(sigma[omega], " = ", "1.0")))
+  )
+
+  # left/right margins, shared between a content panel and the x-axis strip
+  # beneath its column, so the two line up exactly
+  col_mar <- list(left = c(4, 0.8), right = c(2.8, 2.5))
+
+  for (i in seq_along(panels)) {
+    pnl <- panels[[i]]
+    dat <- pvals_plot_qpc |> filter(sdW == pnl$sigma, selection == pnl$sel)
+    is_left <- i %in% c(1, 3)
+    lr <- if (is_left) col_mar$left else col_mar$right
+    # same minimal bottom margin on every content panel (the nested
+    # trait1/trait2 x Qpc/Conditional Qpc labels live in their own strip
+    # below instead), so all four panels' y-axis heights match
+    par(mar = c(0.5, lr[1], 2, lr[2]))
+    draw_panel_qpc(
+      dat, pnl$letter,
+      show_left_axis = is_left,
+      top_title = pnl$top,
+      right_title = pnl$right
+    )
+  }
+
+  for (is_left in c(TRUE, FALSE)) {
+    lr <- if (is_left) col_mar$left else col_mar$right
+    par(mar = c(0.3, lr[1], 0.1, lr[2]))
+    draw_x_axis_strip_qpc()
+  }
+
+  par(mar = c(0, 0, 0, 0))
+  # legend(title=...) always draws the title ABOVE a horizontal row of keys
+  # (and was getting clipped by the shallow legend row); ggplot2's horizontal
+  # legend instead puts the title to the LEFT of the keys, inline -- replicate
+  # that by placing the rho symbol separately, just to the keys' left. The
+  # title + keys block is measured first (via a plot=FALSE dry run) so the
+  # whole block -- not just the key row -- is centered in the legend panel
+  plot(NA, xlim = c(0, 1), ylim = c(0, 1), bty = "n", xaxt = "n", yaxt = "n", xlab = "", ylab = "")
+  title_lab <- expression(rho)
+  title_gap <- 0.025
+  leg_w <- legend(x = 0, y = 0.5, legend = rho_levels_sym, col = rho_colors_sym, pch = 1, pt.lwd = 2,
+                   bty = "n", horiz = TRUE, cex = 1.1, text.width = 0.06, plot = FALSE)$rect$w
+  title_w <- strwidth(title_lab, cex = 1.3)
+  block_x0 <- 0.5 - (title_w + title_gap + leg_w) / 2
+  text(block_x0, 0.5, labels = title_lab, cex = 1.3, adj = c(0, 0.5))
+  legend(x = block_x0 + title_w + title_gap, y = 0.5, xjust = 0, yjust = 0.5, legend = rho_levels_sym,
+         col = rho_colors_sym, pch = 1, pt.lwd = 2, bty = "n", horiz = TRUE, cex = 1.1, text.width = 0.06)
+}
+```
+
+```{r sim-results-save, include=FALSE}
+postscript(file.path(fig_dir, "sim_results.eps"), height = 6, width = 5.5,
+           paper = "special", horizontal = FALSE, colormodel = "cmyk")
+draw_sim_results()
+dev.off()
+```
+
+**Figure:** [`figures/sim_results.eps`](figures/sim_results.eps)
+
+### Reaction norm results
+
+Standard and conditional Q_PC tests on the reaction norm (trait1 - trait2),
+faceted by selection regime, colored by `rho`, one figure per `sigma_omega`.
+A flat (non-nested) x axis, since there is only one trait (the reaction
+norm) here.
+
+```{r reaction-norm-prep}
+test_order_rxn <- c("rxn", "rxn_cond")
+
+pvals_plot_rxn <- pvals_params_sym |>
+  mutate(
+    test = factor(test, levels = test_order_rxn),
+    rho = factor(rho, levels = c(0.6, 0.75, 0.9)),
+    env2prob_num = as.numeric(str_extract(as.character(env2prob), "[0-9.]+")),
+    selection = factor(
+      case_when(
+        env2prob_num == 0   ~ "Neutral",
+        env2prob_num == 0.5 ~ "Selected"
+      ),
+      levels = c("Neutral", "Selected")
+    ),
+    sigma_omega = factor(sdW, levels = c(0.5, 1.0)),
+    # cap every p-value at a floor of 2.2e-16: some underflow to exactly 0,
+    # but others (e.g. rxn under selection) compute to genuine values far
+    # below 2.2e-16 without hitting exact 0 -- both cases are capped alike so
+    # nothing on the plot reads as more significant than the chosen floor
+    pval = pmax(pval, 2.2e-16),
+    neg_log10_p = -log10(pval)
+  ) |>
+  filter(!is.na(selection))
+
+rho_offsets_rxn <- c("0.6" = 0, "0.75" = 0.32, "0.9" = 0.64)
+group_left_rxn   <- c(rxn = 0.7, rxn_cond = 1.9)
+group_center_rxn <- group_left_rxn + 0.32
+box_positions_rxn <- expand_grid(test = names(group_left_rxn), rho = rho_levels_sym) |>
+  mutate(x = group_left_rxn[test] + rho_offsets_rxn[rho])
+
+xlim_rxn <- c(0.4, 2.8)
+
+draw_panel_rxn <- function(dat, letter, show_left_axis, ylim, top_title = NULL) {
+  plot(NA, xlim = xlim_rxn, ylim = ylim, bty = "n", xaxt = "n", yaxt = "n",
+       xlab = "", ylab = "")
+  abline(h = -log10(0.05), lty = 3, lwd = 1.3, col = "black")
+
+  for (tst in names(group_left_rxn)) {
+    for (rh in rho_levels_sym) {
+      vals <- dat$neg_log10_p[dat$test == tst & dat$rho == rh]
+      xpos <- box_positions_rxn$x[box_positions_rxn$test == tst & box_positions_rxn$rho == rh]
+      col <- rho_colors_sym[rh]
+      if (length(vals) == 0) next
+      stripchart(vals, at = xpos, method = "jitter", jitter = 0.09, vertical = TRUE,
+                 add = TRUE, pch = 1, col = col, cex = 0.55, lwd = 1)
+      boxplot(vals, at = xpos, add = TRUE, outline = FALSE, boxwex = 0.24,
+              col = NA, border = "black", axes = FALSE, lwd = 1.2)
+    }
+  }
+
+  if (show_left_axis) {
+    axis(2, las = 2, cex.axis = 1.15, lwd = 1.8)
+    mtext(expression(-log[10](p)), side = 2, line = 4, cex = 1.2)
+  } else {
+    axis(2, labels = FALSE, lwd = 1.8, tick = TRUE, at = pretty(ylim))
+  }
+
+  axis(1, at = group_center_rxn, labels = expression(Q[PC], paste("Conditional ", Q[PC])),
+       cex.axis = 1.1, lwd = 1.8, line = 0)
+
+  mtext(letter, side = 3, line = 1, cex = 2, adj = -0.12, font = 2)
+  if (!is.null(top_title)) mtext(top_title, side = 3, line = 1, cex = 1.3)
+}
+
+draw_reaction_norm <- function(sigma_level) {
+  dat_all <- pvals_plot_rxn |> filter(sdW == sigma_level)
+  y_max <- max(dat_all$neg_log10_p, na.rm = TRUE)
+  ylim <- c(0, y_max * 1.08)
+
+  # legend in its own unlabeled panel on the left, matching the reference
+  # figure -- wide enough that the rho symbol has room to its left without
+  # clipping
+  layout(matrix(c(1, 2, 3), nrow = 1), widths = c(0.45, 1, 1))
+
+  par(mar = c(5, 0.3, 3, 0.3))
+  # legend(title=...) draws the title above the keys; ggplot2's horizontal
+  # legend puts it to the left instead. plot(NA, xlim/ylim) (not bare
+  # plot.new()) establishes a (0,1) coordinate system for the x/y below
+  plot(NA, xlim = c(0, 1), ylim = c(0, 1), bty = "n", xaxt = "n", yaxt = "n", xlab = "", ylab = "")
+  text(0.14, 0.5, labels = expression(rho), cex = 1.3, adj = 1, xpd = NA)
+  legend(0.17, y = 0.5, xjust = 0, yjust = 0.5, legend = rho_levels_sym, col = rho_colors_sym, pch = 1,
+         pt.lwd = 2.5, pt.cex = 1.4, bty = "n", cex = 1.3)
+
+  panels <- list(
+    list(sel = "Neutral",  letter = "A", top = "Neutral"),
+    list(sel = "Selected", letter = "B", top = "Selected")
+  )
+  for (i in seq_along(panels)) {
+    pnl <- panels[[i]]
+    dat <- dat_all |> filter(selection == pnl$sel)
+    par(mar = c(5, 5, 3, 1))
+    draw_panel_rxn(dat, pnl$letter, show_left_axis = (i == 1), ylim = ylim, top_title = pnl$top)
+  }
+}
+```
+
+```{r reaction-norm-save, include=FALSE}
+for (sigma_level in c(0.5, 1.0)) {
+  suffix <- sprintf("sdW%.1f", sigma_level)
+  postscript(file.path(fig_dir, sprintf("reaction_norm_%s.eps", suffix)),
+             height = 3, width = 5.5, paper = "special", horizontal = FALSE, colormodel = "cmyk")
+  draw_reaction_norm(sigma_level)
+  dev.off()
+}
+```
+
+**Figures:** [`figures/reaction_norm_sdW0.5.eps`](figures/reaction_norm_sdW0.5.eps) (sigma_omega = 0.5), [`figures/reaction_norm_sdW1.0.eps`](figures/reaction_norm_sdW1.0.eps) (sigma_omega = 1.0)
+
+## Negative-rho simulations
+
+Same symmetric trait-optima cline, but with negative genetic correlations
+(`rho` = -0.6, -0.75, -0.9) and selection present on both traits throughout
+(`env2prob = 0.5` only -- no neutral condition in this run).
+
+```{r negative-rho-data}
+neg_dir <- "/mnt/research/josephslab/Husain/cond_Qpc/negative_rho"
+
+e <- new.env()
+load(file.path(neg_dir, "qpc_results_negative_rho.RData"), envir = e)
+qpc_list_neg <- e$qpc_list
+params_neg <- e$params
+
+pvals_neg <- map_dfr(qpc_list_neg, function(x) {
+  tibble(
+    seed = x$seed,
+    trait1 = x$trait1$pvals,
+    trait1_cond = c(x$trait1_cond$pvals),
+    trait2 = x$trait2$pvals,
+    trait2_cond = c(x$trait2_cond$pvals),
+    rxn = x$rxn$pvals,
+    rxn_cond = c(x$rxn_cond$pvals),
+    pc = c(1, 2)
+  )
+})
+
+pvals_params_neg <- left_join(pvals_neg, select(params_neg, env2prob, rho, sdW, seed), by = "seed") |>
+  # the conditional test is two-tailed, so double the one-tailed p-value
+  mutate(across(ends_with("cond"), ~ .x * 2)) |>
+  pivot_longer(trait1:rxn_cond, names_to = "test", values_to = "pval") |>
+  # per simulation, find whichever of the two tested PCs achieved the single
+  # lowest p-value across all tests, and keep only that PC's rows
+  group_by(seed) |>
+  mutate(min_pc = pc[which.min(pval)]) |>
+  filter(pc == min_pc) |>
+  select(-min_pc) |>
+  ungroup()
+
+# Dark2-style qualitative triple (teal/orange/purple), matching Figure 1's
+# rho color scheme -- same three slots, now keyed to the negative rho values
+rho_colors_neg <- c("-0.6" = "#1B9E77", "-0.75" = "#D95F02", "-0.9" = "#7570B3")
+rho_levels_neg <- c("-0.6", "-0.75", "-0.9")
+```
+
+### Q_PC and conditional Q_PC results
+
+Faceted by `sigma_omega` only (there is no selection-regime facet here),
+colored by `rho`, with the same nested trait1/trait2 x Q_PC/Conditional Q_PC
+x axis as the symmetric Figure 1.
+
+```{r sim-results-negative-rho-prep}
+pvals_plot_qpc_neg <- pvals_params_neg |>
+  filter(test %in% test_order_qpc) |>
+  mutate(
+    test = factor(test, levels = test_order_qpc),
+    rho = factor(rho, levels = c(-0.6, -0.75, -0.9)),
+    sigma_omega = factor(sdW, levels = c(0.5, 1.0)),
+    # cap every p-value at a floor of 2.2e-16: some underflow to exactly 0,
+    # others compute to genuine values far below 2.2e-16 without hitting
+    # exact 0 -- both cases are capped alike so nothing on the plot reads as
+    # more significant than the chosen floor
+    pval = pmax(pval, 2.2e-16),
+    neg_log10_p = -log10(pval)
+  )
+
+rho_offsets_qpc_neg  <- c("-0.6" = 0, "-0.75" = 0.32, "-0.9" = 0.64)
+group_left_qpc_neg   <- c(trait1 = 0.7, trait2 = 1.74, trait1_cond = 3.5, trait2_cond = 4.54)
+group_center_qpc_neg <- group_left_qpc_neg + 0.32
+box_positions_qpc_neg <- expand_grid(test = names(group_left_qpc_neg), rho = rho_levels_neg) |>
+  mutate(x = group_left_qpc_neg[test] + rho_offsets_qpc_neg[rho])
+
+xlim_qpc_neg <- c(0.4, 5.2)
+y_max_qpc_neg <- max(pvals_plot_qpc_neg$neg_log10_p, na.rm = TRUE)
+ylim_qpc_neg <- c(0, y_max_qpc_neg * 1.08)
+
+draw_panel_qpc_neg <- function(dat, letter, show_left_axis, top_title = NULL) {
+  plot(NA, xlim = xlim_qpc_neg, ylim = ylim_qpc_neg, bty = "n", xaxt = "n", yaxt = "n",
+       xlab = "", ylab = "")
+  abline(h = -log10(0.05), lty = 3, lwd = 1.3, col = "black")
+
+  for (tst in names(group_left_qpc_neg)) {
+    for (rh in rho_levels_neg) {
+      vals <- dat$neg_log10_p[dat$test == tst & dat$rho == rh]
+      xpos <- box_positions_qpc_neg$x[box_positions_qpc_neg$test == tst & box_positions_qpc_neg$rho == rh]
+      col <- rho_colors_neg[rh]
+      if (length(vals) == 0) next
+      stripchart(vals, at = xpos, method = "jitter", jitter = 0.09, vertical = TRUE,
+                 add = TRUE, pch = 1, col = col, cex = 0.55, lwd = 1)
+      boxplot(vals, at = xpos, add = TRUE, outline = FALSE, boxwex = 0.24,
+              col = NA, border = "black", axes = FALSE, lwd = 1.2)
+    }
+  }
+
+  # identical axis() call on every panel (not a labels=FALSE variant on the
+  # right column) so the tick marks and axis line are scaled the same way
+  # everywhere
+  axis(2, las = 2, cex.axis = 1.05, lwd = 1.5, mgp = c(3, 0.5, 0), tcl = -0.3)
+  if (show_left_axis) {
+    mtext(expression(-log[10](p)), side = 2, line = 2.3, cex = 1.0)
+  }
+
+  axis(1, at = group_center_qpc_neg, labels = c("trait1", "trait2", "trait1", "trait2"),
+       cex.axis = 0.95, lwd = 1.5, line = 0, mgp = c(3, 0.35, 0), tcl = -0.3, col.axis = "grey30")
+
+  line_h <- par("cxy")[2]
+  bracket_y <- ylim_qpc_neg[1] - 1.9 * line_h
+  text_y    <- ylim_qpc_neg[1] - 2.9 * line_h
+  segments(group_left_qpc_neg["trait1"], bracket_y, group_left_qpc_neg["trait2"] + 0.64, bracket_y, xpd = NA)
+  segments(group_left_qpc_neg["trait1_cond"], bracket_y, group_left_qpc_neg["trait2_cond"] + 0.64, bracket_y, xpd = NA)
+  text(mean(c(group_left_qpc_neg["trait1"], group_left_qpc_neg["trait2"] + 0.64)), text_y,
+       labels = expression(Q[PC]), xpd = NA, cex = 1.0)
+  text(mean(c(group_left_qpc_neg["trait1_cond"], group_left_qpc_neg["trait2_cond"] + 0.64)), text_y,
+       labels = expression(paste("Conditional ", Q[PC])), xpd = NA, cex = 1.0)
+
+  mtext(letter, side = 3, line = 0.5, cex = 1.5, adj = -0.18, font = 2)
+  if (!is.null(top_title)) mtext(top_title, side = 3, line = 0.5, cex = 1.05)
+}
+
+draw_sim_results_neg <- function() {
+  # legend in its own unlabeled panel on the left, A and B side by side --
+  # each panel's margin is trimmed to just what its own labels need, which
+  # is what frees up enough physical plotting width for the nested
+  # trait1/trait2 x Qpc/Conditional Qpc labels at 5.5in total width, and
+  # removes the excess whitespace between panels
+  # wide enough that the rho symbol has room to its left without clipping
+  layout(matrix(c(1, 2, 3), nrow = 1), widths = c(0.45, 1, 1))
+
+  par(mar = c(7, 0.3, 2, 0.3))
+  # legend(title=...) draws the title above the keys, cut off by the shallow
+  # legend row; ggplot2's horizontal legend puts it to the left instead.
+  # plot(NA, xlim/ylim) (not bare plot.new()) establishes a (0,1) coordinate
+  # system so the explicit x/y positions below are interpretable
+  plot(NA, xlim = c(0, 1), ylim = c(0, 1), bty = "n", xaxt = "n", yaxt = "n", xlab = "", ylab = "")
+  text(0.14, 0.5, labels = expression(rho), cex = 1.3, adj = 1, xpd = NA)
+  legend(0.17, y = 0.5, xjust = 0, yjust = 0.5, legend = rho_levels_neg, col = rho_colors_neg, pch = 1,
+         pt.lwd = 2.5, pt.cex = 1.2, bty = "n", cex = 1.1)
+
+  # plotmath parses "sigma[omega]==1.0" as the number 1, dropping the
+  # trailing zero -- quote the value as a string instead so "1.0" survives
+  panels <- list(
+    list(sigma = 0.5, letter = "A", top = expression(paste(sigma[omega], " = ", "0.5"))),
+    list(sigma = 1.0, letter = "B", top = expression(paste(sigma[omega], " = ", "1.0")))
+  )
+  for (i in seq_along(panels)) {
+    pnl <- panels[[i]]
+    dat <- pvals_plot_qpc_neg |> filter(sdW == pnl$sigma)
+    par(mar = c(7, if (i == 1) 4 else 2.8, 2, 0.8))
+    draw_panel_qpc_neg(dat, pnl$letter, show_left_axis = (i == 1), top_title = pnl$top)
+  }
+}
+```
+
+```{r sim-results-negative-rho-save, include=FALSE}
+postscript(file.path(fig_dir, "sim_results_negative_rho.eps"), height = 3.3, width = 5.5,
+           paper = "special", horizontal = FALSE, colormodel = "cmyk")
+draw_sim_results_neg()
+dev.off()
+```
+
+**Figure:** [`figures/sim_results_negative_rho.eps`](figures/sim_results_negative_rho.eps)
+
+### Reaction norm results
+
+```{r reaction-norm-negative-rho-prep}
+pvals_plot_rxn_neg <- pvals_params_neg |>
+  mutate(
+    test = factor(test, levels = test_order_rxn),
+    rho = factor(rho, levels = c(-0.6, -0.75, -0.9)),
+    sigma_omega = factor(sdW, levels = c(0.5, 1.0)),
+    pval = pmax(pval, 2.2e-16),
+    neg_log10_p = -log10(pval)
+  )
+
+rho_offsets_rxn_neg <- c("-0.6" = 0, "-0.75" = 0.32, "-0.9" = 0.64)
+group_left_rxn_neg   <- c(rxn = 0.7, rxn_cond = 1.9)
+group_center_rxn_neg <- group_left_rxn_neg + 0.32
+box_positions_rxn_neg <- expand_grid(test = names(group_left_rxn_neg), rho = rho_levels_neg) |>
+  mutate(x = group_left_rxn_neg[test] + rho_offsets_rxn_neg[rho])
+
+xlim_rxn_neg <- c(0.4, 2.8)
+y_max_rxn_neg <- max(pvals_plot_rxn_neg$neg_log10_p, na.rm = TRUE)
+ylim_rxn_neg <- c(0, y_max_rxn_neg * 1.08)
+
+draw_panel_rxn_neg <- function(dat, letter, show_left_axis, top_title = NULL) {
+  plot(NA, xlim = xlim_rxn_neg, ylim = ylim_rxn_neg, bty = "n", xaxt = "n", yaxt = "n",
+       xlab = "", ylab = "")
+  abline(h = -log10(0.05), lty = 3, lwd = 1.3, col = "black")
+
+  for (tst in names(group_left_rxn_neg)) {
+    for (rh in rho_levels_neg) {
+      vals <- dat$neg_log10_p[dat$test == tst & dat$rho == rh]
+      xpos <- box_positions_rxn_neg$x[box_positions_rxn_neg$test == tst & box_positions_rxn_neg$rho == rh]
+      col <- rho_colors_neg[rh]
+      if (length(vals) == 0) next
+      stripchart(vals, at = xpos, method = "jitter", jitter = 0.09, vertical = TRUE,
+                 add = TRUE, pch = 1, col = col, cex = 0.55, lwd = 1)
+      boxplot(vals, at = xpos, add = TRUE, outline = FALSE, boxwex = 0.24,
+              col = NA, border = "black", axes = FALSE, lwd = 1.2)
+    }
+  }
+
+  if (show_left_axis) {
+    axis(2, las = 2, cex.axis = 1.15, lwd = 1.8)
+    mtext(expression(-log[10](p)), side = 2, line = 4, cex = 1.2)
+  } else {
+    axis(2, labels = FALSE, lwd = 1.8, tick = TRUE, at = pretty(ylim_rxn_neg))
+  }
+
+  axis(1, at = group_center_rxn_neg, labels = expression(Q[PC], paste("Conditional ", Q[PC])),
+       cex.axis = 1.1, lwd = 1.8, line = 0)
+
+  mtext(letter, side = 3, line = 1, cex = 2, adj = -0.12, font = 2)
+  if (!is.null(top_title)) mtext(top_title, side = 3, line = 1, cex = 1.3)
+}
+
+draw_reaction_norm_neg <- function() {
+  # legend in its own unlabeled panel on the left, matching the reference
+  # figure -- wide enough that the rho symbol has room to its left without
+  # clipping
+  layout(matrix(c(1, 2, 3), nrow = 1), widths = c(0.45, 1, 1))
+
+  par(mar = c(5, 0.3, 3, 0.3))
+  # legend(title=...) draws the title above the keys; ggplot2's horizontal
+  # legend puts it to the left instead. plot(NA, xlim/ylim) (not bare
+  # plot.new()) establishes a (0,1) coordinate system for the x/y below
+  plot(NA, xlim = c(0, 1), ylim = c(0, 1), bty = "n", xaxt = "n", yaxt = "n", xlab = "", ylab = "")
+  text(0.14, 0.5, labels = expression(rho), cex = 1.3, adj = 1, xpd = NA)
+  legend(0.17, y = 0.5, xjust = 0, yjust = 0.5, legend = rho_levels_neg, col = rho_colors_neg, pch = 1,
+         pt.lwd = 2.5, pt.cex = 1.4, bty = "n", cex = 1.3)
+
+  # plotmath parses "sigma[omega]==1.0" as the number 1, dropping the
+  # trailing zero -- quote the value as a string instead so "1.0" survives
+  panels <- list(
+    list(sigma = 0.5, letter = "A", top = expression(paste(sigma[omega], " = ", "0.5"))),
+    list(sigma = 1.0, letter = "B", top = expression(paste(sigma[omega], " = ", "1.0")))
+  )
+  for (i in seq_along(panels)) {
+    pnl <- panels[[i]]
+    dat <- pvals_plot_rxn_neg |> filter(sdW == pnl$sigma)
+    par(mar = c(5, 5, 3, 1))
+    draw_panel_rxn_neg(dat, pnl$letter, show_left_axis = (i == 1), top_title = pnl$top)
+  }
+}
+```
+
+```{r reaction-norm-negative-rho-save, include=FALSE}
+postscript(file.path(fig_dir, "reaction_norm_negative_rho.eps"), height = 3, width = 5.5,
+           paper = "special", horizontal = FALSE, colormodel = "cmyk")
+draw_reaction_norm_neg()
+dev.off()
+```
+
+**Figure:** [`figures/reaction_norm_negative_rho.eps`](figures/reaction_norm_negative_rho.eps)

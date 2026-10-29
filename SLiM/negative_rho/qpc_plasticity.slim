@@ -1,0 +1,140 @@
+initialize() {
+	initializeTreeSeq();
+	defineConstant("C_num", 10);	// number of chromosomes
+	defineConstant("C_lengths", rep(1e5, C_num));	// lengths for each chromosome (0.10X scaled)
+	initializeMutationType("m1", 0.5, "f", 0.0);
+	initializeMutationRate(1e-7); // QTL mutation rate (10X scaled)
+	initializeGenomicElementType("g1", c(m1), 1);
+	initializeGenomicElement(g1, 0, sum(C_lengths)); // initialize C_num/2 QTLs for main QTLs with length set by C_lengths
+	rates = c(rep(c(1e-6, 0.5), C_num-1), 1e-6); // set recombination rate to 1e-7 within chrom and 0.5 (unlinked) between chroms (10X scaled)
+	ends = repEach(cumSum(C_lengths), 2); // specify chromosome ends by adding together each length in order and repeating once
+	ends = ends[0:(length(ends) - 2)]; // remove last index
+	ends = ends + c(rep(c(0,1), C_num-1), 0);
+	initializeRecombinationRate(rates, ends);
+	m1.convertToSubstitution = T; // fixed QTLs become Substitution objects (effect stored once, not on every genome copy)
+	defineConstant("noiseSD", 0.025); // the SD of noise in genotype to phenotype
+	defineConstant("burnin", 10000); // the generation when the initial burn in ends
+	defineConstant("rampLength", 5000); // number of generations over which the optimum ramps from 0 to its final value
+	defineConstant("endGen", burnin+rampLength+10000); // generation when the simulation ends
+	defineConstant("fitnessScale", dnorm(x = 0.0, mean = 0.0, sd = sdW));
+	setSeed(seed);
+}
+
+mutation(m1) {
+	// draw mutational effects for new m1 mutations
+	trait1 = rnorm(1, 0, 0.03) ; // draw independent trait1 effects
+	trait2 = rho*trait1 + sqrt(1 - rho^2)*rnorm(1, 0, 0.03) ; // draw correlated trait2 effects
+	mut.setValue("e0", trait1);
+	mut.setValue("e1", trait2);
+	return T;
+}
+
+2:endGen early() {
+	// Capture the fixed QTLs' effects into a running total for both traits. 
+	// Fixed = doubled, since a fixed variant is homozygous when fixed.
+	subs = sim.substitutions;
+	if (size(subs)) {
+		sim.setValue("fixedE0Total", 2 * sum(subs.getValue("e0")));
+		sim.setValue("fixedE1Total", 2 * sum(subs.getValue("e1")));
+	}
+}
+
+1 early() {
+	sim.setValue("fixedE0Total", 0.0); // running sum of fixed QTL effects (trait1)
+	sim.setValue("fixedE1Total", 0.0); // running sum of fixed QTL effects (trait2)
+	sim.addSubpop("p0", 1000); // burn in population
+}
+
+1:burnin late() { // initial burn in
+	opt = 0.0 ;
+	env = sample(c("env1", "env2"), size = 1);
+	// fixed QTLs are tracked in a running total (see the 1:endGen late() block above)
+	fixedE0 = sim.getValue("fixedE0Total");
+	fixedE1 = sim.getValue("fixedE1Total");
+	for (ind in p0.individuals){
+		envNoise = rnorm(1, 0, noiseSD); // Add individual environmental noise
+		muts = ind.haplosomes.mutationsOfType(m1);
+		trait1 = fixedE0 + (size(muts) ? sum(muts.getValue("e0")) else 0.0);
+		trait2 = fixedE1 + (size(muts) ? sum(muts.getValue("e1")) else 0.0);
+		if(env == "env1"){
+			ind.tagF = trait1 + envNoise ;
+		}
+		else{
+			ind.tagF = trait2 + envNoise ;
+		}
+		ind.fitnessScaling = dnorm(x = ind.tagF, mean = opt, sd = sdW) / fitnessScale ;
+	}
+}
+
+(burnin+1) early() {
+	metapopSize = metapopSide * metapopSide;
+	for (i in 1:metapopSize){
+		sim.addSubpopSplit(i, 50, p0); }
+	subpops = sim.subpopulations;
+	for (x in 1:metapopSide){
+		for (y in 1:metapopSide){
+			destID = (x - 1) + (y - 1) * metapopSide + 1;
+			destSubpop = subpops[destID];
+			if (x > 1) // left to right
+				destSubpop.setMigrationRates(destID - 1, 0.05);
+			if (x < metapopSide) // right to left
+				destSubpop.setMigrationRates(destID + 1, 0.05);
+			if (y > 1) // top to bottom
+				destSubpop.setMigrationRates(destID - metapopSide, 0.05);
+			if (y < metapopSide) // bottom to top
+				destSubpop.setMigrationRates(destID + metapopSide, 0.05);
+		}
+	}
+	p0.setSubpopulationSize(0);
+}
+
+(burnin+1):endGen late() {
+	// ramp the optimum linearly from 0.0 up to its final value over
+	// rampLength cycles, then hold it there for the rest of the run
+	rampGen = sim.cycle - burnin;
+	rampFraction = ifelse(rampGen >= rampLength, 1.0, rampGen / rampLength);
+
+	if (sim.cycle == endGen)
+		lines = paste("pop", "ind", "trait1", "trait2", sep=",");
+
+	fixedE0 = sim.getValue("fixedE0Total");
+	fixedE1 = sim.getValue("fixedE1Total");
+	for ( x in 1:metapopSide ) {
+		for ( y in 1:metapopSide ) {
+			index = (x - 1) + (y - 1) * metapopSide;
+			subpop = sim.subpopulations[index];
+			env = sample(c("env1", "env2"), size = 1, weights = c(1-env2prob[y-1], env2prob[y-1]));
+			finalOpt = ifelse(env == "env1", optimum1[y-1], optimum2[y-1]);
+			opt = finalOpt * rampFraction;
+			for (ind in subpop.individuals){
+				envNoise = rnorm(1, 0, noiseSD); // Add individual environmental noise
+				muts = ind.haplosomes.mutationsOfType(m1);
+				trait1 = fixedE0 + (size(muts) ? sum(muts.getValue("e0")) else 0.0);
+				trait2 = fixedE1 + (size(muts) ? sum(muts.getValue("e1")) else 0.0);
+				if(env == "env1"){
+					ind.tagF = trait1 + envNoise ;
+				}
+				else{
+					ind.tagF = trait2 + envNoise ;
+				}
+				ind.fitnessScaling = dnorm(x = ind.tagF, mean = opt, sd = sdW) / fitnessScale ;
+				if(sim.cycle == endGen){
+					lines = c(lines, paste(index+1, ind, trait1, trait2, sep=","));
+				}
+			}
+		}
+	}
+	if (sim.cycle == endGen)
+		writeFile(paste("sim_output/phenos/", seed, "_pheno.csv", sep=""), lines, append=F);
+}
+
+endGen early() {
+	for(subpop in sim.subpopulations){
+		subpop.setSubpopulationSize(4);
+	}
+	sim.simulationFinished();
+}
+
+endGen late() {
+	sim.treeSeqOutput(paste("sim_output/trees/", seed, ".trees", sep=""));
+}
