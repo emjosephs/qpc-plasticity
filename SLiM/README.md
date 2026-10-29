@@ -2,7 +2,7 @@
 
 Scripts used to run and analyze the conditional Q_PC simulations, split into
 `symmetric/` (symmetric trait-optima cline, `rho` = 0.6/0.75/0.9) and
-`negative_rho/` (negative genetic correlations, `rho` = -0.6/-0.75/-0.9).
+`negative_rho/` (symmetric trait-optima cline, `rho` = -0.6/-0.75/-0.9).
 Both subdirectories contain the same script types, run in the order below;
 filenames in `negative_rho/` carry a `_negative_rho` suffix.
 
