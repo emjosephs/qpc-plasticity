@@ -89,7 +89,7 @@ Jeremy J. Berg \textsuperscript{4}
 \\
 \bf{3} Plant Resilience Institute, Michigan State University, East Lansing, MI
 \\
-\bf{4} Jeremy's affiliations go here
+\bf{4} Department of Human Genetics, University of Chicago, Chicago, IL
 \\
 \bigskip
 * josep993@msu.edu
@@ -128,12 +128,15 @@ Alongside different ways of measuring plasticity, a number of experimental appro
 First, common garden experiments in different natural environments or in manipulated environmental conditions have looked for evidence of associations between fitness and plasticity \citep{stinchcombe2004flowering, scheiner1999measuring, dudley1996testing, baythavong2010characterizing}.
 However, these types of manipulative experiments are not possible without either a plastic response that can be permanently induced, like shade response, or enough genetic variation in plasticity to detect a relationship between plasticity and fitness.
 They are also limited to detecting selection acting on plasticity in the specific experimental year, but multi-year experiments have found significant temporal variation \citep{oakley2023ecological}.
+
+
 In contrast, \qf\ and related methods test for local adaptation by determining whether among-population trait divergence exceeds expectations under drift \citep{prout1993f, spitze1993population, whitlock2008evolutionary, ovaskainen2011new, karhunen2013driftsel}.
 The few previous applications of \qf\ to reaction norms have not detected evidence of adaptive divergence \citep{von2008partitioning,de2016evolution,lind2011gene} and these approaches have not been applied to the correlated trait way of measuring plasticity, although approaches exist for using \qf\ to detect selection on correlated traits \citep{chenoweth2008q, kremer1997multilocus}.
 Additional studies have compared $Q_{ST}$ values across environments as an indirect way of investigating selection on plasticity \citep{ramirez2018natural, rodriguez2016capturing, hangartner2012adaptive, palo2003latitudinal}. 
-\textcolor{purple}{Add a bit about qst fst assumptions of island model and what happens when violated?}
-Recent extensions of \qf\ have made it possible to use these inferences on structured diversity panels that are common in genome-wide association mapping studies \citep{Josephs2019, ovaskainen2011new, do2025method}.
-However, we lack an integrated approach to use \qf\ on complex population structure.
+Inferences from \qf\ can be inaccurate when population relatedness does not match a simple island model \citep{de2022common}.
+Recent extensions of \qf\ have made it possible to use these inferences on more complicated diversity panels \citep{do2025method, ovaskainen2011new} and on structured diversity panels that are common in genome-wide association mapping studies \citep{Josephs2019}.
+However, we lack clear methods and approaches for using \qf\ approaches to investigate plasticity, for either a reaction norm or correlated trait approach.
+
 
 Life history timing is a crucial aspect of fitness and the ideal timing of life history events depends on the environment \citep{worthy2025accelerated, aagren2017adaptive, colautti2013rapid}.
 Flowering time in the plant species \textit{Arabidopsis thaliana} is a classic model for studying the evolution of plasticity and \gxe\  \citep{mitchell2006genetic, maple2024flowering, leventhal2025planting}.
@@ -152,32 +155,37 @@ In this study, we develop methods to test for the contribution of local adaptati
 \cite{Josephs2019} previously developed methods for detecting selection on quantitative traits by extending $Q_{ST}-F_{ST}$ analyses to test for excess differentiation along specific principle components (PC) of genetic relatedness. 
 Specifically, if $\vec{Z}$ is a mean-centered vector of trait values measured in the same environment, we can model the neutral expectation for $\vec{Z}$ as 
 \begin{equation} \label{eq:mvn}
-\vec{Z} \sim MVN (\vec{0}, V_{A}F)
+\vec{Z} \sim MVN (\vec{0}, 2V_{A}F)
 \end{equation}
 where $V_{A}$ is additive genetic variation and $F$ is the genetic kinship matrix for the individuals in $\vec{Z}$.
 
 We can also model projections of the trait values onto specific genetic principal components (the eigenvectors of $F$), so that if $U_{m}$ and $\lambda_{m}$ are the $m^{th}$ eigenvector and eigenvalue of $F$,
 \begin{equation}
-\frac{\vec{Z}\cdot \vec{U_{m}}}{\sqrt{\lambda_{m}}} \sim N(0, V_{A}).
+\frac{\vec{Z}\cdot \vec{U_{m}}}{\sqrt{\lambda_{m}}} \sim N(0, 2V_{A}).
 \end{equation}
 
-Crucially, the variance of these projections onto a set of eigenvectors can be used to estimate $V_{A}$ such that $V_{A, est} = \frac{1}{\lvert \mathbb{L} \rvert} \sum_{i\in \mathbb{L}}\textnormal{Var}(\vec{Z}\cdot \vec{U_{i}}/\sqrt{\lambda_{i}})$, where $\mathbb{L}$ is some set of principal components that does not include $m$.
+Crucially, the variance of these projections onto a set of eigenvectors can be used to estimate $V_{A}$ such that 
+\begin{equation}\label{eq:vaest}
+V_{A, est} = \frac{1}{2\lvert \mathbb{L} \rvert} \sum_{i\in \mathbb{L}}\textnormal{Var}(\frac{\vec{Z}\cdot \vec{U_{i}}}{\sqrt{\lambda_{i}}}),
+\end{equation}
+
+where $\mathbb{L}$ is some set of principal components that does not include $m$.
 Then, we can use a test statistic called $Q_{PC}$ to test for selection on a specific PC, $m$, that is not in the set used to estimate $V_{A}$. 
 
 \begin{equation}\label{eq:qpcbasic}
-Q_{PC} = \frac{\vec{Z}\cdot\vec{U_{m}}}{\sqrt{\lambda_{m}V_{A,est}}}\sim N(0,1).
+Q_{PC} = \frac{\vec{Z}\cdot\vec{U_{m}}}{\sqrt{2\lambda_{m}V_{A,est}}}\sim N(0,1).
   \end{equation}
 
 We can apply the test described in Eq. \ref{eq:qpcbasic} to any quantitative trait and also, to any additive combination of quantitative traits, like a linear reaction norm (see the supplementary material for an explanation of why this test cannot be applied to non-additive measures of plasticity).
 
-We also expand upon a conditional test for adaptive differentiation developed by \cite{Berg2017} based on the framework of \cite{lande1979quantitative} that tests for adaptation in a given trait ('trait 1') conditional on a second trait ('trait 2').
+We also expand upon a conditional test for adaptive differentiation developed by \cite{Berg2017} based on the framework of \cite{lande1979quantitative} that tests for adaptation in a given trait ('trait1') conditional on a second trait ('trait2').
 
 \begin{equation}
-Q_{PC, 1|2} = \frac{(Z_{1} - \vec{\mu_{1}'})\vec{U_{m}}}{\sqrt{V_{A,1}'\lambda_{m}}} = \sim N(0,1)
+Q_{PC, 1|2} = \frac{(\vec{Z_{1}} - \vec{\mu_{1}'})\vec{U_{m}}}{\sqrt{2\lambda_{m}V_{A,1}'}}  \sim N(0,1)
   \end{equation}
 
-In contrast to the test described in Eq. \ref{eq:qpcbasic}, a conditional mean ($\vec{\mu_{1}'}$) and variance ($V_{A,1}'$) for trait 1 incorporate information about trait values and additive genetic variance for trait 2, along with the additive genetic covariance between traits 1 and 2.
-See the supplemental material for more information.
+In contrast to the test described in Eq. \ref{eq:qpcbasic}, a conditional mean ($\vec{\mu_{1}'}$) and variance ($V_{A,1}'$) for trait1 incorporate information about trait values and additive genetic variance for trait2, along with the additive genetic covariance between traits 1 and 2.
+See the supplemental material for equations calculating the conditional mean and variance.
 
 \subsection*{Simulations}
 %We conducted simulations of neutrally evolving phenotypes to evaluate the behavior of our conditional test for selection.
@@ -185,28 +193,32 @@ See the supplemental material for more information.
 %For these simulations, $V_{A,1} = V_{A,2} = 1$ and $C_{A,12} = 0.8$.\emjo{note that I could try extra sims varying these}
 %\dothis{really need more details}
 
-%We next simulated selection on trait 2 along PC 2 of the kinship matrix by adding a selected effect equivalent to the line's position on PC 2 multiplied by $\lambda_{2}$ to each simulated value for trait 2.
-%We simulated the correlated effects of selection on trait 1 by adding a selective effect to trait 1 values equivalent to position on PC 2 multiplied by $C_{A, 12} \times \lambda_{2}$.
-
+%We next simulated selection on trait2 along PC 2 of the kinship matrix by adding a selected effect equivalent to the line's position on PC 2 multiplied by $\lambda_{2}$ to each simulated value for trait2.
+%We simulated the correlated effects of selection on trait1 by adding a selective effect to trait1 values equivalent to position on PC 2 multiplied by $C_{A, 12} \times \lambda_{2}$.
 
 We used SLiM \citep{haller2025slim} to generate forward-in-time simulations of the evolution of a trait with plasticity. These Wright-Fisher simulations consisted of 100 demes with 50 individuals per deme organized in a 10 x 10 grid with a migration rate of 5\% between adjacent populations. 
 
 %We simulated the evolution of a trait with plasticity under Gaussian stabilizing selection. 
-Trait plasticity was modeled as two character states (e.g., pleiotropic traits whose expression depends on the environment) which we will refer to as trait 1 and trait 2. We draw the effect of a quantitative trait nucleotide (QTN) on trait 1, $a_1$, as a random variable from a normal distribution of form $N(0,0.1)$. The effect of the same QTN on trait 2 was calculated by
+Trait plasticity was modeled as two character states (e.g., pleiotropic traits whose expression depends on the environment) which we will refer to as trait1 and trait2. We draw the effects of a quantitative trait nucleotide (QTN) on trait1 and trait2 ($a_1$ and $a_2$) as random variables drawn from a multivariate normal distribution,
 
 \begin{equation}
-    a_2 = a_{1}\rho + \sqrt{1 - \rho^2}X_2
+    \begin{pmatrix} a_1 \\ a_2 \end{pmatrix} \sim N\left(\begin{pmatrix} 0 \\ 0 \end{pmatrix}, \Sigma\right)
 \end{equation}
 
-where $X_2$ is a second randomly sampled variable from the distribution defined above and $\rho$ is the correlation of effect sizes. 
+where,
+\begin{equation}
+\Sigma = \sigma^2 \begin{pmatrix} 1 & \rho \\ \rho & 1 \end{pmatrix}
+\end{equation}
 
-The simulated populations were subject to environmentally-dependent spatially heterogeneous, stabilizing selection. 
-The average optimum trait value varied along the y-axis but was constant along the x-axis, representing a clinal trait optimum across latitude.
-For each generation, we modeled the effect of the individuals experiencing environment 1 or environment 2, and thus eliciting trait 1 or 2, by setting one trait to be under stabilizing selection while the other had no affect on fitness. 
+$\sigma$ is 0.1 and $\rho$ is the correlation of QTN effects between traits.
+
+The simulated populations were subject to environmentally-dependent, spatially heterogeneous, stabilizing selection. 
+The optimal trait value varied along the y-axis but was constant along the x-axis, representing a clinal trait optimum across latitude.
+For each generation, we modeled the effect of the individuals experiencing environment 1 or environment 2, and thus eliciting trait1 or trait2, by setting one trait to be under stabilizing selection while the other had no affect on fitness. 
 Fitness was determined by the difference in an individual's expressed trait value and the optimum at that latitude by a Gaussian function
 
 \begin{equation}
-    \omega_{ijy} = exp\{-\frac{1}{2}(\frac{T_{ijy} - \Theta_{jy}}{\sigma_\omega})^2\}
+    \omega_{ijy} = \exp\{-\frac{1}{2}(\frac{T_{ijy} - \Theta_{jy}}{\sigma_\omega})^2\}
 \end{equation}
 
 where $T_{ijy}$ is the vector of $j$ character state trait values for individual $i$ in latitude $y$, $\Theta_{jy}$ is the optimum trait value for that latitude and character state, and $\sigma_\omega$ determines the strength of selection (a lower number being stronger selection).
@@ -215,9 +227,9 @@ The genome consisted of 10 independently segregating 1 Mb chromosomes with a rec
 The mutation rate for quantitative trait nucleotides (QTN) was set to $1\times10^{-8}$. 
 We implemented tree sequence recording in SLiM and overlaid neutral mutations in msprime \citep{msprime} at a rate of $1\times10^{-7}$. To reduce computational load, the genome size was reduced by a factor of 10 and the recombination and mutation rates were all increased by a factor of 10 (scaled values: chromosome length 100 kb; recombination rate $1\times10^{-6}$; QTN mutation rate $1\times10^{-7}$; neutral mutation rate $1\times10^{-6}$).
 
-For the burn-in, we simulated a single, randomly mating population with 1000 individuals with an optimal trait value of 1.0 for both character states and allowed the population to equilibrate for 5000 generations. The initial population was then used as founders for 100 demes with 50 individuals each in a 10 x 10 grid and a migration rate of 0.05 between adjacent demes. The optimal trait values for demes ranged from $1.0-3.25$ and $1.5-3.75$ for for trait 1 and trait 2, respectively. We simulated the optimal reaction norm across latitudes in two ways. First, the optimal reaction norm did not vary across demes (equal to 0.5). Second, the optimal reaction norm was equal for all demes within longitude but monotonically increased (from 0 to 2.25, 0.25 step size) across latitudes. The simulations were run for another 3000 generations, after which final genotypes (as tree sequences) and trait values for both character states were recorded for four randomly sampled individuals.
+For the burn-in, we simulated a single, randomly mating population with 1000 individuals and an optimal trait value of 0.0 for both character states and allowed the population to equilibrate for 10000 generations. The initial population was then used as founders for 100 demes with 50 individuals each in a 10 x 10 grid and a migration rate of 0.05 between adjacent demes. The final optimal trait values for the simulations ranged from $-1.0$ to $1.0$ and $1.0$ to $-1.0$ for for trait1 and trait2, respectively (Fig. \ref{fig:simOptima}). After the initial burn-in, the optimal trait values moved from $0.0$ to their final values over 5000 generations in a stepwise fashion. The optimal reaction norm was the difference between the trait1 and trait2 optima within each latitude (ranging from $-2.0$ to $2.0$). The simulations were run for another 10000 generations, after which final genotypes (as tree sequences) and trait values for both character states were recorded for four randomly sampled individuals per deme.
 
-We simulated populations with varying strengths of selection ($\sigma_\omega$ = 0.5, 1.0) and correlations of QTN effects between condition states ($\rho$ = 0.6, 0.75, 0.9). We simulated trait 2 evolving neutrally and under selection by setting its probability to be expressed to 0 and 0.5, respectively. We conducted 100 replicates for each combination of parameters. For simulations where the optimal reaction norm was unchanged across demes, we tested for selection on both condition states using both standard and conditional $Q_{PC}$. For simulations where the optimal reaction norm changed across latitudes, we tested for selection on the reaction norm (the difference between trait 2 and trait 1) using standard $Q_{PC}$.
+We simulated populations with varying strengths of selection ($\sigma_\omega$ = 0.5, 1.0) and correlations of QTN effects between condition states ($\rho$ = 0.6, 0.75, 0.9). We simulated trait2 evolving neutrally and under selection by setting its probability to be expressed to 0 and 0.5, respectively. We conducted 100 replicates for each combination of parameters and tested for selection on both condition states and the reaction norm (difference between trait1 and trait2) using standard and conditional $Q_{PC}$.
 
 \subsection*{\textit{A. thaliana} data}
 We evaluated our tests of selection on two datasets of \textit{A. thaliana} flowering time.
@@ -248,71 +260,25 @@ We then plotted an ellipse of points corresponding to the joint $\chi ^2$ distri
 
 \section*{Results}
 
-\subsection*{Simulations of $Q_{PC}$ on reaction norms}
+%\subsection*{Simulations of $Q_{PC}$ on reaction norms}
 
 \subsection*{Simulations of conditional $Q_{PC}$ to detect selection on plasticity}
 
-First, we wanted to know how standard \qpc\ and conditional \qpc\ performed when plasticity is not under selection. 
-To do this, we conducted a total of 600 simulations where trait 1 was always under selection and a correlated trait 2 was always neutral. 
-Across these scenarios, we correctly detected selection on trait 1 in 524 (standard) and 535 (conditional) out of 600 simulations (Table ~\ref{table:sims}). 
-We incorrectly detected selection on trait 2 in 186 (standard) and 18 (conditional) of the 600 simulations, giving a false positive rate of 0.31 for the standard test and 0.03 for the conditional test. 
-For both the conditional and standard test, the false positive rate was greater with stronger selection, with 102 of the 186 (standard) and 12 of the 18 (conditional) false positives found in the stronger selection regime ($\sigma_\omega = 0.05$). 
-The false positive rate in standard \qpc\ also increased as the correlation between traits, $\rho$ increased.
-%finding 11, 49, and 126 false positives for $\rho$ values of 0.6, 0.75, and 0.9, respectively. 
-However, conditional \qpc\ was robust to increasing correlations of trait effects ($\rho$). 
-%$\rho$, with 5, 7, and 6 false positives for $\rho$ values of 0.6, 0.75, and 0.9, respectively. 
-All together, the conditional test was able to detect selection on a specific trait and avoid detecting selection on a correlated trait, allowing it to identify selection on a trait in one environment.
+First, we wanted to understand how standard \qpc\ and conditional \qpc\ performed when only one character state is under selection (i.e., no selection on phenotypic plasticity). 
+To do this, we conducted a total of 600 simulations where trait1 was under selection while trait2 was neutral but genetically correlated to trait1 (Fig. \ref{fig:pvalBoxplot}A, C). When trait1 was under selection but trait2 evolved neutrally, $Q_{PC}$ correctly detected selection on trait1 in all 600 simulations. The conditional test performed comparably, dropping only when the correlation of allelic effects between traits was high and selection was weak ($\rho=0.9$, $\sigma_\omega=1.0$: 0.06 false negative rate). \qpc\ on trait2, however, produced a substantial false positive rate that rose sharply with $\rho$: from 0.36 when $\rho=0.6$ to 1.0 when $\rho=0.9$ (mean: 0.738). The conditional test on trait2 resolved most of those false positives with an average false positive rate of just 0.01, well below our 0.05 significance threshold.
 
+We then tested the performance of \qpc\ and the conditional test when both character states were under selection (i.e., selection for phenotypic plasticity; Fig. \ref{fig:pvalBoxplot}B, D). When both trait1 and trait2 were under selection, standard and conditional \qpc\ correctly detected selection on both trait1 and trait2 under every combination of $\rho$ and $\sigma_\omega$ tested. Interestingly, $p$ values were markedly smaller for the conditional test compared to standard \qpc\ and decreased with increasing values of $\rho$. This seemingly unintuitive finding was the result of a mismatch between the direction of selection for trait1 and trait2 but positive values of $\rho$. When we use the same simulation framework but $\rho$ is negative (i.e., the direction of selection and genetic correlations move trait values in the same direction), we find an increasing number of false negatives as $\rho$ approaches $-1$ with the conditional test (Fig. \ref{fig:negative_rho}), matching our expectation that conditional \qpc\ is a conservative test in cases where genetic correlations alone may be underlying apparent signals of selection.
 
-Second, we investigated a scenario where trait expression was independently under selection in two environments.
-To do this, for each generation we randomly sampled whether trait 1 or trait 2 was under selection.
-In these simulations, we detected selection with standard \qpc\ in 518 and 521 out of 600 simulations for trait 1 and trait 2, respectively. \todo{not sure the best way to add total summaries to the table}
-With the conditional test, we detected selection in 372 and 381 simulations for trait 1 and trait 2, respectively, demonstrating a loss of power when using the conditional test. 
-%Additionally, standard \qpc\ correctly detected selection for both trait 1 and trait 2 in 84.7\% of simulations while conditional $Q_{PC}$ only detected selection for both trait 1 and trait 2 in 49.8\% of simulations. 
-Conditional \qpc\ had markedly less power as the correlation between traits ($\rho$) and the strength of selection ($\sigma_\omega$) increased (Table ~\ref{table:sims}). 
-\emjo{I don't see the figure referenced anywhere here, would it make sense to merge it with the table in some way. Like you could add the number of significant simulations above the figure boxes?}
-%We identified selection in at least one trait in 87.3\% of simulations with a $\sigma_\omega$ of 0.5, but only in 64.0\% of simulations with a $\sigma_\omega$ of 1.0 and in 82.0\%,  77.5\%, and 67.5\% for $\rho$ values of 0.6, 0.75, and 0.9, respectively. 
-%On the other hand, the standard test was only sensitive to $\sigma_\omega$ in these simulations (and to a lesser extant than the conditional test), where we detected selection in at least one trait for 93.0\% and 84.0\% of simulations for $\sigma_\omega$ values of 0.5 and 1.0, respectively. 
-%Values of $\rho$ did not influence our ability to detect selection using standard $Q_{PC}$ where we detected selection in at least one of the two traits in 88.0\%, 88.0\%, and 89.5\% of simulations for $\rho$ values of 0.6, 0.75, and 0.9, respectively. 
+Together, these results show that the conditional test distinguished true selection on a focal trait from spurious signal driven by a genetically correlated trait in our simulations. From a phenotypic plasticity perspective, this implies that conditional \qpc\ can be used to identify independent selection on trait expression within environment using common garden or reciprocal transplant experiments.
 
 \begin{figure}[htbp]
   \centering
-\includegraphics[width=\linewidth]{figures/pvalBoxplotAll.png}
-\caption{ \textbf{P values from selection tests on a simulated neutral and selected trait with conditional expression in two environments.}
-Results of simulations in SLiM for the four different selection tests run with $-log_{10}(p)$ plotted along the y-axis and the associated test plotted along the x-axis (qpc1: $Q_{PC}$ on trait1; qpc2: $Q_{PC}$ on trait2; cQpc1: conditional $Q_{PC}$ on trait1; cQpc2: conditional $Q_{PC}$ on trait2). We simulated trait2 evolving neutrally (A, C) or under selection (B, D) and with both condition states under stronger (A, B) or weaker (C, D) selection by varying levels of $\sigma_\omega$. The black dotted line represents the significance threshold at $-log_{10}(0.05) = 1.30$.}
+\includegraphics[width=\linewidth]{figures/sim_results_test.png}
+\caption{ \textbf{P values from selection tests on simulated traits.}
+Results of simulations in SLiM for the four different selection tests run with $-log_{10}(p)$ plotted along the y-axis and the associated test plotted along the x-axis. We simulated trait2 evolving neutrally (A, C) or under selection (B, D) and with condition states under stronger (A, B) or weaker (C, D) selection by varying levels of $\sigma_\omega$. The black dotted line represents a significance threshold of $-log_{10}(0.05) = 1.30$.}
 \label{fig:pvalBoxplot}
 \end{figure}
 
-\nolinenumbers
-\begin{table}[ht]
-
-\begin{tabular}{lcccccc} 
- \toprule
- \multicolumn{3}{c}{}& \multicolumn{2}{c}{trait1} & \multicolumn{2}{c}{trait2} \\\cmidrule(l){4-5} \cmidrule(l){6-7}
- & $\sigma_\omega$& $\rho$& Std. $Q_{PC}$& Cond. $Q_{PC}$& Std. $Q_{PC}$& Cond. $Q_{PC}$ \\\cmidrule{1-7} 
- \multirow{6}{*}{Neutral}& 0.5& 0.60& 92& 93& 4& 5 \\
- & 0.5& 0.75& 92& 94& 30 & 4 \\
- & 0.5& 0.90& 88& 87& 68 & 3 \\\cmidrule{2-7}
- & 1.0& 0.60& 88& 89& 7& 0 \\
- &  1.0& 0.75& 81& 90& 19& 3 \\
- &  1.0& 0.90& 83& 82& 58& 3 \\\cmidrule{4-7}
- & & Total:& 524 (0.87)& 535 (0.89)& 186 (0.31)& 18 (0.03)\\
- \midrule
- \multirow{6}{*}{Selected}& 0.5& 0.60& 92& 87& 93& 85 \\
- & 0.5& 0.75& 91& 77& 91& 71 \\
- & 0.5& 0.90& 92& 63& 92& 73 \\\cmidrule{2-7}
- & 1.0& 0.60& 78& 66& 79& 65 \\
- & 1.0& 0.75& 81& 55& 81& 56 \\
- & 1.0& 0.90& 84& 24& 85& 31 \\\cmidrule{4-7}
- & & Total:& 518 (0.86)& 372 (0.62)& 521 (0.87)& 381 (0.64)\\
- \bottomrule
-
-\end{tabular}
-\caption{\dothis{Table caption goes here}}
- \label{table:sims}
-\end{table}
-
-\linenumbers
 
 \subsection*{Detecting selection on flowering time in individual environments}
 We first tested for selection on flowering time within specific environments.
@@ -343,14 +309,15 @@ The reaction norm showed marginal evidence of selection along PC 3 ($p = 0.0738$
 \begin{figure}[htbp]
   \centering
 \includegraphics[width=\linewidth]{figures/floweringtime.eps}
-\caption{ \textbf{Testing for selection on flowering time in lab grown \textit{A. thaliana}} Evidence of selection contributing to divergence for flowering time at (A) 16 \degree C, (B) 10\degree C, and (C) the difference between 16 \degree C and 10 \degree C. In all plots, the y axis is measured in days to flower, rach dot represents an \textit{A. thaliana} accession, black lines show the linear regression of trait onto PC 2, dashed blue lines show the 95\% confidence intervals for neutral evolution. (D) shows the correlation between flowering time at 16 \degree C and 10\degree C and (E) shows the correlation between flowering time at 16\degree C and the difference in flowering time between the two temperatures.
+\caption{ \textbf{Testing for selection on flowering time in lab grown \textit{A. thaliana}} Evidence of selection contributing to divergence for flowering time at (A) 16 \degree C, (B) 10\degree C, and (C) the difference between 16 \degree C and 10 \degree C. In all plots, the y axis is measured in days to flower, each dot represents an \textit{A. thaliana} accession, black lines show the linear regression of trait onto PC 2, dashed blue lines show the 95\% confidence intervals for neutral evolution. (D) shows the correlation between flowering time at 16 \degree C and 10\degree C and (E) shows the correlation between flowering time at 16\degree C and the difference in flowering time between the two temperatures. \textcolor{purple}{update to look at corr with the mean across environments}
 }
 \label{fig:ft}
 \end{figure}
 
 \subsection*{Using the conditional test to assess selection independently across environments}
-\textcolor{purple}{Here something about detecting selection on reaction norm conditional on the mean}
 
+In growth chamber conditions, there was no evidence of selection on the reaction norm of the difference between flowering at 10\degree C and 16\degree C conditional on the mean across environments ($p=0.251$), suggesting that the divergence in the reaction norm among populations could be explained by selection on trait means.
+There was also no evidence of selection along PC 3 on the reaction norm in the field-grown plants after conditioning on the mean across environments ($p=0.439$).
 
 Alternatively, we could use the conditional test to test whether selection on a trait in one environment is independent of selection on that trait in a different environment, as expected if divergent selection shapes plasticity.
 To assess the independence of selection on flowering time in the two environments, we used the conditional version of $Q_{PC}$ to test for selection on flowering time in each environment conditional on the other, along PC 2.
@@ -387,7 +354,7 @@ These genotypes all had longer flowering times when planted in the spring than e
 
 \section*{Discussion}
 
-In this paper, we 
+In this paper, we did \textcolor{pink}{summary goes here}
 
 %Specific for arabidopsis
 Previous work in \textit{A. thaliana} has investigated the genetic network contributing to flowering time plasticity\citep{wilczek2009effects}, identified local adaptation \citep{fournier2011map, aagren2013genetic}, and quantified direct selection on flowering time \citep{exposito2018spatio, aagren2017adaptive} and flowering time plasticity in field experiments \citep{fournier2022adaptive}.
@@ -416,8 +383,8 @@ We think that in this case researchers will likely not be motivated to study loc
 
 An additional limitation of our current implementation of conditional \qpc is that it is limited to testing in two environments.
 Many common garden experiments have been conducted across >2 environments, including the \textit{Arabidopsis thaliana} experiment used here.
-In the future, expanding the conditional test to condition on multiple traits would improve the applicability of the test.
-However, it may also more strongly reduce power to detect selection.
+In the future, expanding the implementation of the conditional test to condition on multiple traits would improve the applicability of the test.
+However, it may also strongly reduce power to detect selection.
 
 %Field common garden experiments are very powerful for telling us about fitness and selection on specific traits in a given year.
 %But, we know that climates are variable and that trait differentiation is shaped by selection that occurred over many past generations.
@@ -454,14 +421,14 @@ If we  measure plasticity in some way that is based on an additive combination o
 To see why, let $\vec{Z_{R}}$ be a vector of reaction norms for a group of $n$ individuals or populations so that if $\vec{Z_{1}}$ and $\vec{Z_{2}}$ are measurements of a trait in two different environments, $\vec{Z_{R}} = \vec{Z_{1}} - \vec{Z_{2}}$.
 If $z_{R,i }$ is the value of the reaction norm for a given individual or population $i$, then we can rewrite Eq. \ref{eq:pgs} for $Z_{R}$ in terms of the allelic effects of loci on traits in environments $1$ and $2$ ($\alpha_{l,1}$ and $\alpha_{l,2}$ respectively),
 \begin{equation}
-z_{R,i} = \sum^{L}_{l=1}(\alpha_{l,1}-\alpha_{l,2})p_{l}.
+z_{R,i} = 2\sum^{L}_{l=1}(\alpha_{l,1}-\alpha_{l,2})p_{l}.
   \end{equation}
 
 The distribution of $\vec{Z_{R}}$ under drift is now
 \begin{equation}
-\vec{Z_{R}} \sim MVN(\mu_{1} - \mu_{2}, V_{A,1} + V_{A,2} - 2C_{A, 12}),
+\vec{Z_{R}} \sim MVN(\mu_{1} - \mu_{2}, 2(V_{A,1} + V_{A,2} - 2C_{A, 12})),
 \end{equation}
-where $\mu_{1}$ is the mean of trait 1, $\mu_{2}$ is the mean of trait 2, $V_{A,1}$ is the additive genetic variation for trait 1, $V_{A,2}$ is the additive genetic variation for trait 2, and $C_{A,12}$ is the covariance of the two traits.
+where $\mu_{1}$ is the mean of trait1, $\mu_{2}$ is the mean of trait2, $V_{A,1}$ is the additive genetic variation for trait1, $V_{A,2}$ is the additive genetic variation for trait2, and $C_{A,12}$ is the covariance of the two traits.
 Crucially, $Z_{R}$ still follows a multivariate normal distribution and can be related back to the multivariate normal expectation for allele frequencies in Eq. \ref{eq:mvna}.
 
 We might also be interested in testing for selection on measures of plasticity that are not made up of linear combinations of trait measurements made across environments.
@@ -481,8 +448,8 @@ For an individual $i$,
 Since the values $z_{1,i}$ and $z_{2,i}$ can be written in terms of the allele frequencies of the $L$ loci and the allelic effects of these loci on trait in environment 1 ($\alpha_{1}$) and environment 2 ($\alpha_{2}$), the variance measure of plasticity $z_{v,i}$ can also be written in terms of allele frequencies and effect sizes.
 \begin{equation}\label{eq:zvi}
 z_{v,i} = 
-%\frac{1}{4}\sum^{L}_{l=1}[(\alpha_{1,l}^{2} + \alpha_{2,l}^{2})p_{l,i}^{2} - (\alpha_{1,l} + \alpha_{2,l})p_{l,i}]
-\frac{1}{4}[\sum^{L}_{l=1}(\alpha_{1,l}-\alpha_{2,l})p_{l,i}]^2
+%\frac{1}{4}\sum^{L}_{l=1}[2(\alpha_{1,l}^{2} + \alpha_{2,l}^{2})p_{l,i}^{2} - 2(\alpha_{1,l} + \alpha_{2,l})p_{l,i}]\\
+\frac{1}{2}[\sum^{L}_{l=1}(\alpha_{1,l}-\alpha_{2,l})p_{l,i}]^2
   \end{equation}
 
 Crucially, Eq. \ref{eq:zvi} shows that since $z_{v,i}$ cannot be written in terms of additive combinations of allele frequencies and allelic effects.
@@ -501,40 +468,40 @@ If $\vec{Z_{1}}$ is a vector of trait values for a set of individuals and $\vec{
   \begin{bmatrix}
 \vec{Z_{1}} \\ \vec{Z_{2}}
   \end{bmatrix} \sim MVN\bigg(
-  \begin{bmatrix}  \mu_{1}\vec{1}\\ \mu_{2}\vec{1} \end{bmatrix},
+  \begin{bmatrix}  \mu_{1}\vec{1}\\ \mu_{2}\vec{1} \end{bmatrix}, 2
    \begin{bmatrix} V_{A,1}F & C_{A,12}F\\ C_{A, 12}F & V_{A,2}F
     \end{bmatrix}\bigg),
 \end{equation}
 
-where $\mu_{1}$ is the mean of $\vec{Z_{1}}$, $\mu_{2}$ is the mean of $\vec{Z_{2}}$, $F$ is the kinship matrix of individuals, $V_{A,1}$ is the additive genetic variance of trait 1, $V_{A,2}$ is the additive genetic variance of trait 2, and $C_{A,12}$ is the additive genetic covariance of traits 1 and 2.
+where $\mu_{1}$ is the mean of $\vec{Z_{1}}$, $\mu_{2}$ is the mean of $\vec{Z_{2}}$, $F$ is the kinship matrix of individuals, $V_{A,1}$ is the additive genetic variance of trait1, $V_{A,2}$ is the additive genetic variance of trait2, and $C_{A,12}$ is the additive genetic covariance of traits 1 and 2.
 
-Following Eq. \ref{eqn:mvn2trait}, we can model the neutral distribution of trait 1 conditional on the distribution of trait 2.
+Following Eq. \ref{eqn:mvn2trait}, we can model the neutral distribution of trait1 conditional on the distribution of trait2.
 \begin{equation}\label{eq:cond}
-\vec{Z_{1}}|\vec{Z_{2}} \sim MVN(\vec{\mu'}, V_{A,1}'F)
+\vec{Z_{1}}|\vec{Z_{2}} \sim MVN(\vec{\mu'}, 2V_{A,1}'F)
 \end{equation}
-where $\vec{\mu'}  = \mu_{1} + \frac{C_{A,12}}{V_{A,2}}(\vec{Z_{2}} - \mu_{2}) $ is a vector of conditional means and $V_{A,1}' =  V_{A,1} - \frac{C_{A,12}^{2}}{V_{A, 2}}$ is the conditional additive genetic variance of trait 1.
+where $\vec{\mu'}  = \mu_{1} + \frac{C_{A,12}}{V_{A,2}}(\vec{Z_{2}} - \mu_{2}) $ is a vector of conditional means and $V_{A,1}' =  V_{A,1} - \frac{C_{A,12}^{2}}{V_{A, 2}}$ is the conditional additive genetic variance of trait1.
 
 Following \cite{Josephs2019}, we project the traits $Z_{1}$ and $Z_{2}$ onto the genetic PCs of our samples, which we determine by calculating the eigenvectors of the kinship matrix $F$.
-We define the standardized projection of trait $X_{1}$ onto the $m^{th}$ PC as $X_{1m}$, so that if $\vec{U_m}$ is the $m^{th}$ PC and $\lambda_{m}$ is the corresponding eigenvalue,
+We define the standardized projection of trait $X_{1}$ onto the $m^{th}$ PC as $X_{1m}$, so that if $\vec{U_m}$ is the eigenvector of the $m^{th}$ PC and $\lambda_{m}$ is the corresponding eigenvalue,
 \begin{equation}\label{eq:proj}
 X_{1,m} = \frac{(\vec{Z_{1}}-\vec{\mu_{1}})\vec{U_{m}}}{\sqrt{\lambda_{m}}}
   \end{equation}
-Using the affine transform of equation \ref{eq:mvn} (as shown in \cite{Josephs2019}), $X_{1,m} \sim N(0, V_{A1})$ and we can estimate $V_{A}$ by calculating Var($X_{1,L}$) where $X_{1,L}$ is a set of standardized projections onto some set of $L$ PCs. 
+Using the affine transform of equation \ref{eq:mvn} (as shown in \cite{Josephs2019}), $X_{1,m} \sim N(0, 2V_{A1})$ and we can estimate $V_{A,1}$ and $V_{A,2}$ from a subset of $\mathbb{L}$ PCS following Eq \ref{eq:vaest} and $C_{A,12}$ following similar logic. 
 
-Following the above logic, we estimate trait variances and covariances from a subset ($L$) of PCs as follows:
-\begin{equation}
-V_{A,1} = \textnormal{Var}(X_{1,L}) = \textbf{E}[X_{1,L}^{2}],
-  \end{equation}
-\begin{equation}
-V_{A,2} = \textnormal{Var}(X_{2,L}) = \textbf{E}[X_{2,L}^{2}],
-\end{equation}
-and
-\begin{equation}
-C_{A,12} = \textnormal{Cov}(X_{1,L}, X_{2,L}) = \textbf{E}[X_{1,L}X_{2,L}].
-\end{equation}
+%We then estimate trait variances and covariances as follows:
+%\begin{equation}
+%V_{A,1} = \textnormal{Var}(X_{1,L}) = \textbf{E}[X_{1,L}^{2}],
+%  \end{equation}
+%\begin{equation}
+%V_{A,2} = \textnormal{Var}(X_{2,L}) = \textbf{E}[X_{2,L}^{2}],
+%\end{equation}
+%and
+%\begin{equation}
+%C_{A,12} = \textnormal{Cov}(X_{1,L}, X_{2,L}) = %\textbf{E}[X_{1,L}X_{2,L}].
+%\end{equation}
 We can then test for evidence of selection on $Z_{1}$ conditional on $Z_{2}$ by combining equations \ref{eq:proj} and \ref{eq:cond} to get an expected distribution of the difference between observed values and conditional means projected onto a PC $m$ that is not contained within the subset $L$ used to estimate genetic variances and covariances:
 \begin{equation}
-\frac{(Z_{1} - \vec{\mu_{1}'})\vec{U_{m}}}{\sqrt{V_{A,1}'\lambda_{m}}} = X_{m, cond} \sim N(0,1)
+\frac{(Z_{1} - \vec{\mu_{1}'})\vec{U_{m}}}{\sqrt{2V_{A,1}'\lambda_{m}}} = X_{m, cond} \sim N(0,1)
   \end{equation}
 Seeing a value of $X_{m,cond}$ that falls outside the normal distribution is consistent with selection. 
 
@@ -555,7 +522,12 @@ Seeing a value of $X_{m,cond}$ that falls outside the normal distribution is con
 %  V_{A,R}' =  V_{A,R} - \frac{C_{A,1R}^{2}}{V_{A, 1}} = V_{A,1}V_{A,2} - C_{A,12} - \frac{(V_{A,1} - C_{A,12})^{2}}{V_{A,1}}.
 %  \end{equation}
 
-
+\begin{figure}[htbp]
+  \centering
+\includegraphics[width=\linewidth]{figures/optimal_trait_values.png}
+\caption{\textbf{Final optimal trait values for SLiM simulations.} Optimal trait values for trait1 (blue) and trait2 (orange) at each latitude after the initial burn-in for the SLiM simulations. The optima changed from $0.0$ during burn-in to their final values in a stepwise fashion over 5000 generations. }
+\label{fig:simOptima}
+\end{figure}
 
 
 \begin{figure}[htbp]
