@@ -188,18 +188,9 @@ In contrast to the test described in Eq. \ref{eq:qpcbasic}, a conditional mean (
 See the supplemental material for equations calculating the conditional mean and variance.
 
 \subsection*{Simulations}
-%We conducted simulations of neutrally evolving phenotypes to evaluate the behavior of our conditional test for selection.
-%We simulated two correlated traits evolving 100 individuals from the \textit{A. thaliana} population sample using the matrix.normal function from the MBSP package in R \citep{mbsp,r}.
-%For these simulations, $V_{A,1} = V_{A,2} = 1$ and $C_{A,12} = 0.8$.\emjo{note that I could try extra sims varying these}
-%\dothis{really need more details}
-
-%We next simulated selection on trait2 along PC 2 of the kinship matrix by adding a selected effect equivalent to the line's position on PC 2 multiplied by $\lambda_{2}$ to each simulated value for trait2.
-%We simulated the correlated effects of selection on trait1 by adding a selective effect to trait1 values equivalent to position on PC 2 multiplied by $C_{A, 12} \times \lambda_{2}$.
-
-We used SLiM \citep{haller2025slim} to generate forward-in-time simulations of the evolution of a trait with plasticity. These Wright-Fisher simulations consisted of 100 demes with 50 individuals per deme organized in a 10 x 10 grid with a migration rate of 5\% between adjacent populations. 
-
-%We simulated the evolution of a trait with plasticity under Gaussian stabilizing selection. 
-Trait plasticity was modeled as two character states (e.g., pleiotropic traits whose expression depends on the environment) which we will refer to as trait1 and trait2. We draw the effects of a quantitative trait nucleotide (QTN) on trait1 and trait2 ($a_1$ and $a_2$) as random variables drawn from a multivariate normal distribution,
+We used SLiM \citep{haller2025slim} to generate forward-in-time Wright-Fisher simulations of the evolution of a trait with plasticity with 100 demes with 50 individuals per deme organized in a 10 x 10 grid with a migration rate of 5\% between adjacent populations (Fig. \ref{fig:sim_concept}A). 
+Trait plasticity was modeled as two character states (i.e., pleiotropic traits whose expression depends on the environment) which we will refer to as trait1 and trait2. 
+We draw the effects of a quantitative trait nucleotide (QTN) on trait1 and trait2 ($a_1$ and $a_2$) as random variables from a multivariate normal distribution,
 
 \begin{equation}
     \begin{pmatrix} a_1 \\ a_2 \end{pmatrix} \sim N\left(\begin{pmatrix} 0 \\ 0 \end{pmatrix}, \Sigma\right)
@@ -208,14 +199,23 @@ Trait plasticity was modeled as two character states (e.g., pleiotropic traits w
 where,
 \begin{equation}
 \Sigma = \sigma^2 \begin{pmatrix} 1 & \rho \\ \rho & 1 \end{pmatrix}
-\end{equation}
+\end{equation},
 
-$\sigma$ is 0.1 and $\rho$ is the correlation of QTN effects between traits.
+$\sigma = 0.1$ and $\rho$ is the correlation of QTN effects between traits (Fig. \ref{fig:sim_concept}C).
 
 The simulated populations were subject to environmentally-dependent, spatially heterogeneous, stabilizing selection. 
-The optimal trait value varied along the y-axis but was constant along the x-axis, representing a clinal trait optimum across latitude.
-For each generation, we modeled the effect of the individuals experiencing environment 1 or environment 2, and thus eliciting trait1 or trait2, by setting one trait to be under stabilizing selection while the other had no affect on fitness. 
-Fitness was determined by the difference in an individual's expressed trait value and the optimum at that latitude by a Gaussian function
+The optimal trait values for trait1 and trait2 varied along the y-axis but was constant along the x-axis, representing a clinal trait optimum across latitude (Fig. \ref{fig:sim_concept}A).
+For each generation, we modeled the effect of the individuals experiencing environment 1 or environment 2, and thus eliciting trait1 or trait2, by setting one trait to be under stabilizing selection while the other had no affect on fitness (Fig. \ref{fig:sim_concept}B). 
+
+\begin{figure}[htbp]
+  \centering
+\includegraphics[width=\linewidth]{figures/conceptual_figure_compact.svg}
+\caption{ \textbf{Overview of simulation design and parameters used.}
+}
+\label{fig:sim_concept}
+\end{figure}
+
+Fitness was determined as the difference in an individual's expressed trait value and the optimum at that latitude by a Gaussian function (Fig. \ref{fig:sim_concept}D),
 
 \begin{equation}
     \omega_{ijy} = \exp\{-\frac{1}{2}(\frac{T_{ijy} - \Theta_{jy}}{\sigma_\omega})^2\}
@@ -273,7 +273,7 @@ Together, these results show that the conditional test distinguished true select
 
 \begin{figure}[htbp]
   \centering
-\includegraphics[width=\linewidth]{figures/sim_results_test.png}
+\includegraphics[width=\linewidth]{figures/sim_results.eps}
 \caption{ \textbf{P values from selection tests on simulated traits.}
 Results of simulations in SLiM for the four different selection tests run with $-log_{10}(p)$ plotted along the y-axis and the associated test plotted along the x-axis. We simulated trait2 evolving neutrally (A, C) or under selection (B, D) and with condition states under stronger (A, B) or weaker (C, D) selection by varying levels of $\sigma_\omega$. The black dotted line represents a significance threshold of $-log_{10}(0.05) = 1.30$.}
 \label{fig:pvalBoxplot}
