@@ -178,19 +178,19 @@ Q_{PC} = \frac{\vec{Z}\cdot\vec{U_{m}}}{\sqrt{2\lambda_{m}V_{A,est}}}\sim N(0,1)
 
 We can apply the test described in Eq. \ref{eq:qpcbasic} to any quantitative trait and also, to any additive combination of quantitative traits, like a linear reaction norm (see the supplementary material for an explanation of why this test cannot be applied to non-additive measures of plasticity).
 
-We also expand upon a conditional test for adaptive differentiation developed by \cite{Berg2017} based on the framework of \cite{lande1979quantitative} that tests for adaptation in a given trait ('trait1') conditional on a second trait ('trait2').
+We also expand upon a conditional test for adaptive differentiation developed by \cite{Berg2017} based on the framework of \cite{lande1979quantitative} that tests for adaptation in a given trait ('trait 1') conditional on a second trait ('trait 2').
 
 \begin{equation}
 Q_{PC, 1|2} = \frac{(\vec{Z_{1}} - \vec{\mu_{1}'})\vec{U_{m}}}{\sqrt{2\lambda_{m}V_{A,1}'}}  \sim N(0,1)
   \end{equation}
 
-In contrast to the test described in Eq. \ref{eq:qpcbasic}, a conditional mean ($\vec{\mu_{1}'}$) and variance ($V_{A,1}'$) for trait1 incorporate information about trait values and additive genetic variance for trait2, along with the additive genetic covariance between traits 1 and 2.
+In contrast to the test described in Eq. \ref{eq:qpcbasic}, a conditional mean ($\vec{\mu_{1}'}$) and variance ($V_{A,1}'$) for trait 1 incorporate information about trait values and additive genetic variance for trait 2, along with the additive genetic covariance between traits 1 and 2.
 See the supplemental material for equations calculating the conditional mean and variance.
 
 \subsection*{Simulations}
 We used SLiM \citep{haller2025slim} to generate forward-in-time Wright-Fisher simulations of the evolution of a trait with plasticity with 100 demes with 50 individuals per deme organized in a 10 x 10 grid with a migration rate of 5\% between adjacent populations (Fig. \ref{fig:sim_concept}A). 
-Trait plasticity was modeled as two character states (i.e., pleiotropic traits whose expression depends on the environment) which we will refer to as trait1 and trait2. 
-We draw the effects of a quantitative trait nucleotide (QTN) on trait1 and trait2 ($a_1$ and $a_2$) as random variables from a multivariate normal distribution,
+Trait plasticity was modeled as two character states (i.e., pleiotropic traits whose expression depends on the environment) which we will refer to as trait 1 and trait 2. 
+We draw the effects of a quantitative trait nucleotide (QTN) on trait 1 and trait 2 ($a_1$ and $a_2$) as random variables from a multivariate normal distribution,
 
 \begin{equation}
     \begin{pmatrix} a_1 \\ a_2 \end{pmatrix} \sim N\left(\begin{pmatrix} 0 \\ 0 \end{pmatrix}, \Sigma\right)
@@ -198,14 +198,14 @@ We draw the effects of a quantitative trait nucleotide (QTN) on trait1 and trait
 
 where,
 \begin{equation}
-\Sigma = \sigma^2 \begin{pmatrix} 1 & \rho \\ \rho & 1 \end{pmatrix}
-\end{equation},
+\Sigma = \sigma^2 \begin{pmatrix} 1 & \rho \\ \rho & 1 \end{pmatrix},
+\end{equation}
 
 $\sigma = 0.1$ and $\rho$ is the correlation of QTN effects between traits (Fig. \ref{fig:sim_concept}C).
 
 The simulated populations were subject to environmentally-dependent, spatially heterogeneous, stabilizing selection. 
-The optimal trait values for trait1 and trait2 varied along the y-axis but was constant along the x-axis, representing a clinal trait optimum across latitude (Fig. \ref{fig:sim_concept}A).
-For each generation, we modeled the effect of the individuals experiencing environment 1 or environment 2, and thus eliciting trait1 or trait2, by setting one trait to be under stabilizing selection while the other had no affect on fitness (Fig. \ref{fig:sim_concept}B). 
+The optimal trait values for trait 1 and trait 2 varied along the y-axis but was constant along the x-axis, representing a clinal trait optimum across latitude (Fig. \ref{fig:sim_concept}A).
+For each generation, we modeled the effect of the individuals experiencing environment 1 or environment 2, and thus eliciting trait 1 or trait 2, by setting one trait to be under stabilizing selection while the other had no affect on fitness (Fig. \ref{fig:sim_concept}B). 
 
 \begin{figure}[htbp]
   \centering
@@ -227,9 +227,9 @@ The genome consisted of 10 independently segregating 1 Mb chromosomes with a rec
 The mutation rate for quantitative trait nucleotides (QTN) was set to $1\times10^{-8}$. 
 We implemented tree sequence recording in SLiM and overlaid neutral mutations in msprime \citep{msprime} at a rate of $1\times10^{-7}$. To reduce computational load, the genome size was reduced by a factor of 10 and the recombination and mutation rates were all increased by a factor of 10 (scaled values: chromosome length 100 kb; recombination rate $1\times10^{-6}$; QTN mutation rate $1\times10^{-7}$; neutral mutation rate $1\times10^{-6}$).
 
-For the burn-in, we simulated a single, randomly mating population with 1000 individuals and an optimal trait value of 0.0 for both character states and allowed the population to equilibrate for 10000 generations. The initial population was then used as founders for 100 demes with 50 individuals each in a 10 x 10 grid and a migration rate of 0.05 between adjacent demes. The final optimal trait values for the simulations ranged from $-1.0$ to $1.0$ and $1.0$ to $-1.0$ for for trait1 and trait2, respectively (Fig. \ref{fig:simOptima}). After the initial burn-in, the optimal trait values moved from $0.0$ to their final values over 5000 generations in a stepwise fashion. The optimal reaction norm was the difference between the trait1 and trait2 optima within each latitude (ranging from $-2.0$ to $2.0$). The simulations were run for another 10000 generations, after which final genotypes (as tree sequences) and trait values for both character states were recorded for four randomly sampled individuals per deme.
+For the burn-in, we simulated a single, randomly mating population with 1000 individuals and an optimal trait value of 0.0 for both character states and allowed the population to equilibrate for 10000 generations. The initial population was then used as founders for 100 demes with 50 individuals each in a 10 x 10 grid and a migration rate of 0.05 between adjacent demes. The final optimal trait values for the simulations ranged from $-1.0$ to $1.0$ and $1.0$ to $-1.0$ for for trait 1 and trait 2, respectively (Fig. \ref{fig:simOptima}). After the initial burn-in, the optimal trait values moved from $0.0$ to their final values over 5000 generations in a stepwise fashion. The optimal reaction norm was the difference between the trait 1 and trait 2 optima within each latitude (ranging from $-2.0$ to $2.0$). The simulations were run for another 10000 generations, after which final genotypes (as tree sequences) and trait values for both character states were recorded for four randomly sampled individuals per deme.
 
-We simulated populations with varying strengths of selection ($\sigma_\omega$ = 0.5, 1.0) and correlations of QTN effects between condition states ($\rho$ = 0.6, 0.75, 0.9). We simulated trait2 evolving neutrally and under selection by setting its probability to be expressed to 0 and 0.5, respectively. We conducted 100 replicates for each combination of parameters and tested for selection on both condition states and the reaction norm (difference between trait1 and trait2) using standard and conditional $Q_{PC}$.
+We simulated populations with varying strengths of selection ($\sigma_\omega$ = 0.5, 1.0) and correlations of QTN effects between condition states ($\rho$ = 0.6, 0.75, 0.9). We simulated trait 2 evolving neutrally and under selection by setting its probability to be expressed to 0 and 0.5, respectively. We conducted 100 replicates for each combination of parameters and tested for selection on both condition states and the reaction norm (difference between trait 1 and trait 2) using standard and conditional $Q_{PC}$.
 
 \subsection*{\textit{A. thaliana} data}
 We evaluated our tests of selection on two datasets of \textit{A. thaliana} flowering time.
@@ -265,9 +265,9 @@ We then plotted an ellipse of points corresponding to the joint $\chi ^2$ distri
 \subsection*{Simulations of conditional $Q_{PC}$ to detect selection on plasticity}
 
 First, we wanted to understand how standard \qpc\ and conditional \qpc\ performed when only one character state is under selection (i.e., no selection on phenotypic plasticity). 
-To do this, we conducted a total of 600 simulations where trait1 was under selection while trait2 was neutral but genetically correlated to trait1 (Fig. \ref{fig:pvalBoxplot}A, C). When trait1 was under selection but trait2 evolved neutrally, $Q_{PC}$ correctly detected selection on trait1 in all 600 simulations. The conditional test performed comparably, dropping only when the correlation of allelic effects between traits was high and selection was weak ($\rho=0.9$, $\sigma_\omega=1.0$: 0.06 false negative rate). \qpc\ on trait2, however, produced a substantial false positive rate that rose sharply with $\rho$: from 0.36 when $\rho=0.6$ to 1.0 when $\rho=0.9$ (mean: 0.738). The conditional test on trait2 resolved most of those false positives with an average false positive rate of just 0.01, well below our 0.05 significance threshold.
+To do this, we conducted a total of 600 simulations where trait 1 was under selection while trait 2 was neutral but genetically correlated to trait 1 (Fig. \ref{fig:pvalBoxplot}A, C). When trait 1 was under selection but trait 2 evolved neutrally, $Q_{PC}$ correctly detected selection on trait 1 in all 600 simulations. The conditional test performed comparably, dropping only when the correlation of allelic effects between traits was high and selection was weak ($\rho=0.9$, $\sigma_\omega=1.0$: 0.06 false negative rate). \qpc\ on trait 2, however, produced a substantial false positive rate that rose sharply with $\rho$: from 0.36 when $\rho=0.6$ to 1.0 when $\rho=0.9$ (mean: 0.738). The conditional test on trait 2 resolved most of those false positives with an average false positive rate of just 0.01, well below our 0.05 significance threshold.
 
-We then tested the performance of \qpc\ and the conditional test when both character states were under selection (i.e., selection for phenotypic plasticity; Fig. \ref{fig:pvalBoxplot}B, D). When both trait1 and trait2 were under selection, standard and conditional \qpc\ correctly detected selection on both trait1 and trait2 under every combination of $\rho$ and $\sigma_\omega$ tested. Interestingly, $p$ values were markedly smaller for the conditional test compared to standard \qpc\ and decreased with increasing values of $\rho$. This seemingly unintuitive finding was the result of a mismatch between the direction of selection for trait1 and trait2 but positive values of $\rho$. When we use the same simulation framework but $\rho$ is negative (i.e., the direction of selection and genetic correlations move trait values in the same direction), we find an increasing number of false negatives as $\rho$ approaches $-1$ with the conditional test (Fig. \ref{fig:negative_rho}), matching our expectation that conditional \qpc\ is a conservative test in cases where genetic correlations alone may be underlying apparent signals of selection.
+We then tested the performance of \qpc\ and the conditional test when both character states were under selection (i.e., selection for phenotypic plasticity; Fig. \ref{fig:pvalBoxplot}B, D). When both trait 1 and trait 2 were under selection, standard and conditional \qpc\ correctly detected selection on both trait 1 and trait 2 under every combination of $\rho$ and $\sigma_\omega$ tested. Interestingly, $p$ values were markedly smaller for the conditional test compared to standard \qpc\ and decreased with increasing values of $\rho$. This seemingly unintuitive finding was the result of a mismatch between the direction of selection for trait 1 and trait 2 but positive values of $\rho$. When we use the same simulation framework but $\rho$ is negative (i.e., the direction of selection and genetic correlations move trait values in the same direction), we find an increasing number of false negatives as $\rho$ approaches $-1$ with the conditional test (Fig. \ref{fig:negative_rho}), matching our expectation that conditional \qpc\ is a conservative test in cases where genetic correlations alone may be underlying apparent signals of selection.
 
 Together, these results show that the conditional test distinguished true selection on a focal trait from spurious signal driven by a genetically correlated trait in our simulations. From a phenotypic plasticity perspective, this implies that conditional \qpc\ can be used to identify independent selection on trait expression within environment using common garden or reciprocal transplant experiments.
 
@@ -275,7 +275,7 @@ Together, these results show that the conditional test distinguished true select
   \centering
 \includegraphics[width=\linewidth]{figures/sim_results.eps}
 \caption{ \textbf{P values from selection tests on simulated traits.}
-Results of simulations in SLiM for the four different selection tests run with $-log_{10}(p)$ plotted along the y-axis and the associated test plotted along the x-axis. We simulated trait2 evolving neutrally (A, C) or under selection (B, D) and with condition states under stronger (A, B) or weaker (C, D) selection by varying levels of $\sigma_\omega$. The black dotted line represents a significance threshold of $-log_{10}(0.05) = 1.30$.}
+Results of simulations in SLiM for the four different selection tests run with $-log_{10}(p)$ plotted along the y-axis and the associated test plotted along the x-axis. We simulated trait 2 evolving neutrally (A, C) or under selection (B, D) and with condition states under stronger (A, B) or weaker (C, D) selection by varying levels of $\sigma_\omega$. The black dotted line represents a significance threshold of $-log_{10}(0.05) = 1.30$.}
 \label{fig:pvalBoxplot}
 \end{figure}
 
@@ -428,7 +428,7 @@ The distribution of $\vec{Z_{R}}$ under drift is now
 \begin{equation}
 \vec{Z_{R}} \sim MVN(\mu_{1} - \mu_{2}, 2(V_{A,1} + V_{A,2} - 2C_{A, 12})),
 \end{equation}
-where $\mu_{1}$ is the mean of trait1, $\mu_{2}$ is the mean of trait2, $V_{A,1}$ is the additive genetic variation for trait1, $V_{A,2}$ is the additive genetic variation for trait2, and $C_{A,12}$ is the covariance of the two traits.
+where $\mu_{1}$ is the mean of trait 1, $\mu_{2}$ is the mean of trait 2, $V_{A,1}$ is the additive genetic variation for trait 1, $V_{A,2}$ is the additive genetic variation for trait 2, and $C_{A,12}$ is the covariance of the two traits.
 Crucially, $Z_{R}$ still follows a multivariate normal distribution and can be related back to the multivariate normal expectation for allele frequencies in Eq. \ref{eq:mvna}.
 
 We might also be interested in testing for selection on measures of plasticity that are not made up of linear combinations of trait measurements made across environments.
@@ -473,13 +473,13 @@ If $\vec{Z_{1}}$ is a vector of trait values for a set of individuals and $\vec{
     \end{bmatrix}\bigg),
 \end{equation}
 
-where $\mu_{1}$ is the mean of $\vec{Z_{1}}$, $\mu_{2}$ is the mean of $\vec{Z_{2}}$, $F$ is the kinship matrix of individuals, $V_{A,1}$ is the additive genetic variance of trait1, $V_{A,2}$ is the additive genetic variance of trait2, and $C_{A,12}$ is the additive genetic covariance of traits 1 and 2.
+where $\mu_{1}$ is the mean of $\vec{Z_{1}}$, $\mu_{2}$ is the mean of $\vec{Z_{2}}$, $F$ is the kinship matrix of individuals, $V_{A,1}$ is the additive genetic variance of trait 1, $V_{A,2}$ is the additive genetic variance of trait 2, and $C_{A,12}$ is the additive genetic covariance of traits 1 and 2.
 
-Following Eq. \ref{eqn:mvn2trait}, we can model the neutral distribution of trait1 conditional on the distribution of trait2.
+Following Eq. \ref{eqn:mvn2trait}, we can model the neutral distribution of trait 1 conditional on the distribution of trait 2.
 \begin{equation}\label{eq:cond}
 \vec{Z_{1}}|\vec{Z_{2}} \sim MVN(\vec{\mu'}, 2V_{A,1}'F)
 \end{equation}
-where $\vec{\mu'}  = \mu_{1} + \frac{C_{A,12}}{V_{A,2}}(\vec{Z_{2}} - \mu_{2}) $ is a vector of conditional means and $V_{A,1}' =  V_{A,1} - \frac{C_{A,12}^{2}}{V_{A, 2}}$ is the conditional additive genetic variance of trait1.
+where $\vec{\mu'}  = \mu_{1} + \frac{C_{A,12}}{V_{A,2}}(\vec{Z_{2}} - \mu_{2}) $ is a vector of conditional means and $V_{A,1}' =  V_{A,1} - \frac{C_{A,12}^{2}}{V_{A, 2}}$ is the conditional additive genetic variance of trait 1.
 
 Following \cite{Josephs2019}, we project the traits $Z_{1}$ and $Z_{2}$ onto the genetic PCs of our samples, which we determine by calculating the eigenvectors of the kinship matrix $F$.
 We define the standardized projection of trait $X_{1}$ onto the $m^{th}$ PC as $X_{1m}$, so that if $\vec{U_m}$ is the eigenvector of the $m^{th}$ PC and $\lambda_{m}$ is the corresponding eigenvalue,
@@ -525,7 +525,7 @@ Seeing a value of $X_{m,cond}$ that falls outside the normal distribution is con
 \begin{figure}[htbp]
   \centering
 \includegraphics[width=\linewidth]{figures/optimal_trait_values.png}
-\caption{\textbf{Final optimal trait values for SLiM simulations.} Optimal trait values for trait1 (blue) and trait2 (orange) at each latitude after the initial burn-in for the SLiM simulations. The optima changed from $0.0$ during burn-in to their final values in a stepwise fashion over 5000 generations. }
+\caption{\textbf{Final optimal trait values for SLiM simulations.} Optimal trait values for trait 1 (blue) and trait 2 (orange) at each latitude after the initial burn-in for the SLiM simulations. The optima changed from $0.0$ during burn-in to their final values in a stepwise fashion over 5000 generations. }
 \label{fig:simOptima}
 \end{figure}
 
