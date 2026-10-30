@@ -193,7 +193,7 @@ draw_panel_qpc <- function(dat, letter, show_left_axis,
 # second, redundant x-axis line right underneath it.
 draw_x_axis_strip_qpc <- function() {
   plot(NA, xlim = xlim_qpc, ylim = c(0, 1), bty = "n", xaxt = "n", yaxt = "n", xlab = "", ylab = "")
-  text(group_center_qpc, 0.94, labels = c("trait1", "trait2", "trait1", "trait2"),
+  text(group_center_qpc, 0.94, labels = c("trait 1", "trait 2", "trait 1", "trait 2"),
        cex = 0.95, col = "grey30")
   bracket_y <- 0.55
   text_y    <- 0.3
@@ -501,8 +501,15 @@ draw_panel_qpc_neg <- function(dat, letter, show_left_axis, top_title = NULL) {
     mtext(expression(-log[10](p)), side = 2, line = 2.3, cex = 1.0)
   }
 
-  axis(1, at = group_center_qpc_neg, labels = c("trait1", "trait2", "trait1", "trait2"),
-       cex.axis = 0.95, lwd = 1.5, line = 0, mgp = c(3, 0.35, 0), tcl = -0.3, col.axis = "grey30")
+  # gap.axis = -1 disables axis()'s automatic thinning of labels it judges
+  # too close together -- without it, R silently drops every other label
+  # here (this panel's columns are narrow enough to trigger it), leaving
+  # "trait 1" shown twice instead of "trait 1"/"trait 2". cex.axis is
+  # reduced to compensate, since gap.axis alone would otherwise force the
+  # now-unthinned labels to render touching one another.
+  axis(1, at = group_center_qpc_neg, labels = c("trait 1", "trait 2", "trait 1", "trait 2"),
+       cex.axis = 0.7, lwd = 1.5, line = 0, mgp = c(3, 0.35, 0), tcl = -0.3, col.axis = "grey30",
+       gap.axis = -1)
 
   line_h <- par("cxy")[2]
   bracket_y <- ylim_qpc_neg[1] - 1.9 * line_h
