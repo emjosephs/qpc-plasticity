@@ -205,6 +205,8 @@ $\sigma = 0.1$ and $\rho$ is the correlation of QTN effects between traits (Fig.
 
 The simulated populations were subject to environmentally-dependent, spatially heterogeneous, stabilizing selection. 
 The optimal trait values for trait 1 and trait 2 varied along the y-axis but was constant along the x-axis, representing a clinal trait optimum across latitude (Fig. \ref{fig:sim_concept}A).
+\textcolor{purple}{Explain why the symmetric scheme}
+
 For each generation, we modeled the effect of the individuals experiencing environment 1 or environment 2, and thus eliciting trait 1 or trait 2, by setting one trait to be under stabilizing selection while the other had no affect on fitness (Fig. \ref{fig:sim_concept}B). 
 
 \begin{figure}[htbp]
@@ -241,15 +243,16 @@ Seeds from 140 individuals were planting in 14 replicated blocks the same locati
 Fall plants were sown between September 3-7, 2006 and transplanted to the field between September 17-21 2006.
 Spring plants were sown between February 25-27 2007 and transplanted between March 11-14 2007.
 All sowing and transplanting was done in a random order and plants were grown in a randomized block design.
-To compare these two environments, we used photothermal units to bolting instead of days to bolting.
+To compare these two seasonal environments, we used photothermal units to bolting instead of days to bolting.
 
 A SNP matrix for all the accessions analyzed was downloaded from the 1001 genomes website (\url{http://1001genomes.org/data/GMI-MPI/releases/v3.1/SNP_matrix_imputed_hdf5/}, \cite{alonso20161}). 
 We constructed kinship matrices for the individuals in each dataset using 50,000 randomly sampled SNPs.
 In all tests of selection, we used the last half of the PCs to estimate $V_{A,1}$, $V_{A,2}$, and $C_{A,12}$.
 
-We identified genotypes with combinations of flowering time across environments that fell outside the bounds described by the G matrix.
-Our reasoning was that these genotypes have plastic responses that are distinct from most other genotypes in the sample and may provide interesting candidates for future studies.
-We used the phenotypes to estimate parameters of the $2\times 2$ G matrix. Each entry in the matrix, $G_{i,j} = (\vec{Z_i} \times \vec{Z_j})/n$, where $\vec{Z_i}$ is the mean-centered vector of values for trait i (or trait j in the case of $\vec{Z_h}$ and $n$ is the number of genotypes. 
+We identified genotypes with combinations of flowering time across environments that fell outside the expected bounds described by the G matrix.
+These genotypes have plastic responses that are distinct from most other genotypes in the sample and may provide interesting candidates for future studies.
+We used the phenotypes to estimate parameters of the $2\times 2$ G matrix. 
+Each entry in the matrix $G_{i,j} = (\vec{Z_i} \times \vec{Z_j})/n$, where $\vec{Z_i}$ is the mean-centered vector of values for trait i (or trait j in the case of $\vec{Z_h}$ and $n$ is the number of genotypes. 
 Note that these values of the matrix correspond to genetic variances where if $i=j$, $G_{i,j}$ is the genetic variance of the trait and if $i \neq j$, $G_{i,j}$ is the genetic covariance between traits.
 
 Once the $G$ was estimated, we could use it to generate an ellipse of expected values for two traits given the values of G. 
