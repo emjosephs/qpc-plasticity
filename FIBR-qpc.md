@@ -292,13 +292,12 @@ myZ <- data.frame(NF6 = plantDat$NorwichFall2006, NS7 = plantDat$NorwichSpring20
 makeG <- function(myZ){
   myZ1centered = (myZ[-nrow(myZ), 1] - mean(myZ[, 1])) 
     myZ2centered = (myZ[-nrow(myZ), 2] - mean(myZ[, 2]))
-     Ca12 = sum(myZ1centered * myZ2centered)/nrow(myZ)
-     Va1 <- sum(myZ1centered*myZ1centered)/nrow(myZ)
-     Va2 <- sum(myZ2centered*myZ2centered)/nrow(myZ)
+     Ca12 = sum(myZ1centered * myZ2centered)/nrow(myZ-1)
+     Va1 <- sum(myZ1centered*myZ1centered)/nrow(myZ-1)
+     Va2 <- sum(myZ2centered*myZ2centered)/nrow(myZ-1)
     myG <- matrix(data=c(Va1, Ca12, Ca12,Va2), ncol=2)
     return(myG)
 }
-
 myG <- makeG(myZ) #make it from just phenotypes
 
 ellipse <- function(mu, sigma, alpha=.05, npoints=250,
@@ -327,3 +326,7 @@ ellipse(mu=c(mean(myZ$NF6), mean(myZ$NS7)), myG,col="pink",lwd=2, alpha=0.01)
 ![](FIBR-qpc_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
 
 
+```
+## png 
+##   2
+```
