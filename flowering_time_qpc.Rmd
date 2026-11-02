@@ -147,7 +147,7 @@ mtext('C', side=3, line=1, cex=2.5, adj = -0.4)
 plot(admtData$FT16_mean, admtData$FT10_mean, bty="n", lwd=2, col=admtData$group, ylab = "Flowering time 10C", xlab = "Flowering time 16C", cex=1, cex.axis=1.5, cex.lab=2)
 mtext('D', side=3, line=1, cex=2.5, adj = -0.4)
 
-plot(admtData$FT16_mean, admtData$fw, bty="n", lwd=2, col=admtData$group, xlab = "Flowering time 16C", ylab = 'FT 16C - FT 10C', cex.axis=1.5, cex.lab=2)
+plot((admtData$FT16_mean+admtData$FT10_mean)/2, admtData$fw, bty="n", lwd=2, col=admtData$group, xlab = "Flowering time mean", ylab = 'FT 16C - FT 10C', cex.axis=1.5, cex.lab=2)
 mtext('E', side=3, line=1, cex=2.5, adj = -0.4)
 
 dev.off()
