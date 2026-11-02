@@ -103,8 +103,7 @@ Determining the evolutionary forces shaping genetic variation for environmental 
 We expect local adaptation for environmental responses to contribute to \gxe\ on a species-wide scale but we lack evidence of this process, in part because we lack rigorous methods for detecting it.
 One challenge in developing these methods is that the different ways that \gxe\ has been conceptualized, as reaction norms and as correlated traits, can lead to different interpretations.
 Here we apply methods based on \qf\ to a large multi-environment datasets from \textit{Arabidopsis thaliana}.
-\textcolor{purple}{Summary of results}
-For flowering time measured in outdoor common gardens, we do detect evidence of local adaptation for environmental responses to season.
+For flowering time measured in outdoor common gardens, we detect evidence of local adaptation for environmental responses to season.
 Overall, these results suggest that local adaptation does contribute to \gxe\ in \textit{A. thaliana} and that these methods could be broadly applied to comprehensively evaluate the role of local adaptation in shaping \gxe.
 
 \section*{Introduction}
@@ -147,7 +146,10 @@ Vernalization, the cold temperatures experienced by overwintering plants, is an 
 Despite the extensive study of this trait, we lack a clear link between flowering time plasticity variation and long-term selection, limiting our understanding of how local adaptation has shaped variation in this system.
 
 In this study, we develop methods to test for the contribution of local adaptation to \gxe.
-\textcolor{purple}{summary goes here}
+We use simulations to show that an extension of \qf that tests for selection on a trait expressed in a specific environment, conditional on its expression in another environment, is able to detect selection on plasticity.
+In contrast, tests of selection in one environment or on the reaction norm can be misled into finding selection on plasticity that does not exist.
+We then show that there has been selection for seasonal flowering time plasticity in \textit{Arabidopsis thaliana}.
+These methods will be broadly applicable across datasets measuring genotypes and phenotypes in multiple environments.
 
 \section*{Materials and Methods}
 
@@ -188,7 +190,7 @@ In contrast to the test described in Eq. \ref{eq:qpcbasic}, a conditional mean (
 See the supplemental material for equations calculating the conditional mean and variance.
 
 \subsection*{Simulations}
-We used SLiM \citep{haller2025slim} to generate forward-in-time Wright-Fisher simulations of the evolution of a trait with plasticity with 100 demes with 50 individuals per deme organized in a 10 x 10 grid with a migration rate of 5\% between adjacent populations (Fig. \ref{fig:sim_concept}A). 
+We used SLiM \citep{haller2025slim} to generate forward-in-time Wright-Fisher simulations of the evolution of a trait with plasticity with 100 demes with 50 individuals per deme organized in a 10 $\times$ 10 grid with a migration rate of 5\% between adjacent populations (Fig. \ref{fig:sim_concept}A). 
 Trait plasticity was modeled as two character states (i.e., pleiotropic traits whose expression depends on the environment) which we will refer to as trait 1 and trait 2. 
 We draw the effects of a quantitative trait nucleotide (QTN) contributing to trait 1 and trait 2 ($a_1$ and $a_2$) as random variables from a multivariate normal distribution,
 
@@ -205,15 +207,13 @@ $\sigma = 0.1$ and $\rho$ is the correlation of QTN effects between traits (Fig.
 
 The simulated populations were subject to environmentally-dependent, spatially heterogeneous, stabilizing selection. 
 The optimal trait values for trait 1 and trait 2 varied along the y-axis but was constant along the x-axis, representing a clinal trait optimum across latitude (Fig. \ref{fig:sim_concept}A).
-\textcolor{purple}{Explain why the symmetric scheme}
-
 For each generation, we modeled the effect of the individuals experiencing environment 1 or environment 2, and thus eliciting trait 1 or trait 2, by setting one trait to be under stabilizing selection while the other had no affect on fitness (Fig. \ref{fig:sim_concept}B). 
 
 \begin{figure}[htbp]
   \centering
 \includegraphics[width=\linewidth]{figures/conceptual_figure_compact.eps}
 \caption{ \textbf{Overview of simulation design and parameters used.}
-}
+(A) The left plot shows the 10 $\times$ 10 grid of demes used in the simulation with the optimal trait values of trait 1 as colors from blue (-1) to red (1) and trait 2 as the thickness of the points' border. The right plot shows the optimal trait values for trait 1 (blue) and trait 2 (orange) for points along the y axis (latitude), with black arrows representing the optimal reaction norm. (B) The two selection regimes used, where environment 2, and thus trait 2, is expressed in half of the generations (trait 2 selected) or not expressed (trait 2 neutral). (C) The three values of $\rho$ (correlation of mutational effects) for quantitative trait nucleotides between trait 1 and trait 2 used. (D) The relative fitness of individuals compared to the difference between their trait value and the optimum at that latitude under strong ($\sigma_\omega=1.0$) and weak ($\sigma_\omega=0.5$) selection.}
 \label{fig:sim_concept}
 \end{figure}
 
@@ -229,11 +229,14 @@ The genome consisted of 10 independently segregating 1 Mb chromosomes with a rec
 The mutation rate for QTN was set to $1\times10^{-8}$. 
 We implemented tree sequence recording in SLiM and overlaid neutral mutations in msprime \citep{msprime} at a rate of $1\times10^{-7}$. To reduce computational load, the genome size was reduced by a factor of 10 and the recombination and mutation rates were all increased by a factor of 10 (scaled values: chromosome length 100 kb; recombination rate $1\times10^{-6}$; QTN mutation rate $1\times10^{-7}$; neutral mutation rate $1\times10^{-6}$).
 
-For the burn-in, we simulated a single, randomly mating population with 1000 individuals and an optimal trait value of 0.0 for both character states and allowed the population to equilibrate for 10000 generations. The initial population was then used as founders for 100 demes with 50 individuals each in a 10 x 10 grid and a migration rate of 0.05 between adjacent demes. The final optimal trait values for the simulations ranged from $-1.0$ to $1.0$ and $1.0$ to $-1.0$ for for trait 1 and trait 2, respectively (Fig. \ref{fig:simOptima}). We chose to use these symmetric trait optima to have the same range of trait optima across the cline for both traits while also establishing a cline for the optimal reaction norm. If we had made the range of optima across the range for one trait larger than the other and used the same values of $\sigma_\omega$ for both, migration of locally adapted individuals would be more deleterious for one trait than the other, resulting in stronger effective selection for the trait with the larger range of optima. The standard deviation of QTN effects would also need to be scaled for the trait with the larger range or that trait would need to be more polygenic to reach the optimum. 
+For the burn-in, we simulated a single, randomly mating population with 1000 individuals and an optimal trait value of 0.0 for both character states and allowed the population to equilibrate for 10000 generations. The initial population was then used as founders for 100 demes with 50 individuals each in a 10 x 10 grid and a migration rate of 0.05 between adjacent demes. The final optimal trait values for the simulations ranged from $-1.0$ to $1.0$ and $1.0$ to $-1.0$ for for trait 1 and trait 2, respectively (Fig. \ref{fig:simOptima}A). The optimal reaction norm was calculated as the difference between the trait 1 and trait 2 optima within latitude and ranged from $-2.0$ to $2.0$ (Fig. \ref{fig:sim_concept}A). 
 
-After the initial burn-in, the optimal trait values moved from $0.0$ to their final values over 5000 generations in a stepwise fashion. The optimal reaction norm was the difference between the trait 1 and trait 2 optima within each latitude (ranging from $-2.0$ to $2.0$). The simulations were run for another 10000 generations, after which final genotypes (as tree sequences) and trait values for both character states were recorded for four randomly sampled individuals per deme.
+We chose to use these symmetric trait optima to have the same range of trait optima across the cline for both traits and a cline for the optimal reaction norm. If we had made the range of optima across the range for one trait larger than the other and used the same values of $\sigma_\omega$ for both, migration of locally adapted individuals would be more deleterious for one trait than the other, resulting in stronger effective selection against migrants for the trait with the larger range of optima. The standard deviation of QTN effects would also need to be scaled for the trait with the larger range or there would need more polymorphic QTN for that trait to approach the optima across the range. 
 
-We simulated populations with varying strengths of selection ($\sigma_\omega$ = 0.5, 1.0) and correlations of QTN effects between condition states ($\rho$ = 0.6, 0.75, 0.9). We simulated trait 2 evolving neutrally and under selection by setting its probability to be expressed to 0 and 0.5, respectively. We conducted 100 replicates for each combination of parameters and tested for selection on both condition states and the reaction norm (difference between trait 1 and trait 2) using standard and conditional $Q_{PC}$.
+After the initial burn-in, the optimal trait values moved from $0.0$ to their final values over 5000 generations in a stepwise fashion. This second burn-in allowed the demes to evolve smoothly from the progenitor population without a sudden disturbance to their fitness. 
+The simulations were allowed to run for another 10,000 generations, after which final genotypes (as tree sequences) and trait values for both character states were recorded for four randomly sampled individuals per deme.
+
+We simulated scenarios with varying strengths of selection ($\sigma_\omega$ = 0.5, 1.0) and correlations of QTN effects between condition states ($\rho$ = 0.6, 0.75, 0.9). To simulate trait 2 evolving neutrally and under selection, we used two selection regimes: one where the probability of trait 2 being expressed was 0.0 (never expressed) and one where the probability was 0.5 (expressed in half of the generations). We conducted 100 replicates for each combination of parameters (2 selection regimes $\times$ 3 levels of $\rho$ $\times$ 2 strengths of selection = 12 parameter combinations; 1200 simulations in total) and tested for selection on both condition states and the reaction norm (difference between trait 1 and trait 2) using standard and conditional $Q_{PC}$.
 
 \subsection*{\textit{A. thaliana} data}
 We evaluated our tests of selection on two datasets of \textit{A. thaliana} flowering time.
@@ -267,23 +270,42 @@ We then plotted an ellipse of points corresponding to the joint $\chi ^2$ distri
 
 %\subsection*{Simulations of $Q_{PC}$ on reaction norms}
 
-\subsection*{Simulations of conditional $Q_{PC}$ to detect selection on plasticity}
+\subsection*{Detecting selection simulated traits and their reaction norm}
 
 First, we wanted to understand how standard \qpc\ and conditional \qpc\ performed when only one character state is under selection (i.e., no selection on phenotypic plasticity). 
-To do this, we conducted a total of 600 simulations where trait 1 was under selection while trait 2 was neutral but genetically correlated to trait 1 (Fig. \ref{fig:pvalBoxplot}A, C). When trait 1 was under selection but trait 2 evolved neutrally, $Q_{PC}$ correctly detected selection on trait 1 in all 600 simulations. The conditional test performed comparably, dropping only when the correlation of allelic effects between traits was high and selection was weak ($\rho=0.9$, $\sigma_\omega=1.0$: 0.06 false negative rate). \qpc\ on trait 2, however, produced a substantial false positive rate that rose sharply with $\rho$: from 0.36 when $\rho=0.6$ to 1.0 when $\rho=0.9$ (mean: 0.738). The conditional test on trait 2 resolved most of those false positives with an average false positive rate of just 0.01, well below our 0.05 significance threshold.
-
-We then tested the performance of \qpc\ and the conditional test when both character states were under selection (i.e., selection for phenotypic plasticity; Fig. \ref{fig:pvalBoxplot}B, D). When both trait 1 and trait 2 were under selection, standard and conditional \qpc\ correctly detected selection on both trait 1 and trait 2 under every combination of $\rho$ and $\sigma_\omega$ tested. Interestingly, $p$ values were markedly smaller for the conditional test compared to standard \qpc\ and decreased with increasing values of $\rho$. This seemingly unintuitive finding was the result of a mismatch between the direction of selection for trait 1 and trait 2 but positive values of $\rho$. When we use the same simulation framework but $\rho$ is negative (i.e., the direction of selection and genetic correlations move trait values in the same direction), we find an increasing number of false negatives as $\rho$ approaches $-1$ with the conditional test (Fig. \ref{fig:negative_rho}), matching our expectation that conditional \qpc\ is a conservative test in cases where genetic correlations alone may be underlying apparent signals of selection.
-
-Together, these results show that the conditional test distinguished true selection on a focal trait from spurious signal driven by a genetically correlated trait in our simulations. From a phenotypic plasticity perspective, this implies that conditional \qpc\ can be used to identify independent selection on trait expression within environment using common garden or reciprocal transplant experiments.
+To do this, we conducted a total of 600 simulations where trait 1 is under selection while trait 2 is neutral but genetically correlated to trait 1 (Fig. \ref{fig:pvalBoxplot}A, C). 
+In all 600 simulations, $Q_{PC}$ correctly detects selection on trait 1. 
+The conditional test performed comparably, dropping only when the correlation of allelic effects between traits is high and selection is weak ($\rho=0.9$, $\sigma_\omega=1.0$: 0.06 false negative rate). 
+Standard \qpc\ on trait 2, however, produces a substantial false positive rate that rises sharply with $\rho$: from 0.36 when $\rho=0.6$ to 1.0 when $\rho=0.9$ (mean: 0.738). Conditioning trait 2 on trait 1 resolves most of those false positives, reducing the average false positive rate to just 0.01, well below our 0.05 significance threshold.
 
 \begin{figure}[htbp]
   \centering
 \includegraphics[width=\linewidth]{figures/sim_results.eps}
 \caption{ \textbf{P values from selection tests on simulated traits.}
-Results of simulations in SLiM for the four different selection tests run with $-log_{10}(p)$ plotted along the y-axis and the associated test plotted along the x-axis. We simulated trait 2 evolving neutrally (A, C) or under selection (B, D) and with condition states under stronger (A, B) or weaker (C, D) selection by varying levels of $\sigma_\omega$. The black dotted line represents a significance threshold of $-log_{10}(0.05) = 1.30$.}
+Results of simulations in SLiM for the four different selection tests run with $-log_{10}(p)$ plotted along the y-axis and the associated test plotted along the x-axis. We simulate trait 2 evolving neutrally (A, C) or under selection (B, D) and with condition states under stronger (A, B) or weaker (C, D) selection by varying levels of $\sigma_\omega$. The dotted line represents a significance threshold of $-log_{10}(0.05) = 1.30$.}
 \label{fig:pvalBoxplot}
 \end{figure}
 
+Next, we tested the performance of \qpc\ and the conditional test when both character states are under selection (i.e., selection for phenotypic plasticity; Fig. \ref{fig:pvalBoxplot}B, D). 
+Here,standard and conditional \qpc\ correctly detected selection for both trait 1 and trait 2 under every combination of $\rho$ and $\sigma_\omega$ tested. 
+Interestingly, $p$ values were lower for the conditional test than standard \qpc\ and decreased with increasing values of $\rho$. This seemingly unintuitive finding reflects a mismatch between the direction of selection for trait 1 and trait 2 and the positive genetic correlation between them. 
+When we use the same simulation framework but negative values for $\rho$ (i.e., the direction of selection and genetic correlations move trait values in the same direction), we find an increasing number of conditional test false negatives as $\rho$ approaches $-1$ (Fig. \ref{fig:negative_rho}), matching our expectation that conditional \qpc\ is a conservative test in cases where genetic correlation may be underlying apparent signals of selection.
+
+\begin{figure}[htbp]
+  \centering
+\includegraphics[width=\linewidth]{figures/reaction_norm_sdW1.0.eps}
+\caption{ \textbf{P values from selection tests on simulated traits.}
+Results of simulations in SLiM for two tests of selection on the reaction norm with $-log_{10}(p)$ plotted along the y-axis and the associated test plotted along the x-axis. We simulate trait 2 evolving neutrally (A) or under selection (B) with weak selection ($\sigma_\omega = 1.0$). The dotted line represents a significance threshold of $-log_{10}(0.05) = 1.30$.}
+\label{fig:pval_rxn}
+\end{figure}
+
+Finally, we test for selection on the reaction norm, calculated as the difference between trait 1 and trait 2, and the reaction norm conditional on the mean of the two condition states (Fig. \ref{fig:pval_rxn}). 
+When trait 1 is selected and trait 2 is neutral, there was a high false positive rate with the reaction norm test, especially with the conditional test (Fig. \ref{fig:pval_rxn}A). 
+While \qpc\ has false positive rates of 0.17, 0.17, and 0.02, the conditional test has false positive rates of 0.96, 0.81, and 0.38 when for $\rho$ values of 0.6, 0.75 and 0.9, respectively. 
+
+Across all simulations, the conditional test distinguished true signals of selection on a focal trait from spurious signals arising from selection on a genetically correlated trait, suggesting that conditional \qpc\ can be used to identify independent selection on trait expression within environment using common garden or reciprocal transplant experiments. 
+However, conditioning the expression of the reaction norm on the means of trait 1 and trait 2 substantially increased the number of false positives. 
+While a researcher may want to distinguish selection on the reaction norm from selection on divergence in mean trait values across populations using conditional \qpc, this may lead to signals of selection for the reaction norm when selection is only present in one environment and there is not distinct selection on plasticity.
 
 \subsection*{Detecting selection on flowering time in individual environments}
 We first tested for selection on flowering time within specific environments.
@@ -314,8 +336,7 @@ The reaction norm showed marginal evidence of selection along PC 3 ($p = 0.0738$
 \begin{figure}[htbp]
   \centering
 \includegraphics[width=\linewidth]{figures/floweringtime.eps}
-\caption{ \textbf{Testing for selection on flowering time in lab grown \textit{A. thaliana}} Evidence of selection contributing to divergence for flowering time at (A) 16 \degree C, (B) 10\degree C, and (C) the difference between 16 \degree C and 10 \degree C. In all plots, the y axis is measured in days to flower, each dot represents an \textit{A. thaliana} accession, black lines show the linear regression of trait onto PC 2, dashed blue lines show the 95\% confidence intervals for neutral evolution. (D) shows the correlation between flowering time at 16 \degree C and 10\degree C and (E) shows the correlation between flowering time at 16\degree C and the difference in flowering time between the two temperatures. \textcolor{purple}{update to look at corr with the mean across environments}
-}
+\caption{ \textbf{Testing for selection on flowering time in lab grown \textit{A. thaliana}} Evidence of selection contributing to divergence for flowering time at (A) 16 \degree C, (B) 10\degree C, and (C) the difference between 16 \degree C and 10 \degree C. In all plots, the y axis is measured in days to flower, each dot represents an \textit{A. thaliana} accession, black lines show the linear regression of trait onto PC 2, dashed blue lines show the 95\% confidence intervals for neutral evolution. (D) shows the correlation between flowering time at 16 \degree C and 10\degree C and (E) shows the correlation between flowering time at 16\degree C and the difference in flowering time between the two temperatures. 
 \label{fig:ft}
 \end{figure}
 
@@ -351,7 +372,7 @@ These genotypes all had longer flowering times when planted in the spring than e
 \begin{figure}[htbp]
   \centering
 \includegraphics[width=\linewidth]{figures/ellipse.eps}
-\caption{ \textbf{The conditional test detects selection on plastic responses to season}. The conditional test for selection on flowering time in Fall plantings conditional on flowering time in Spring plantings (A) and for flowering time in Spring plantings conditional on flowering time in fall plantings (B). In all plots, each dot represents an \textit{A. thaliana} accession with colors representing population, black lines show the linear regression of trait onto PC 2, dashed blue lines show the 95\% confidence intervals for neutral evolution based on the standard test and dashed orange lines show the 90\% confidence intervals for neutral evolution based on the conditional test. Panel C shows the relationship between flowering time in both environemtns and the pink ellipse shows the bounds of the joint $\chi ^2$ distribution of the two phenotypes, corresponding to $\alpha=0.05$ }
+\caption{ \textbf{The conditional test detects selection on plastic responses to season}. The conditional test for selection on flowering time in Fall plantings conditional on flowering time in Spring plantings (A) and for flowering time in Spring plantings conditional on flowering time in fall plantings (B). In all plots, each dot represents an \textit{A. thaliana} accession with colors representing population, black lines show the linear regression of trait onto PC 2, dashed blue lines show the 95\% confidence intervals for neutral evolution based on the standard test and dashed orange lines show the 90\% confidence intervals for neutral evolution based on the conditional test. Panel C shows the relationship between flowering time in both environments and the pink ellipse shows the bounds of the joint $\chi ^2$ distribution of the two phenotypes, corresponding to $\alpha=0.05$ }
 \label{fig:ellipse}
 \end{figure}
 
@@ -377,7 +398,7 @@ It would be interesting to see if the conditional test can be applied to this fr
 %plasticity is confusing paragraph
 This approach provides a comprehensive way to test whether selection has shaped between-population divergence in responses to different environments and separate it out from selection on the trait alone. 
 This approach is slightly different from testing for evidence of selection on the reaction norm, since the reaction norm is itself a function of trait values within environments. 
-However, it may be that for some research questions, the reaction norm approach is more sensible. \emjo{um gotta think of when}
+Our simulations suggested that testing for selection on the reaction norm will not be able to distinguish between selection for plasticity and selection that is simply environment-specific.
 
 
 % When will this test be useful
