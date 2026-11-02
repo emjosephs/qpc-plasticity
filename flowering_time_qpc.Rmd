@@ -107,7 +107,7 @@ myCIfw = 1.96*sqrt(var0(myQpc_fw$cml)*eigadm$values)
 ```
 
 
-```{r, eval=F}
+```{r, eval=T}
 ##Figure for publication
 postscript("figures/floweringtime.eps",height=7,width=10,paper="special",horizontal=FALSE,colormodel="cymk")
 par(mar = c(4,7,4,3), mfrow=c(2,3), xpd=F)

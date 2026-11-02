@@ -195,6 +195,11 @@ mtext('E', side=3, line=1, cex=2.5, adj = -0.4)
 dev.off()
 ```
 
+```
+## png 
+##   2
+```
+
 Look at correlation between flowering time traits and reaction norms
 
 ``` r
