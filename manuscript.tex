@@ -71,7 +71,7 @@
 \begin{flushleft}
 \textbf\newline
 {\Large
-\textbf\newline{\qf-based approaches show that adaptive divergence contributes to $G \times E$ in \textit{Arabidopsis thaliana}}
+\textbf\newline{Adaptive divergence contributes to $G \times E$ in \textit{Arabidopsis thaliana}}
 }
 \newline
 
@@ -111,24 +111,26 @@ Overall, these results suggest that local adaptation does contribute to \gxe\ in
 %motivate understanding GxE as understanding life history timing
 Plant fitness depends on correctly timing life history events, especially the transition from vegetative to reproductive growth, to variable environments \citep{worthy2025accelerated, aagren2017adaptive, colautti2013rapid}.
 Phenotypic plasticity flowering time can potentially improve fitness by allowing the same genotype to flower at optimal times across environments \citep{blackman2017changing}.
-Genetic variation for flowering plasticity generates \gxe\ interactions \citep{li2014genetic, li2010association} and, in particular, plants vary in their response to vernalization, the cold temperatures experience during overwintering \citep{shindo2006variation, sung2005remembering}.
+Genetic variation for flowering plasticity generates genotype by environment (\gxe) interactions \citep{li2014genetic, li2010association} and, in particular, genotypes often vary in their response to vernalization, the cold temperatures experience during overwintering \citep{shindo2006variation, sung2005remembering}.
 However, despite extensive study, we still lack an understanding of if and how local adaptation for flowering time plasticity contributes to genetic variation for the trait.
 Determining the prevalence of local adaptation for plasticity is key for building a broad understanding of trait variation and predicting responses to environmental change.
 
 %Explain why it's hard to study local adaptation for plasticity
 However, it has been challenging to comprehensively identifying local adaptation for plasticity \citep{josephs2018determining}.
-Plasticity can be measured using reaction norms \citep{scheiner1993genetics, arnold2019analyse} or, trait values measured across environments can be thought of as correlated traits and plasticity reduces the strength of these correlations \citep{via1985genotype}.
-Next, local adaptation can be identified through common garden experiments that quantify plasticity and link it to fitness \citep{stinchcombe2004flowering, scheiner1999measuring, dudley1996testing, baythavong2010characterizing} or through \qf\ methods that test determine if among-population trait variation exceeds expectations under neutral processes \citep{prout1993f, spitze1993population, whitlock2008evolutionary, ovaskainen2011new, karhunen2013driftsel}.
-Common garden experiments can be very powerful but they are not possible without either a plastic response that can be permanently induced, like shade response, or enough genetic variation in plasticity to detect a relationship between plasticity and fitness.
+Local adaptation can be identified through common garden experiments that quantify plasticity and link it to fitness \citep{stinchcombe2004flowering, scheiner1999measuring, dudley1996testing, baythavong2010characterizing} or through \qf\ methods that test determine if among-population trait variation exceeds expectations under neutral processes \citep{prout1993f, spitze1993population, whitlock2008evolutionary, ovaskainen2011new, karhunen2013driftsel}.
+Common garden experiments can be very powerful but they are not possible without either a plastic response that can be permanently induced, like shade response \citep{dudley1996testing}, or enough genetic variation in plasticity to detect a relationship between plasticity and fitness.
 They are also limited to detecting selection acting on plasticity in the specific experimental year, but multi-year experiments have found significant temporal variation \citep{oakley2023ecological}.
-Inferences from \qf\ can be inaccurate when population relatedness does not match a simple island model \citep{de2022common}.
+In contrast, inferences from \qf\ can be inaccurate when population relatedness does not match a simple island model \citep{de2022common}.
 Recent extensions of \qf\ have made it possible to use these inferences on more complicated diversity panels \citep{do2025method, ovaskainen2011new} and on structured diversity panels that are common in genome-wide association mapping studies \citep{Josephs2019}.
-However, we lack clear methods and approaches for using \qf\ approaches to investigate plasticity, for either a reaction norm or correlated trait approach.
-All together, the paucity of clear approaches limits our ability to understand how local adaptation shapes plasticity in ecologically relevant traits, like flowering time.
+
+However, we lack clear methods and approaches for using \qf\ approaches to investigate plasticity.
+One complicating feature is the multiple ways of measuring plasticity, either using reaction norms \citep{scheiner1993genetics, arnold2019analyse} or, as trait values measured across environments can be thought of as correlated traits where plasticity reduces the strength of these correlations \citep{falconer1952problem, via1985genotype}.
+Selection does not act on the entire reaction norm at once, but instead the reaction norm is shaped by selection in specific environments on traits as expressed in that environment.
+Additionally, the slope of the reaction norm is itself a function of traits as expressed in specific environments, so that selection in only one environment can shift the reaction norm, potentially contributing to spurious inference of selection on the reaction norm itself.
 
 In this study, we develop methods to test for the contribution of local adaptation to \gxe.
 We use simulations to show that an extension of \qf\ that tests for selection on a trait expressed in a specific environment, conditional on its expression in another environment, is able to detect selection on plasticity.
-\textcolor{purple}{The reasoning here is that if selection across environments has shaped variation in plasticity, we should be able to detect differentiation among environments even when accounting for correlations in expression across environments.}
+\textcolor{purple}{The reasoning here is that if selection has shaped plasticity by favorint different trait optima in different environments, we should be able to detect differentiation among environments even when accounting for correlations in expression across environments.}
 In contrast, tests of selection in one environment or on the reaction norm can be misled into finding selection on plasticity that does not exist.
 We then show that there has been selection for seasonal flowering time plasticity in \textit{Arabidopsis thaliana}.
 These methods will be broadly applicable across datasets measuring genotypes and phenotypes in multiple environments.
